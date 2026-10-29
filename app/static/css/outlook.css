@@ -1038,149 +1038,108 @@ html, body {
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    background-color: #0b1526;
+    background-color: #f0f6fc;
     background-image:
-        radial-gradient(at 15% 15%, rgba(15, 108, 189, 0.28) 0px, transparent 50%),
-        radial-gradient(at 85% 85%, rgba(10, 46, 92, 0.45) 0px, transparent 55%),
-        linear-gradient(135deg, #091322 0%, #0f233f 50%, #0b192e 100%);
+        radial-gradient(at 20% 20%, rgba(15, 108, 189, 0.10) 0px, transparent 50%),
+        radial-gradient(at 80% 80%, rgba(56, 189, 248, 0.12) 0px, transparent 50%),
+        linear-gradient(135deg, #eef5fc 0%, #f8fafc 50%, #e6f0fa 100%);
     padding: 24px;
 }
 
-.auth-portal {
-    display: grid;
-    grid-template-columns: 1.18fr 0.92fr;
+.auth-center-card {
     width: 100%;
-    max-width: 980px;
+    max-width: 420px;
     background: #ffffff;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 28px 64px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.08);
-}
-
-.auth-showcase {
-    background: linear-gradient(160deg, #0d213a 0%, #0a192f 65%, #071222 100%);
-    color: #f8fafc;
-    padding: 42px 40px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    border-radius: 16px;
+    padding: 40px 36px 30px 36px;
+    box-shadow: 0 20px 50px rgba(15, 108, 189, 0.09), 0 4px 14px rgba(15, 23, 42, 0.04);
+    border: 1px solid #e2e8f0;
     position: relative;
-    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    overflow: hidden;
 }
 
-.auth-kicker {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #60a5fa;
-    background: rgba(59, 130, 246, 0.12);
-    border: 1px solid rgba(96, 165, 250, 0.25);
-    padding: 5px 11px;
-    border-radius: 4px;
-    margin-bottom: 20px;
-    width: fit-content;
+.auth-center-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #0f6cbd 0%, #38bdf8 100%);
 }
 
-.auth-showcase-title {
-    font-size: 26px;
-    font-weight: 700;
-    letter-spacing: -0.4px;
-    color: #ffffff;
-    margin: 0 0 12px 0;
-    line-height: 1.25;
-}
-
-.auth-showcase-desc {
-    font-size: 13.5px;
-    color: #94a3b8;
-    line-height: 1.6;
-    margin: 0 0 28px 0;
-}
-
-.auth-feature-list {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+.auth-brand-Hero {
+    text-align: center;
     margin-bottom: 28px;
 }
 
-.auth-feature-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-    background: rgba(255, 255, 255, 0.035);
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    border-radius: 8px;
-    padding: 13px 15px;
-}
-
-.auth-feature-icon {
-    width: 34px;
-    height: 34px;
-    border-radius: 6px;
-    background: rgba(59, 130, 246, 0.16);
-    color: #60a5fa;
-    display: flex;
+.auth-logo-badge {
+    width: 62px;
+    height: 62px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #0f6cbd 0%, #0284c7 100%);
+    color: #ffffff;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
-    margin-top: 1px;
+    margin-bottom: 14px;
+    box-shadow: 0 8px 20px rgba(15, 108, 189, 0.25);
 }
 
-.auth-feature-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: #f1f5f9;
-    margin: 0 0 3px 0;
+.auth-app-name {
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.6px;
+    color: #0f172a;
+    margin: 0 0 8px 0;
+    line-height: 1.15;
 }
 
-.auth-feature-text {
-    font-size: 12px;
-    color: #94a3b8;
-    margin: 0;
-    line-height: 1.45;
+.auth-app-tagline {
+    font-size: 14px;
+    color: #64748b;
+    line-height: 1.5;
+    margin: 0 auto;
+    max-width: 310px;
 }
 
-.auth-showcase-footer {
-    padding-top: 18px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+.auth-login-form {
+    margin-top: 6px;
+}
+
+.auth-submit-btn {
+    width: 100%;
+    height: 44px;
+    font-size: 15px;
+    font-weight: 700;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(15, 108, 189, 0.22);
+}
+
+.auth-card-footer {
+    margin-top: 26px;
+    padding-top: 16px;
+    border-top: 1px solid #f1f5f9;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
     font-size: 12px;
-    color: #94a3b8;
-}
-
-.auth-form-pane {
-    padding: 44px 40px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    background: #ffffff;
-}
-
-.auth-form-header {
-    margin-bottom: 26px;
-}
-
-.auth-form-title {
-    font-size: 21px;
-    font-weight: 700;
-    color: #0f172a;
-    margin: 0 0 6px 0;
-    letter-spacing: -0.3px;
-}
-
-.auth-form-subtitle {
-    font-size: 13px;
     color: #64748b;
-    margin: 0;
-    line-height: 1.5;
+}
+
+.auth-link-btn {
+    background: none;
+    border: none;
+    color: var(--brand-primary);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.auth-link-btn:hover {
+    background: #eff6ff;
 }
 
 .input-with-icon {

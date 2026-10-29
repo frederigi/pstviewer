@@ -11,160 +11,62 @@
 <body>
 
     <!-- ==================================================================
-         TELA 1: PORTAL CORPORATIVO DE AUTENTICAÇÃO (SPLIT-VIEW ENTERPRISE)
+         TELA 1: LOGIN CENTRALIZADO (TEMA CLARO, LEVE E ELEGANTE)
          ================================================================== -->
     <div id="view-login" class="auth-wrapper">
-        <div class="auth-portal">
-            <!-- Coluna Esquerda: Identidade Institucional e Arquitetura -->
-            <div class="auth-showcase">
-                <div>
-                    <div class="auth-kicker">
-                        <svg class="svg-icon" viewBox="0 0 24 24">
-                            <rect x="2" y="4" width="20" height="16" rx="2" />
-                            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                        </svg>
-                        <span>Plataforma Corporativa de Consulta Documental</span>
-                    </div>
-                    <h1 class="auth-showcase-title">PST Viewer</h1>
-                    <p class="auth-showcase-desc">
-                        Ambiente web dedicado à leitura, pesquisa indexada e impressão de arquivos de backup do
-                        Microsoft Outlook (<code>.pst</code>). Sem necessidade de configuração de perfis locais ou
-                        licenças adicionais.
-                    </p>
-
-                    <div class="auth-feature-list">
-                        <div class="auth-feature-item">
-                            <div class="auth-feature-icon">
-                                <svg class="svg-icon" viewBox="0 0 24 24">
-                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                                    <path d="m9 12 2 2 4-4" />
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="auth-feature-title">Preservação Integral do Arquivo Original</h3>
-                                <p class="auth-feature-text">
-                                    O arquivo <code>.pst</code> selecionado no seu computador ou no servidor de arquivos
-                                    jamais é alterado, movido ou removido.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="auth-feature-item">
-                            <div class="auth-feature-icon">
-                                <svg class="svg-icon" viewBox="0 0 24 24">
-                                    <circle cx="11" cy="11" r="8" />
-                                    <path d="m21 21-4.3-4.3" />
-                                    <path d="M11 8v6" />
-                                    <path d="M8 11h6" />
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="auth-feature-title">Pesquisa Profunda em Mensagens e Anexos</h3>
-                                <p class="auth-feature-text">
-                                    Localização imediata por termos em assuntos, corpos de e-mail, remetentes,
-                                    destinatários e textos internos de anexos PDF e Office.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="auth-feature-item">
-                            <div class="auth-feature-icon">
-                                <svg class="svg-icon" viewBox="0 0 24 24">
-                                    <path d="M3 6h18" />
-                                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="auth-feature-title">Processamento Efêmero sem Retenção</h3>
-                                <p class="auth-feature-text">
-                                    A visualização aberta no leitor web é isolada por sessão e descartada
-                                    automaticamente do servidor ao encerrar a consulta.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+        <div class="auth-center-card">
+            <div class="auth-brand-Hero">
+                <div class="auth-logo-badge">
+                    <svg class="svg-icon" style="width:30px;height:30px;" viewBox="0 0 24 24">
+                        <rect x="2" y="4" width="20" height="16" rx="2" />
+                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                    </svg>
                 </div>
-
-                <div class="auth-showcase-footer">
-                    <div>
-                        <div style="color:#e2e8f0;font-weight:600;">Desenvolvido por Anderson Gonçalez</div>
-                        <div style="font-size:11px;color:#64748b;">Tecnologia da Informação (B.T.I.)</div>
-                    </div>
-                    <button type="button" id="btn-login-about" class="btn btn-ghost-top btn-sm">
-                        <svg class="svg-icon" viewBox="0 0 24 24">
-                            <circle cx="12" cy="12" r="10" />
-                            <path d="M12 16v-4" />
-                            <path d="M12 8h.01" />
-                        </svg>
-                        <span>Sobre o Sistema</span>
-                    </button>
-                </div>
+                <h1 class="auth-app-name">PST Viewer</h1>
+                <p class="auth-app-tagline">
+                    Abra, pesquise e leia seus arquivos de e-mail do Outlook com facilidade.
+                </p>
             </div>
 
-            <!-- Coluna Direita: Formulário de Credenciais -->
-            <div class="auth-form-pane">
-                <div class="auth-form-header">
-                    <div
-                        style="display:inline-flex;align-items:center;gap:8px;color:var(--brand-primary);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;">
+            <div id="login-alert" class="reading-warning-banner hidden" style="margin-bottom:18px;"></div>
+
+            <form id="form-login" autocomplete="off" class="auth-login-form">
+                <div class="form-group">
+                    <label class="form-label" for="login-username">Usuário</label>
+                    <div class="input-with-icon">
+                        <svg class="svg-icon" viewBox="0 0 24 24">
+                            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                            <circle cx="12" cy="7" r="4" />
+                        </svg>
+                        <input type="text" id="login-username" class="form-control" required autofocus
+                            placeholder="Digite seu usuário">
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:22px;">
+                    <label class="form-label" for="login-password">Senha</label>
+                    <div class="input-with-icon">
                         <svg class="svg-icon" viewBox="0 0 24 24">
                             <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                             <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                         </svg>
-                        <span>Autenticação de Usuário</span>
+                        <input type="password" id="login-password" class="form-control" required
+                            placeholder="Digite sua senha">
                     </div>
-                    <h2 class="auth-form-title">Acesso ao Ambiente de Leitura</h2>
-                    <p class="auth-form-subtitle">
-                        Informe suas credenciais de acesso para iniciar uma sessão isolada de consulta PST.
-                    </p>
                 </div>
 
-                <div id="login-alert" class="reading-warning-banner hidden" style="margin-bottom:16px;"></div>
-
-                <form id="form-login" autocomplete="off">
-                    <div class="form-group">
-                        <label class="form-label" for="login-username">Identificação de Usuário</label>
-                        <div class="input-with-icon">
-                            <svg class="svg-icon" viewBox="0 0 24 24">
-                                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-                                <circle cx="12" cy="7" r="4" />
-                            </svg>
-                            <input type="text" id="login-username" class="form-control" required autofocus
-                                placeholder="Digite seu nome de usuário">
-                        </div>
-                    </div>
-
-                    <div class="form-group" style="margin-bottom:20px;">
-                        <label class="form-label" for="login-password">Senha de Acesso</label>
-                        <div class="input-with-icon">
-                            <svg class="svg-icon" viewBox="0 0 24 24">
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                            </svg>
-                            <input type="password" id="login-password" class="form-control" required
-                                placeholder="••••••••••••">
-                        </div>
-                    </div>
-
-                    <button type="submit" id="btn-login-submit" class="btn btn-primary"
-                        style="width:100%;height:42px;font-size:14px;">
-                        <span>Iniciar Sessão Segura</span>
-                        <svg class="svg-icon" viewBox="0 0 24 24">
-                            <path d="M5 12h14" />
-                            <path d="m12 5 7 7-7 7" />
-                        </svg>
-                    </button>
-                </form>
-
-                <div class="auth-security-note">
-                    <svg class="svg-icon" style="color:var(--brand-primary);margin-top:1px;" viewBox="0 0 24 24">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                <button type="submit" id="btn-login-submit" class="btn btn-primary auth-submit-btn">
+                    <span>Entrar</span>
+                    <svg class="svg-icon" viewBox="0 0 24 24">
+                        <path d="M5 12h14" />
+                        <path d="m12 5 7 7-7 7" />
                     </svg>
-                    <div>
-                        <strong>Isolamento de Sessão Ativo:</strong> Cada consulta opera em diretório confinado com
-                        verificação criptográfica SHA-256 e descarte automático pós-leitura.
-                    </div>
-                </div>
+                </button>
+            </form>
+
+            <div class="auth-card-footer">
+                <span>Por <strong>Anderson Gonçalez</strong></span>
+                <button type="button" id="btn-login-about" class="auth-link-btn">Sobre o sistema</button>
             </div>
         </div>
     </div>
@@ -218,13 +120,13 @@
                     <span>Alterar Senha</span>
                 </button>
                 <button type="button" id="btn-open-about" class="btn btn-ghost-top"
-                    title="Informações sobre o projeto, arquitetura e preservação de dados">
+                    title="Sobre o PST Viewer">
                     <svg class="svg-icon" viewBox="0 0 24 24">
                         <circle cx="12" cy="12" r="10" />
                         <path d="M12 16v-4" />
                         <path d="M12 8h.01" />
                     </svg>
-                    <span>Sobre & Arquitetura</span>
+                    <span>Sobre</span>
                 </button>
                 <button type="button" id="btn-open-admin" class="btn btn-ghost-top hidden">
                     <svg class="svg-icon" viewBox="0 0 24 24">
@@ -256,52 +158,16 @@
         <!-- ==============================================================
              TELA 2 E 3: CENTRAL DE INÍCIO E ABERTURA DE ARQUIVOS PST
              ============================================================== -->
-        <main id="view-home" class="home-container hidden" style="max-width:980px;">
-            <!-- Cabeçalho Executivo da Área de Trabalho -->
-            <div class="workspace-banner">
-                <div>
-                    <h1 class="workspace-banner-title">Central de Inspeção de Backups Microsoft Outlook (.PST)</h1>
-                    <p class="workspace-banner-sub">
-                        Carregue os arquivos para leitura completa de pastas, e-mails e anexos
-                        diretamente no navegador.
-                    </p>
-                </div>
-                <div class="spec-pills">
-                    <span class="spec-pill">
-                        <svg class="svg-icon" style="color:var(--brand-primary);" viewBox="0 0 24 24">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                            <polyline points="14 2 14 8 20 8" />
-                        </svg>
-                        ANSI &amp; Unicode 64-bit
-                    </span>
-                    <span class="spec-pill">
-                        <svg class="svg-icon" style="color:var(--brand-primary);" viewBox="0 0 24 24">
-                            <circle cx="11" cy="11" r="8" />
-                            <path d="m21 21-4.3-4.3" />
-                        </svg>
-                        Indexação PDF / Office
-                    </span>
-                    <span class="spec-pill">
-                        <svg class="svg-icon" style="color:var(--success);" viewBox="0 0 24 24">
-                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                        </svg>
-                        Arquivo Original Intacto
-                    </span>
-                </div>
-            </div>
-
+        <main id="view-home" class="home-container hidden" style="max-width:860px;">
             <div>
                 <div class="card-panel">
                     <div class="card-header-row">
                         <h2 class="card-heading">
                             <svg class="svg-icon" style="color:var(--brand-primary);" viewBox="0 0 24 24">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                <polyline points="17 8 12 3 7 8" />
-                                <line x1="12" y1="3" x2="12" y2="15" />
+                                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
                             </svg>
-                            <span>Abrir Arquivo PST para Consulta</span>
+                            <span>Abrir Arquivo de E-mails (.PST)</span>
                         </h2>
-                        <span class="badge badge-info">Leitura Isolada</span>
                     </div>
 
                     <div class="upload-dropzone" id="upload-dropzone">
@@ -312,22 +178,21 @@
                                 <polyline points="9 14 12 11 15 14" />
                             </svg>
                         </div>
-                        <div style="font-weight:700;font-size:15px;color:#0f172a;margin-bottom:6px;">
-                            Selecione o arquivo de backup Outlook (.pst) na sua máquina ou pasta de rede
+                        <div style="font-weight:700;font-size:16px;color:#0f172a;margin-bottom:6px;">
+                            Escolha um arquivo do Outlook (.pst) no seu computador
                         </div>
                         <div
-                            style="font-size:12.5px;color:#64748b;max-width:520px;margin:0 auto 18px auto;line-height:1.5;">
-                            O leitor processa a árvore de pastas MAPI, cabeçalhos RFC 5322, corpos HTML/texto e indexa o
-                            conteúdo textual dos documentos anexados.
+                            style="font-size:13.5px;color:#64748b;max-width:480px;margin:0 auto 20px auto;line-height:1.5;">
+                            Visualize suas pastas, leia suas mensagens, pesquise por palavras e abra seus anexos diretamente no navegador.
                         </div>
                         <input type="file" id="input-pst-file" accept=".pst" class="hidden">
                         <button type="button" id="btn-choose-pst" class="btn btn-primary"
-                            style="padding:10px 22px;font-size:13.5px;">
+                            style="padding:11px 26px;font-size:14px;border-radius:8px;">
                             <svg class="svg-icon" viewBox="0 0 24 24">
                                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                                 <polyline points="14 2 14 8 20 8" />
                             </svg>
-                            <span>Selecionar Arquivo .PST para Leitura</span>
+                            <span>Escolher Arquivo .PST</span>
                         </button>
                     </div>
 
@@ -337,17 +202,14 @@
                             <polyline points="22 4 12 14.01 9 11.01" />
                         </svg>
                         <div>
-                            <strong>Garantia de Preservação na Origem:</strong> O seu arquivo <code>.pst</code> original
-                            armazenado no seu computador ou no servidor de arquivos da rede <strong>jamais é apagado ou
-                                modificado</strong>. Ao fechar a consulta, apenas a visualização temporária aberta neste
-                            leitor web é encerrada.
+                            <strong>Fique tranquilo:</strong> O arquivo original salvo no seu computador ou na rede <strong>não sofre nenhuma alteração</strong>.
                         </div>
                     </div>
 
                     <!-- Progresso do Envio HTTP -->
                     <div id="upload-progress-box" class="hidden" style="margin-top:16px;">
                         <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;">
-                            <span id="upload-status-text">Transferindo arquivo PST para área de leitura...</span>
+                            <span id="upload-status-text">Carregando arquivo...</span>
                             <span id="upload-percent-text">0%</span>
                         </div>
                         <div class="progress-bar-outer">
@@ -366,7 +228,7 @@
                                 <line x1="8" y1="21" x2="16" y2="21" />
                                 <line x1="12" y1="17" x2="12" y2="21" />
                             </svg>
-                            <span>Consultas em Andamento na Sua Sessão</span>
+                            <span>Arquivos Abertos</span>
                         </h3>
                         <button type="button" id="btn-refresh-sessions" class="btn btn-outline btn-sm">
                             <svg class="svg-icon" viewBox="0 0 24 24">

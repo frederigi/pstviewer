@@ -592,7 +592,7 @@
                 progBar.style.width = pct + "%";
                 pctTxt.textContent = pct + "%";
                 if (pct >= 100) {
-                    stTxt.textContent = "Validando assinatura binária (!BDN) e calculando SHA-256 no servidor...";
+                    stTxt.textContent = "Preparando suas pastas e e-mails para leitura...";
                 }
             }
         };
