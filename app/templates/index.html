@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PST Viewer — Leitor Web de Arquivos Outlook (.PST)</title>
-    <link rel="stylesheet" href="/static/css/outlook.css">
+    <link rel="stylesheet" href="/static/css/outlook.css?v=2.2">
 </head>
 
 <body>
@@ -47,77 +47,19 @@
             </div>
         </div>
 
-        <div class="auth-landing-container">
-            <!-- Cartão Central de Login com Nome do App em Grande Destaque -->
-            <div class="auth-center-card">
-                <div class="auth-brand-Hero">
-                    <div class="auth-logo-badge">
-                        <svg class="svg-icon" style="width:32px;height:32px;" viewBox="0 0 24 24">
-                            <rect x="2" y="4" width="20" height="16" rx="2" />
-                            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                        </svg>
-                    </div>
-                    <h1 class="auth-app-name">PST Viewer</h1>
-                    <p class="auth-app-tagline" data-i18n="login.tagline">
-                        Abra, pesquise e leia seus arquivos de e-mail do Outlook com facilidade.
-                    </p>
-                </div>
-
-                <div id="login-alert" class="reading-warning-banner hidden" style="margin-bottom:18px;"></div>
-
-                <form id="form-login" autocomplete="off" class="auth-login-form">
-                    <div class="form-group">
-                        <label class="form-label" for="login-username" data-i18n="login.username_label">Usuário</label>
-                        <div class="input-with-icon">
-                            <svg class="svg-icon" viewBox="0 0 24 24">
-                                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-                                <circle cx="12" cy="7" r="4" />
-                            </svg>
-                            <input type="text" id="login-username" class="form-control" required autofocus
-                                data-i18n-placeholder="login.username_placeholder" placeholder="Digite seu usuário">
-                        </div>
-                    </div>
-
-                    <div class="form-group" style="margin-bottom:22px;">
-                        <label class="form-label" for="login-password" data-i18n="login.password_label">Senha</label>
-                        <div class="input-with-icon">
-                            <svg class="svg-icon" viewBox="0 0 24 24">
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                            </svg>
-                            <input type="password" id="login-password" class="form-control" required
-                                data-i18n-placeholder="login.password_placeholder" placeholder="Digite sua senha">
-                        </div>
-                    </div>
-
-                    <button type="submit" id="btn-login-submit" class="btn btn-primary auth-submit-btn">
-                        <span data-i18n="login.submit_btn">Entrar</span>
-                        <svg class="svg-icon" viewBox="0 0 24 24">
-                            <path d="M5 12h14" />
-                            <path d="m12 5 7 7-7 7" />
-                        </svg>
-                    </button>
-                </form>
-
-                <div class="auth-card-footer">
-                    <span><span data-i18n="login.by">Por</span> <strong>Anderson Gonçalez</strong></span>
-                    <button type="button" id="btn-login-about" class="auth-link-btn" data-i18n="nav.about_system">Sobre o sistema</button>
-                </div>
-            </div>
-
-            <!-- ==============================================================
-                 SIMULADOR INTERATIVO OUTLOOK 365 / OUTLOOK WEB NA TELA INICIAL
-                 ============================================================== -->
-            <section class="o365-sim-section" aria-label="Outlook 365 Web Interactive Simulator">
-                <div class="o365-sim-intro">
+        <!-- Grade Principal em 2 Colunas: Simulador à Esquerda, Login à Direita -->
+        <main class="auth-portal-grid">
+            <!-- COLUNA ESQUERDA: Simulador Interativo Outlook 365 Web -->
+            <section class="auth-sim-column" aria-label="Simulador Outlook 365">
+                <div class="sim-header-brief">
                     <span class="o365-sim-pill">
                         <span class="o365-pulse-dot"></span>
                         <span data-i18n="sim.badge">SIMULADOR INTERATIVO • OUTLOOK 365 WEB</span>
                     </span>
-                    <h2 class="o365-sim-heading" data-i18n="sim.heading">
+                    <h2 class="sim-headline" data-i18n="sim.heading">
                         Veja como é simples consultar seus backups de e-mail no navegador
                     </h2>
-                    <p class="o365-sim-sub" data-i18n="sim.subtitle">
+                    <p class="sim-lead" data-i18n="sim.subtitle">
                         Clique nas pastas ou nas mensagens de exemplo abaixo para testar o leitor antes mesmo de entrar.
                     </p>
                 </div>
@@ -136,7 +78,7 @@
                                 <span class="o365-brand-divider">|</span>
                                 <span>PST Viewer</span>
                             </div>
-                            <span class="o365-file-badge" id="sim-file-badge">📁 backup_corporativo_2026.pst</span>
+                            <span class="o365-file-badge" id="sim-file-badge">📁 backup_departamentos_2026.pst</span>
                         </div>
 
                         <div class="o365-search-bar">
@@ -189,23 +131,183 @@
                     <!-- Área de 3 Painéis do Simulador Outlook 365 -->
                     <div class="o365-workspace">
                         <!-- Coluna 1: Pastas -->
-                        <div class="o365-folders" id="sim-folders-list"></div>
+                        <div class="o365-folders" id="sim-folders-list">
+                            <div class="o365-folder-item active" data-sim-folder="inbox">
+                                <span>📥 Caixa de Entrada</span>
+                                <span class="o365-folder-badge">4</span>
+                            </div>
+                            <div class="o365-folder-item" data-sim-folder="sent">
+                                <span>📤 Itens Enviados</span>
+                                <span class="o365-folder-badge">2</span>
+                            </div>
+                            <div class="o365-folder-item" data-sim-folder="contracts">
+                                <span>📂 Contratos &amp; Finanças</span>
+                                <span class="o365-folder-badge">2</span>
+                            </div>
+                        </div>
 
-                        <!-- Coluna 2: Lista de E-mails Fictícios -->
+                        <!-- Coluna 2: Lista de E-mails Fictícios (PRÉ-RENDERIZADOS) -->
                         <div class="o365-msg-list">
                             <div class="o365-msg-list-header">
                                 <span id="sim-folder-title">Caixa de Entrada</span>
                                 <span class="o365-msg-count" id="sim-folder-count">4 itens</span>
                             </div>
-                            <div id="sim-messages-container" class="o365-msg-scroll"></div>
+                            <div id="sim-messages-container" class="o365-msg-scroll">
+                                <div class="o365-msg-card active" data-sim-msg="1">
+                                    <div class="o365-avatar" style="background:#0f6cbd;">HM</div>
+                                    <div style="flex:1;min-width:0;">
+                                        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;">
+                                            <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Helena Martins</strong>
+                                            <span style="font-size:10.5px;color:#64748b;flex-shrink:0;">29/10/2026</span>
+                                        </div>
+                                        <div style="font-size:12px;font-weight:700;color:#0f6cbd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:2px 0;">
+                                            📎 Relatório Consolidado Q4 e Planejamento 2027
+                                        </div>
+                                        <div style="font-size:11.5px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                                            Segue em anexo o fechamento trimestral revisado e a planilha de metas...
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="o365-msg-card" data-sim-msg="2">
+                                    <div class="o365-avatar" style="background:#0284c7;">LV</div>
+                                    <div style="flex:1;min-width:0;">
+                                        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;">
+                                            <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Lucas Vance</strong>
+                                            <span style="font-size:10.5px;color:#64748b;flex-shrink:0;">28/10/2026</span>
+                                        </div>
+                                        <div style="font-size:12px;font-weight:700;color:#0f6cbd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:2px 0;">
+                                            📎 Cronograma de Migração de Servidores Nuvem
+                                        </div>
+                                        <div style="font-size:11.5px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                                            A janela de manutenção programada para o próximo sábado foi aprovada...
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="o365-msg-card" data-sim-msg="3">
+                                    <div class="o365-avatar" style="background:#7c3aed;">SA</div>
+                                    <div style="flex:1;min-width:0;">
+                                        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;">
+                                            <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Sofia Alencar</strong>
+                                            <span style="font-size:10.5px;color:#64748b;flex-shrink:0;">27/10/2026</span>
+                                        </div>
+                                        <div style="font-size:12px;font-weight:700;color:#0f6cbd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:2px 0;">
+                                            📎 Minuta Aprovada — Renovação de Fornecedores
+                                        </div>
+                                        <div style="font-size:11.5px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                                            Enviamos a versão final revisada pelo jurídico para assinatura digital...
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="o365-msg-card" data-sim-msg="4">
+                                    <div class="o365-avatar" style="background:#059669;">MO</div>
+                                    <div style="flex:1;min-width:0;">
+                                        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;">
+                                            <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Marcos Oliveira</strong>
+                                            <span style="font-size:10.5px;color:#64748b;flex-shrink:0;">25/10/2026</span>
+                                        </div>
+                                        <div style="font-size:12px;font-weight:700;color:#0f6cbd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:2px 0;">
+                                            Calendário de Integração de Novos Colaboradores
+                                        </div>
+                                        <div style="font-size:11.5px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                                            Lista das turmas confirmadas para a primeira semana de novembro...
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Coluna 3: Painel de Leitura ao Vivo -->
-                        <div class="o365-reading-pane" id="sim-reading-pane"></div>
+                        <!-- Coluna 3: Painel de Leitura ao Vivo (PRÉ-RENDERIZADO) -->
+                        <div class="o365-reading-pane" id="sim-reading-pane">
+                            <h4 class="o365-read-subj">Relatório Consolidado Q4 e Planejamento 2027</h4>
+                            <div class="o365-read-sender-row">
+                                <div class="o365-avatar" style="background:#0f6cbd;">HM</div>
+                                <div style="flex:1;min-width:0;">
+                                    <div style="font-size:13px;font-weight:700;color:#0f172a;">
+                                        Helena Martins <span style="font-weight:400;color:#64748b;font-size:12px;">&lt;helena.martins@auroracorp.com&gt;</span>
+                                    </div>
+                                    <div style="font-size:11.5px;color:#64748b;">
+                                        <strong>Para:</strong> Mariana Costa &lt;mariana.costa@auroracorp.com&gt;; Equipe Financeira • 29/10/2026 09:14
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="o365-att-bar">
+                                <span class="o365-att-pill" data-sim-att="Fechamento_Trimestral_Q4.pdf">
+                                    📎 Fechamento_Trimestral_Q4.pdf <small style="color:#64748b;">(1,4 MB)</small>
+                                </span>
+                                <span class="o365-att-pill" data-sim-att="Metas_Orcamento_2027.xlsx">
+                                    📎 Metas_Orcamento_2027.xlsx <small style="color:#64748b;">(620 KB)</small>
+                                </span>
+                            </div>
+                            <div class="o365-read-body">
+                                <p>Olá pessoal,</p>
+                                <p>Encaminho em anexo o <strong>Relatório Consolidado do 4º Trimestre</strong> e a planilha atualizada com as projeções dos departamentos para 2027.</p>
+                                <p>Todos os documentos já foram conferidos pela equipe de controladoria e estão prontos para consulta.</p>
+                                <p>Atenciosamente,<br><strong>Helena Martins</strong><br>Diretoria Financeira • Aurora Corp</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
-        </div>
+
+            <!-- COLUNA DIREITA: Cartão Central de Login -->
+            <aside class="auth-login-column">
+                <div class="auth-center-card">
+                    <div class="auth-brand-Hero">
+                        <div class="auth-logo-badge">
+                            <svg class="svg-icon" style="width:34px;height:34px;" viewBox="0 0 24 24">
+                                <rect x="2" y="4" width="20" height="16" rx="2" />
+                                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                            </svg>
+                        </div>
+                        <h1 class="auth-app-name">PST Viewer</h1>
+                        <p class="auth-app-tagline" data-i18n="login.tagline">
+                            Abra, pesquise e leia seus arquivos de e-mail do Outlook com facilidade.
+                        </p>
+                    </div>
+
+                    <div id="login-alert" class="reading-warning-banner hidden" style="margin-bottom:18px;"></div>
+
+                    <form id="form-login" autocomplete="off" class="auth-login-form">
+                        <div class="form-group">
+                            <label class="form-label" for="login-username" data-i18n="login.username_label">Usuário</label>
+                            <div class="input-with-icon">
+                                <svg class="svg-icon" viewBox="0 0 24 24">
+                                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                                    <circle cx="12" cy="7" r="4" />
+                                </svg>
+                                <input type="text" id="login-username" class="form-control" required autofocus
+                                    data-i18n-placeholder="login.username_placeholder" placeholder="Digite seu usuário">
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom:22px;">
+                            <label class="form-label" for="login-password" data-i18n="login.password_label">Senha</label>
+                            <div class="input-with-icon">
+                                <svg class="svg-icon" viewBox="0 0 24 24">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                                </svg>
+                                <input type="password" id="login-password" class="form-control" required
+                                    data-i18n-placeholder="login.password_placeholder" placeholder="Digite sua senha">
+                            </div>
+                        </div>
+
+                        <button type="submit" id="btn-login-submit" class="btn btn-primary auth-submit-btn">
+                            <span data-i18n="login.submit_btn">Entrar</span>
+                            <svg class="svg-icon" viewBox="0 0 24 24">
+                                <path d="M5 12h14" />
+                                <path d="m12 5 7 7-7 7" />
+                            </svg>
+                        </button>
+                    </form>
+
+                    <div class="auth-card-footer">
+                        <span><span data-i18n="login.by">Por</span> <strong>Anderson Gonçalez</strong></span>
+                        <span class="auth-version-pill">v2.0 • Web</span>
+                    </div>
+                </div>
+            </aside>
+        </main>
     </div>
 
     <!-- ==================================================================
@@ -892,7 +994,7 @@
         </div>
     </div>
 
-    <script src="/static/js/app.js"></script>
+    <script src="/static/js/app.js?v=2.2"></script>
 </body>
 
 </html>

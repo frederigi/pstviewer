@@ -658,6 +658,402 @@
     }
 
     /* ======================================================================
+     * SIMULADOR INTERATIVO OUTLOOK 365 WEB (PESSOAS FICTÍCIAS + BILÍNGUE)
+     * ====================================================================== */
+    const SIM_DATA = {
+        pt: {
+            fileBadge: "📁 backup_departamentos_2026.pst",
+            folders: [
+                { id: "inbox", name: "📥 Caixa de Entrada", count: 4 },
+                { id: "sent", name: "📤 Itens Enviados", count: 2 },
+                { id: "contracts", name: "📂 Contratos & Finanças", count: 2 },
+            ],
+            messages: [
+                {
+                    id: 1,
+                    folder: "inbox",
+                    sender: "Helena Martins",
+                    email: "helena.martins@auroracorp.com",
+                    to: "Mariana Costa <mariana.costa@auroracorp.com>; Equipe Financeira",
+                    initials: "HM",
+                    color: "#0f6cbd",
+                    date: "29/10/2026 09:14",
+                    subject: "Relatório Consolidado Q4 e Planejamento 2027",
+                    snippet: "Segue em anexo o fechamento trimestral revisado e a planilha de metas...",
+                    attachments: [
+                        { name: "Fechamento_Trimestral_Q4.pdf", size: "1,4 MB" },
+                        { name: "Metas_Orcamento_2027.xlsx", size: "620 KB" },
+                    ],
+                    body: `<p>Olá pessoal,</p><p>Encaminho em anexo o <strong>Relatório Consolidado do 4º Trimestre</strong> e a planilha atualizada com as projeções dos departamentos para 2027.</p><p>Todos os documentos já foram conferidos pela equipe de controladoria e estão prontos para consulta.</p><p>Atenciosamente,<br><strong>Helena Martins</strong><br>Diretoria Financeira • Aurora Corp</p>`,
+                },
+                {
+                    id: 2,
+                    folder: "inbox",
+                    sender: "Lucas Vance",
+                    email: "lucas.vance@auroracorp.com",
+                    to: "Coordenação de Operações <operacoes@auroracorp.com>",
+                    initials: "LV",
+                    color: "#0284c7",
+                    date: "28/10/2026 17:42",
+                    subject: "Cronograma de Migração de Servidores Nuvem",
+                    snippet: "A janela de manutenção programada para o próximo sábado foi aprovada...",
+                    attachments: [
+                        { name: "Plano_Migracao_Cloud.docx", size: "410 KB" },
+                    ],
+                    body: `<p>Boa tarde equipe,</p><p>Confirmamos que a atualização dos servidores em nuvem ocorrerá neste sábado às 08h00, sem impacto para os usuários finais.</p><p>O roteiro completo está no documento Word em anexo.</p><p>Abraços,<br><strong>Lucas Vance</strong><br>Arquitetura Cloud</p>`,
+                },
+                {
+                    id: 3,
+                    folder: "inbox",
+                    sender: "Sofia Alencar",
+                    email: "sofia.alencar@auroracorp.com",
+                    to: "Compras & Suprimentos <compras@auroracorp.com>",
+                    initials: "SA",
+                    color: "#7c3aed",
+                    date: "27/10/2026 14:15",
+                    subject: "Minuta Aprovada — Renovação de Fornecedores",
+                    snippet: "Enviamos a versão final revisada pelo jurídico para assinatura digital...",
+                    attachments: [
+                        { name: "Minuta_Fornecedores_2027.pdf", size: "980 KB" },
+                    ],
+                    body: `<p>Prezados,</p><p>A revisão jurídica do contrato anual de fornecedores foi concluída. O arquivo PDF em anexo já contempla todas as cláusulas atualizadas.</p><p>Cordialmente,<br><strong>Sofia Alencar</strong><br>Consultoria Jurídica</p>`,
+                },
+                {
+                    id: 4,
+                    folder: "inbox",
+                    sender: "Marcos Oliveira",
+                    email: "marcos.oliveira@auroracorp.com",
+                    to: "Recursos Humanos <rh@auroracorp.com>",
+                    initials: "MO",
+                    color: "#059669",
+                    date: "25/10/2026 11:05",
+                    subject: "Calendário de Integração de Novos Colaboradores",
+                    snippet: "Lista das turmas confirmadas para a primeira semana de novembro...",
+                    attachments: [],
+                    body: `<p>Bom dia,</p><p>As salas de treinamento para a integração de novembro já estão reservadas. Teremos 18 novos integrantes distribuídos em duas turmas.</p><p>Atenciosamente,<br><strong>Marcos Oliveira</strong><br>Desenvolvimento Humano</p>`,
+                },
+                {
+                    id: 5,
+                    folder: "sent",
+                    sender: "Clara Novak",
+                    email: "clara.novak@auroracorp.com",
+                    to: "Helena Martins <helena.martins@auroracorp.com>",
+                    initials: "CN",
+                    color: "#d97706",
+                    date: "29/10/2026 10:02",
+                    subject: "RE: Relatório Consolidado Q4 e Planejamento 2027",
+                    snippet: "Obrigada pelo envio, Helena! Já validamos os números do nosso setor...",
+                    attachments: [],
+                    body: `<p>Olá Helena,</p><p>Muito obrigada pelo envio! Já revisamos as abas da planilha e os valores do nosso departamento estão 100% corretos.</p><p>Um abraço,<br><strong>Clara Novak</strong></p>`,
+                },
+                {
+                    id: 6,
+                    folder: "sent",
+                    sender: "Daniel Costa",
+                    email: "daniel.costa@auroracorp.com",
+                    to: "Sofia Alencar <sofia.alencar@auroracorp.com>",
+                    initials: "DC",
+                    color: "#dc2626",
+                    date: "27/10/2026 16:30",
+                    subject: "ENC: Comprovante de Assinatura de Contrato",
+                    snippet: "Segue o protocolo de assinatura eletrônica concluído hoje à tarde...",
+                    attachments: [
+                        { name: "Protocolo_Assinatura.pdf", size: "315 KB" },
+                    ],
+                    body: `<p>Olá Sofia,</p><p>Segue em anexo o comprovante de assinatura digital referente ao contrato de serviços logísticos.</p><p>Atenciosamente,<br><strong>Daniel Costa</strong></p>`,
+                },
+            ],
+        },
+        en: {
+            fileBadge: "📁 corporate_departments_2026.pst",
+            folders: [
+                { id: "inbox", name: "📥 Inbox", count: 4 },
+                { id: "sent", name: "📤 Sent Items", count: 2 },
+                { id: "contracts", name: "📂 Contracts & Finance", count: 2 },
+            ],
+            messages: [
+                {
+                    id: 1,
+                    folder: "inbox",
+                    sender: "Helena Martins",
+                    email: "helena.martins@auroracorp.com",
+                    to: "Mariana Costa <mariana.costa@auroracorp.com>; Finance Team",
+                    initials: "HM",
+                    color: "#0f6cbd",
+                    date: "10/29/2026 09:14 AM",
+                    subject: "Q4 Consolidated Report & 2027 Budget Planning",
+                    snippet: "Please find attached the revised quarterly closing and target sheet...",
+                    attachments: [
+                        { name: "Q4_Quarterly_Closing.pdf", size: "1.4 MB" },
+                        { name: "Budget_Targets_2027.xlsx", size: "620 KB" },
+                    ],
+                    body: `<p>Hello everyone,</p><p>Please find attached the <strong>Q4 Consolidated Financial Report</strong> along with the updated departmental budget projections for 2027.</p><p>All figures have been verified by the controlling team and are ready for review.</p><p>Best regards,<br><strong>Helena Martins</strong><br>Finance Director • Aurora Corp</p>`,
+                },
+                {
+                    id: 2,
+                    folder: "inbox",
+                    sender: "Lucas Vance",
+                    email: "lucas.vance@auroracorp.com",
+                    to: "Operations Team <operations@auroracorp.com>",
+                    initials: "LV",
+                    color: "#0284c7",
+                    date: "10/28/2026 05:42 PM",
+                    subject: "Cloud Server Upgrade Schedule",
+                    snippet: "The maintenance window scheduled for next Saturday has been approved...",
+                    attachments: [
+                        { name: "Cloud_Migration_Plan.docx", size: "410 KB" },
+                    ],
+                    body: `<p>Good afternoon team,</p><p>We confirm that the cloud server upgrade will take place this Saturday at 8:00 AM with zero downtime for end users.</p><p>The complete checklist is available in the attached Word document.</p><p>Best,<br><strong>Lucas Vance</strong><br>Cloud Architecture</p>`,
+                },
+                {
+                    id: 3,
+                    folder: "inbox",
+                    sender: "Sofia Alencar",
+                    email: "sofia.alencar@auroracorp.com",
+                    to: "Procurement & Supply <procurement@auroracorp.com>",
+                    initials: "SA",
+                    color: "#7c3aed",
+                    date: "10/27/2026 02:15 PM",
+                    subject: "Approved Draft — Vendor Master Renewal",
+                    snippet: "Sending the final version reviewed by Legal for digital signature...",
+                    attachments: [
+                        { name: "Vendor_Agreement_2027.pdf", size: "980 KB" },
+                    ],
+                    body: `<p>Dear team,</p><p>The legal review for the annual vendor agreement is now complete. The attached PDF includes all updated compliance clauses.</p><p>Kind regards,<br><strong>Sofia Alencar</strong><br>Corporate Legal</p>`,
+                },
+                {
+                    id: 4,
+                    folder: "inbox",
+                    sender: "Marcos Oliveira",
+                    email: "marcos.oliveira@auroracorp.com",
+                    to: "Human Resources <hr@auroracorp.com>",
+                    initials: "MO",
+                    color: "#059669",
+                    date: "10/25/2026 11:05 AM",
+                    subject: "New Hire Onboarding Schedule — November",
+                    snippet: "Confirmed training groups for the first week of November...",
+                    attachments: [],
+                    body: `<p>Good morning,</p><p>The training rooms for the November onboarding sessions are booked. We will welcome 18 new team members across two groups.</p><p>Sincerely,<br><strong>Marcos Oliveira</strong><br>People & Culture</p>`,
+                },
+                {
+                    id: 5,
+                    folder: "sent",
+                    sender: "Clara Novak",
+                    email: "clara.novak@auroracorp.com",
+                    to: "Helena Martins <helena.martins@auroracorp.com>",
+                    initials: "CN",
+                    color: "#d97706",
+                    date: "10/29/2026 10:02 AM",
+                    subject: "RE: Q4 Consolidated Report & 2027 Budget Planning",
+                    snippet: "Thanks for sending this over, Helena! We validated our department numbers...",
+                    attachments: [],
+                    body: `<p>Hi Helena,</p><p>Thank you for sending this over! We reviewed the spreadsheet tabs and our department's figures are 100% accurate.</p><p>Warm regards,<br><strong>Clara Novak</strong></p>`,
+                },
+                {
+                    id: 6,
+                    folder: "sent",
+                    sender: "Daniel Costa",
+                    email: "daniel.costa@auroracorp.com",
+                    to: "Sofia Alencar <sofia.alencar@auroracorp.com>",
+                    initials: "DC",
+                    color: "#dc2626",
+                    date: "10/27/2026 04:30 PM",
+                    subject: "FW: Digital Contract Signature Receipt",
+                    snippet: "Attached is the electronic signature certificate completed this afternoon...",
+                    attachments: [
+                        { name: "Signature_Certificate.pdf", size: "315 KB" },
+                    ],
+                    body: `<p>Hi Sofia,</p><p>Please find attached the digital signature receipt for the logistics services agreement.</p><p>Best regards,<br><strong>Daniel Costa</strong></p>`,
+                },
+            ],
+        },
+    };
+
+    function renderOutlook365Simulator() {
+        const foldersEl = $("sim-folders-list");
+        const msgsEl = $("sim-messages-container");
+        const readEl = $("sim-reading-pane");
+        if (!foldersEl || !msgsEl || !readEl) return;
+
+        const en = isEn();
+        const data = SIM_DATA[state.lang] || SIM_DATA.pt;
+        if ($("sim-file-badge")) {
+            $("sim-file-badge").textContent = data.fileBadge;
+        }
+
+        // Render pastas
+        foldersEl.innerHTML = data.folders.map((f) => `
+            <div class="o365-folder-item ${state.simFolder === f.id ? "active" : ""}" data-sim-folder="${f.id}">
+                <span>${escapeHtml(f.name)}</span>
+                <span class="o365-folder-badge">${f.count}</span>
+            </div>
+        `).join("");
+
+        foldersEl.querySelectorAll("[data-sim-folder]").forEach((el) => {
+            el.addEventListener("click", () => {
+                state.simFolder = el.getAttribute("data-sim-folder");
+                state.simQuery = "";
+                if ($("sim-search-input")) $("sim-search-input").value = "";
+                renderOutlook365Simulator();
+            });
+        });
+
+        // Filtrar mensagens
+        const q = (state.simQuery || "").toLowerCase().trim();
+        let filtered = data.messages.filter((m) => {
+            if (q) {
+                return (
+                    m.subject.toLowerCase().includes(q) ||
+                    m.sender.toLowerCase().includes(q) ||
+                    m.snippet.toLowerCase().includes(q) ||
+                    m.body.toLowerCase().includes(q)
+                );
+            }
+            if (state.simFolder === "contracts") {
+                return m.id === 1 || m.id === 3;
+            }
+            return m.folder === state.simFolder;
+        });
+
+        if (!filtered.some((m) => m.id === state.simSelectedId) && filtered.length > 0) {
+            state.simSelectedId = filtered[0].id;
+        }
+
+        const activeFolderObj = data.folders.find((f) => f.id === state.simFolder) || data.folders[0];
+        if ($("sim-folder-title")) {
+            $("sim-folder-title").textContent = q
+                ? (en ? `Search: "${state.simQuery}"` : `Busca: "${state.simQuery}"`)
+                : activeFolderObj.name.replace(/^[^\s]+\s/, "");
+        }
+        if ($("sim-folder-count")) {
+            $("sim-folder-count").textContent = `${filtered.length} ${en ? "items" : "itens"}`;
+        }
+
+        if (filtered.length === 0) {
+            msgsEl.innerHTML = `<div style="padding:24px 14px;text-align:center;color:#64748b;font-size:12.5px;">${en ? "No sample messages matched your search." : "Nenhuma mensagem de exemplo encontrada."}</div>`;
+            readEl.innerHTML = "";
+            return;
+        }
+
+        msgsEl.innerHTML = filtered.map((m) => `
+            <div class="o365-msg-card ${m.id === state.simSelectedId ? "active" : ""}" data-sim-msg="${m.id}">
+                <div class="o365-avatar" style="background:${m.color};">${escapeHtml(m.initials)}</div>
+                <div style="flex:1;min-width:0;">
+                    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;">
+                        <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(m.sender)}</strong>
+                        <span style="font-size:10.5px;color:#64748b;flex-shrink:0;">${escapeHtml(m.date.split(" ")[0])}</span>
+                    </div>
+                    <div style="font-size:12px;font-weight:700;color:#0f6cbd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:2px 0;">
+                        ${m.attachments.length ? "📎 " : ""}${escapeHtml(m.subject)}
+                    </div>
+                    <div style="font-size:11.5px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                        ${escapeHtml(m.snippet)}
+                    </div>
+                </div>
+            </div>
+        `).join("");
+
+        msgsEl.querySelectorAll("[data-sim-msg]").forEach((el) => {
+            el.addEventListener("click", () => {
+                state.simSelectedId = Number(el.getAttribute("data-sim-msg"));
+                renderOutlook365Simulator();
+            });
+        });
+
+        const sel = filtered.find((m) => m.id === state.simSelectedId) || filtered[0];
+        readEl.innerHTML = `
+            <h4 class="o365-read-subj">${escapeHtml(sel.subject)}</h4>
+            <div class="o365-read-sender-row">
+                <div class="o365-avatar" style="background:${sel.color};">${escapeHtml(sel.initials)}</div>
+                <div style="flex:1;min-width:0;">
+                    <div style="font-size:13px;font-weight:700;color:#0f172a;">
+                        ${escapeHtml(sel.sender)} <span style="font-weight:400;color:#64748b;font-size:12px;">&lt;${escapeHtml(sel.email)}&gt;</span>
+                    </div>
+                    <div style="font-size:11.5px;color:#64748b;">
+                        <strong>${en ? "To:" : "Para:"}</strong> ${escapeHtml(sel.to)} • ${escapeHtml(sel.date)}
+                    </div>
+                </div>
+            </div>
+            ${sel.attachments.length ? `
+                <div class="o365-att-bar">
+                    ${sel.attachments.map((a) => `
+                        <span class="o365-att-pill" data-sim-att="${escapeHtml(a.name)}">
+                            📎 ${escapeHtml(a.name)} <small style="color:#64748b;">(${escapeHtml(a.size)})</small>
+                        </span>
+                    `).join("")}
+                </div>
+            ` : ""}
+            <div class="o365-read-body">${sel.body}</div>
+        `;
+
+        readEl.querySelectorAll("[data-sim-att]").forEach((pill) => {
+            pill.addEventListener("click", () => {
+                const name = pill.getAttribute("data-sim-att");
+                uiToast(
+                    en
+                        ? `In the full reader, clicking "${name}" opens its content or downloads the original file.`
+                        : `No leitor completo, clicar em "${name}" abre a leitura do anexo na tela ou baixa o arquivo original.`,
+                    "info",
+                    en ? "Attachment Preview (Simulator)" : "Visualização de Anexo (Simulador)"
+                );
+            });
+        });
+    }
+
+    function applyLanguage(lang) {
+        state.lang = lang === "en" ? "en" : "pt";
+        try {
+            localStorage.setItem("pstviewer_lang", state.lang);
+        } catch (_e) {}
+        document.documentElement.lang = state.lang === "en" ? "en" : "pt-BR";
+
+        document.querySelectorAll("[data-set-lang]").forEach((btn) => {
+            btn.classList.toggle("active", btn.getAttribute("data-set-lang") === state.lang);
+        });
+
+        document.querySelectorAll("[data-i18n]").forEach((el) => {
+            const key = el.getAttribute("data-i18n");
+            const val = t(key);
+            if (val !== undefined && val !== null) {
+                if (val.includes("<")) {
+                    el.innerHTML = val;
+                } else {
+                    el.textContent = val;
+                }
+            }
+        });
+
+        document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
+            const key = el.getAttribute("data-i18n-placeholder");
+            const val = t(key);
+            if (val) el.setAttribute("placeholder", val);
+        });
+
+        document.querySelectorAll("[data-i18n-title]").forEach((el) => {
+            const key = el.getAttribute("data-i18n-title");
+            const val = t(key);
+            if (val) el.setAttribute("title", val);
+        });
+
+        renderOutlook365Simulator();
+        if (state.user && $("view-home") && !$("view-home").classList.contains("hidden")) {
+            loadMyActiveSessions();
+        }
+    }
+
+    // Delegação global de clique para garantir que a troca de idioma NUNCA falhe
+    document.addEventListener("click", (ev) => {
+        const btn = ev.target.closest ? ev.target.closest("[data-set-lang]") : null;
+        if (btn) {
+            ev.preventDefault();
+            const lang = btn.getAttribute("data-set-lang");
+            if (lang) {
+                applyLanguage(lang);
+            }
+        }
+    });
+
+    /* ======================================================================
      * NAVEGAÇÃO ENTRE TELAS
      * ====================================================================== */
     function showLoginView(alertMsg = "") {
@@ -1726,6 +2122,8 @@
      * EVENT LISTENERS GLOBAIS
      * ====================================================================== */
     document.addEventListener("DOMContentLoaded", () => {
+        applyLanguage(state.lang);
+
         $("form-login").addEventListener("submit", async (ev) => {
             ev.preventDefault();
             const btn = $("btn-login-submit");
@@ -1897,390 +2295,6 @@
         $("btn-msg-export-txt").addEventListener("click", () => {
             if (!state.currentSessionUuid || !state.selectedMessageId) return;
             window.location.href = `/api/sessions/${state.currentSessionUuid}/messages/${state.selectedMessageId}/export.txt`;
-        });
-
-        /* ==================================================================
-         * SIMULADOR INTERATIVO OUTLOOK 365 WEB (PESSOAS FICTÍCIAS + BILÍNGUE)
-         * ================================================================== */
-        const SIM_DATA = {
-            pt: {
-                fileBadge: "📁 backup_departamentos_2026.pst",
-                folders: [
-                    { id: "inbox", name: "📥 Caixa de Entrada", count: 4 },
-                    { id: "sent", name: "📤 Itens Enviados", count: 2 },
-                    { id: "contracts", name: "📂 Contratos & Finanças", count: 2 },
-                ],
-                messages: [
-                    {
-                        id: 1,
-                        folder: "inbox",
-                        sender: "Helena Martins",
-                        email: "helena.martins@auroracorp.com",
-                        to: "Mariana Costa <mariana.costa@auroracorp.com>; Equipe Financeira",
-                        initials: "HM",
-                        color: "#0f6cbd",
-                        date: "29/10/2026 09:14",
-                        subject: "Relatório Consolidado Q4 e Planejamento 2027",
-                        snippet: "Segue em anexo o fechamento trimestral revisado e a planilha de metas...",
-                        attachments: [
-                            { name: "Fechamento_Trimestral_Q4.pdf", size: "1,4 MB" },
-                            { name: "Metas_Orcamento_2027.xlsx", size: "620 KB" },
-                        ],
-                        body: `<p>Olá pessoal,</p><p>Encaminho em anexo o <strong>Relatório Consolidado do 4º Trimestre</strong> e a planilha atualizada com as projeções dos departamentos para 2027.</p><p>Todos os documentos já foram conferidos pela equipe de controladoria e estão prontos para consulta.</p><p>Atenciosamente,<br><strong>Helena Martins</strong><br>Diretoria Financeira • Aurora Corp</p>`,
-                    },
-                    {
-                        id: 2,
-                        folder: "inbox",
-                        sender: "Lucas Vance",
-                        email: "lucas.vance@auroracorp.com",
-                        to: "Coordenação de Operações <operacoes@auroracorp.com>",
-                        initials: "LV",
-                        color: "#0284c7",
-                        date: "28/10/2026 17:42",
-                        subject: "Cronograma de Migração de Servidores Nuvem",
-                        snippet: "A janela de manutenção programada para o próximo sábado foi aprovada...",
-                        attachments: [
-                            { name: "Plano_Migracao_Cloud.docx", size: "410 KB" },
-                        ],
-                        body: `<p>Boa tarde equipe,</p><p>Confirmamos que a atualização dos servidores em nuvem ocorrerá neste sábado às 08h00, sem impacto para os usuários finais.</p><p>O roteiro completo está no documento Word em anexo.</p><p>Abraços,<br><strong>Lucas Vance</strong><br>Arquitetura Cloud</p>`,
-                    },
-                    {
-                        id: 3,
-                        folder: "inbox",
-                        sender: "Sofia Alencar",
-                        email: "sofia.alencar@auroracorp.com",
-                        to: "Compras & Suprimentos <compras@auroracorp.com>",
-                        initials: "SA",
-                        color: "#7c3aed",
-                        date: "27/10/2026 14:15",
-                        subject: "Minuta Aprovada — Renovação de Fornecedores",
-                        snippet: "Enviamos a versão final revisada pelo jurídico para assinatura digital...",
-                        attachments: [
-                            { name: "Minuta_Fornecedores_2027.pdf", size: "980 KB" },
-                        ],
-                        body: `<p>Prezados,</p><p>A revisão jurídica do contrato anual de fornecedores foi concluída. O arquivo PDF em anexo já contempla todas as cláusulas atualizadas.</p><p>Cordialmente,<br><strong>Sofia Alencar</strong><br>Consultoria Jurídica</p>`,
-                    },
-                    {
-                        id: 4,
-                        folder: "inbox",
-                        sender: "Marcos Oliveira",
-                        email: "marcos.oliveira@auroracorp.com",
-                        to: "Recursos Humanos <rh@auroracorp.com>",
-                        initials: "MO",
-                        color: "#059669",
-                        date: "25/10/2026 11:05",
-                        subject: "Calendário de Integração de Novos Colaboradores",
-                        snippet: "Lista das turmas confirmadas para a primeira semana de novembro...",
-                        attachments: [],
-                        body: `<p>Bom dia,</p><p>As salas de treinamento para a integração de novembro já estão reservadas. Teremos 18 novos integrantes distribuídos em duas turmas.</p><p>Atenciosamente,<br><strong>Marcos Oliveira</strong><br>Desenvolvimento Humano</p>`,
-                    },
-                    {
-                        id: 5,
-                        folder: "sent",
-                        sender: "Clara Novak",
-                        email: "clara.novak@auroracorp.com",
-                        to: "Helena Martins <helena.martins@auroracorp.com>",
-                        initials: "CN",
-                        color: "#d97706",
-                        date: "29/10/2026 10:02",
-                        subject: "RE: Relatório Consolidado Q4 e Planejamento 2027",
-                        snippet: "Obrigada pelo envio, Helena! Já validamos os números do nosso setor...",
-                        attachments: [],
-                        body: `<p>Olá Helena,</p><p>Muito obrigada pelo envio! Já revisamos as abas da planilha e os valores do nosso departamento estão 100% corretos.</p><p>Um abraço,<br><strong>Clara Novak</strong></p>`,
-                    },
-                    {
-                        id: 6,
-                        folder: "sent",
-                        sender: "Daniel Costa",
-                        email: "daniel.costa@auroracorp.com",
-                        to: "Sofia Alencar <sofia.alencar@auroracorp.com>",
-                        initials: "DC",
-                        color: "#dc2626",
-                        date: "27/10/2026 16:30",
-                        subject: "ENC: Comprovante de Assinatura de Contrato",
-                        snippet: "Segue o protocolo de assinatura eletrônica concluído hoje à tarde...",
-                        attachments: [
-                            { name: "Protocolo_Assinatura.pdf", size: "315 KB" },
-                        ],
-                        body: `<p>Olá Sofia,</p><p>Segue em anexo o comprovante de assinatura digital referente ao contrato de serviços logísticos.</p><p>Atenciosamente,<br><strong>Daniel Costa</strong></p>`,
-                    },
-                ],
-            },
-            en: {
-                fileBadge: "📁 corporate_departments_2026.pst",
-                folders: [
-                    { id: "inbox", name: "📥 Inbox", count: 4 },
-                    { id: "sent", name: "📤 Sent Items", count: 2 },
-                    { id: "contracts", name: "📂 Contracts & Finance", count: 2 },
-                ],
-                messages: [
-                    {
-                        id: 1,
-                        folder: "inbox",
-                        sender: "Helena Martins",
-                        email: "helena.martins@auroracorp.com",
-                        to: "Mariana Costa <mariana.costa@auroracorp.com>; Finance Team",
-                        initials: "HM",
-                        color: "#0f6cbd",
-                        date: "10/29/2026 09:14 AM",
-                        subject: "Q4 Consolidated Report & 2027 Budget Planning",
-                        snippet: "Please find attached the revised quarterly closing and target sheet...",
-                        attachments: [
-                            { name: "Q4_Quarterly_Closing.pdf", size: "1.4 MB" },
-                            { name: "Budget_Targets_2027.xlsx", size: "620 KB" },
-                        ],
-                        body: `<p>Hello everyone,</p><p>Please find attached the <strong>Q4 Consolidated Financial Report</strong> along with the updated departmental budget projections for 2027.</p><p>All figures have been verified by the controlling team and are ready for review.</p><p>Best regards,<br><strong>Helena Martins</strong><br>Finance Director • Aurora Corp</p>`,
-                    },
-                    {
-                        id: 2,
-                        folder: "inbox",
-                        sender: "Lucas Vance",
-                        email: "lucas.vance@auroracorp.com",
-                        to: "Operations Team <operations@auroracorp.com>",
-                        initials: "LV",
-                        color: "#0284c7",
-                        date: "10/28/2026 05:42 PM",
-                        subject: "Cloud Server Upgrade Schedule",
-                        snippet: "The maintenance window scheduled for next Saturday has been approved...",
-                        attachments: [
-                            { name: "Cloud_Migration_Plan.docx", size: "410 KB" },
-                        ],
-                        body: `<p>Good afternoon team,</p><p>We confirm that the cloud server upgrade will take place this Saturday at 8:00 AM with zero downtime for end users.</p><p>The complete checklist is available in the attached Word document.</p><p>Best,<br><strong>Lucas Vance</strong><br>Cloud Architecture</p>`,
-                    },
-                    {
-                        id: 3,
-                        folder: "inbox",
-                        sender: "Sofia Alencar",
-                        email: "sofia.alencar@auroracorp.com",
-                        to: "Procurement & Supply <procurement@auroracorp.com>",
-                        initials: "SA",
-                        color: "#7c3aed",
-                        date: "10/27/2026 02:15 PM",
-                        subject: "Approved Draft — Vendor Master Renewal",
-                        snippet: "Sending the final version reviewed by Legal for digital signature...",
-                        attachments: [
-                            { name: "Vendor_Agreement_2027.pdf", size: "980 KB" },
-                        ],
-                        body: `<p>Dear team,</p><p>The legal review for the annual vendor agreement is now complete. The attached PDF includes all updated compliance clauses.</p><p>Kind regards,<br><strong>Sofia Alencar</strong><br>Corporate Legal</p>`,
-                    },
-                    {
-                        id: 4,
-                        folder: "inbox",
-                        sender: "Marcos Oliveira",
-                        email: "marcos.oliveira@auroracorp.com",
-                        to: "Human Resources <hr@auroracorp.com>",
-                        initials: "MO",
-                        color: "#059669",
-                        date: "10/25/2026 11:05 AM",
-                        subject: "New Hire Onboarding Schedule — November",
-                        snippet: "Confirmed training groups for the first week of November...",
-                        attachments: [],
-                        body: `<p>Good morning,</p><p>The training rooms for the November onboarding sessions are booked. We will welcome 18 new team members across two groups.</p><p>Sincerely,<br><strong>Marcos Oliveira</strong><br>People & Culture</p>`,
-                    },
-                    {
-                        id: 5,
-                        folder: "sent",
-                        sender: "Clara Novak",
-                        email: "clara.novak@auroracorp.com",
-                        to: "Helena Martins <helena.martins@auroracorp.com>",
-                        initials: "CN",
-                        color: "#d97706",
-                        date: "10/29/2026 10:02 AM",
-                        subject: "RE: Q4 Consolidated Report & 2027 Budget Planning",
-                        snippet: "Thanks for sending this over, Helena! We validated our department numbers...",
-                        attachments: [],
-                        body: `<p>Hi Helena,</p><p>Thank you for sending this over! We reviewed the spreadsheet tabs and our department's figures are 100% accurate.</p><p>Warm regards,<br><strong>Clara Novak</strong></p>`,
-                    },
-                    {
-                        id: 6,
-                        folder: "sent",
-                        sender: "Daniel Costa",
-                        email: "daniel.costa@auroracorp.com",
-                        to: "Sofia Alencar <sofia.alencar@auroracorp.com>",
-                        initials: "DC",
-                        color: "#dc2626",
-                        date: "10/27/2026 04:30 PM",
-                        subject: "FW: Digital Contract Signature Receipt",
-                        snippet: "Attached is the electronic signature certificate completed this afternoon...",
-                        attachments: [
-                            { name: "Signature_Certificate.pdf", size: "315 KB" },
-                        ],
-                        body: `<p>Hi Sofia,</p><p>Please find attached the digital signature receipt for the logistics services agreement.</p><p>Best regards,<br><strong>Daniel Costa</strong></p>`,
-                    },
-                ],
-            },
-        };
-
-        function renderOutlook365Simulator() {
-            const foldersEl = $("sim-folders-list");
-            const msgsEl = $("sim-messages-container");
-            const readEl = $("sim-reading-pane");
-            if (!foldersEl || !msgsEl || !readEl) return;
-
-            const en = isEn();
-            const data = SIM_DATA[state.lang] || SIM_DATA.pt;
-            if ($("sim-file-badge")) {
-                $("sim-file-badge").textContent = data.fileBadge;
-            }
-
-            // Render folders
-            foldersEl.innerHTML = data.folders.map((f) => `
-                <div class="o365-folder-item ${state.simFolder === f.id ? "active" : ""}" data-sim-folder="${f.id}">
-                    <span>${escapeHtml(f.name)}</span>
-                    <span class="o365-folder-badge">${f.count}</span>
-                </div>
-            `).join("");
-
-            foldersEl.querySelectorAll("[data-sim-folder]").forEach((el) => {
-                el.addEventListener("click", () => {
-                    state.simFolder = el.getAttribute("data-sim-folder");
-                    state.simQuery = "";
-                    if ($("sim-search-input")) $("sim-search-input").value = "";
-                    renderOutlook365Simulator();
-                });
-            });
-
-            // Filter messages
-            const q = (state.simQuery || "").toLowerCase().trim();
-            let filtered = data.messages.filter((m) => {
-                if (q) {
-                    return (
-                        m.subject.toLowerCase().includes(q) ||
-                        m.sender.toLowerCase().includes(q) ||
-                        m.snippet.toLowerCase().includes(q) ||
-                        m.body.toLowerCase().includes(q)
-                    );
-                }
-                if (state.simFolder === "contracts") {
-                    return m.id === 1 || m.id === 3;
-                }
-                return m.folder === state.simFolder;
-            });
-
-            if (!filtered.some((m) => m.id === state.simSelectedId) && filtered.length > 0) {
-                state.simSelectedId = filtered[0].id;
-            }
-
-            const activeFolderObj = data.folders.find((f) => f.id === state.simFolder) || data.folders[0];
-            if ($("sim-folder-title")) {
-                $("sim-folder-title").textContent = q
-                    ? (en ? `Search: "${state.simQuery}"` : `Busca: "${state.simQuery}"`)
-                    : activeFolderObj.name.replace(/^[^\s]+\s/, "");
-            }
-            if ($("sim-folder-count")) {
-                $("sim-folder-count").textContent = `${filtered.length} ${en ? "items" : "itens"}`;
-            }
-
-            if (filtered.length === 0) {
-                msgsEl.innerHTML = `<div style="padding:24px 14px;text-align:center;color:#64748b;font-size:12.5px;">${en ? "No sample messages matched your search." : "Nenhuma mensagem de exemplo encontrada."}</div>`;
-                readEl.innerHTML = "";
-                return;
-            }
-
-            msgsEl.innerHTML = filtered.map((m) => `
-                <div class="o365-msg-card ${m.id === state.simSelectedId ? "active" : ""}" data-sim-msg="${m.id}">
-                    <div class="o365-avatar" style="background:${m.color};">${escapeHtml(m.initials)}</div>
-                    <div style="flex:1;min-width:0;">
-                        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;">
-                            <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(m.sender)}</strong>
-                            <span style="font-size:10.5px;color:#64748b;flex-shrink:0;">${escapeHtml(m.date.split(" ")[0])}</span>
-                        </div>
-                        <div style="font-size:12px;font-weight:700;color:#0f6cbd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:2px 0;">
-                            ${m.attachments.length ? "📎 " : ""}${escapeHtml(m.subject)}
-                        </div>
-                        <div style="font-size:11.5px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                            ${escapeHtml(m.snippet)}
-                        </div>
-                    </div>
-                </div>
-            `).join("");
-
-            msgsEl.querySelectorAll("[data-sim-msg]").forEach((el) => {
-                el.addEventListener("click", () => {
-                    state.simSelectedId = Number(el.getAttribute("data-sim-msg"));
-                    renderOutlook365Simulator();
-                });
-            });
-
-            const sel = filtered.find((m) => m.id === state.simSelectedId) || filtered[0];
-            readEl.innerHTML = `
-                <h4 class="o365-read-subj">${escapeHtml(sel.subject)}</h4>
-                <div class="o365-read-sender-row">
-                    <div class="o365-avatar" style="background:${sel.color};">${escapeHtml(sel.initials)}</div>
-                    <div style="flex:1;min-width:0;">
-                        <div style="font-size:13px;font-weight:700;color:#0f172a;">
-                            ${escapeHtml(sel.sender)} <span style="font-weight:400;color:#64748b;font-size:12px;">&lt;${escapeHtml(sel.email)}&gt;</span>
-                        </div>
-                        <div style="font-size:11.5px;color:#64748b;">
-                            <strong>${en ? "To:" : "Para:"}</strong> ${escapeHtml(sel.to)} • ${escapeHtml(sel.date)}
-                        </div>
-                    </div>
-                </div>
-                ${sel.attachments.length ? `
-                    <div class="o365-att-bar">
-                        ${sel.attachments.map((a) => `
-                            <span class="o365-att-pill" data-sim-att="${escapeHtml(a.name)}">
-                                📎 ${escapeHtml(a.name)} <small style="color:#64748b;">(${escapeHtml(a.size)})</small>
-                            </span>
-                        `).join("")}
-                    </div>
-                ` : ""}
-                <div class="o365-read-body">${sel.body}</div>
-            `;
-
-            readEl.querySelectorAll("[data-sim-att]").forEach((pill) => {
-                pill.addEventListener("click", () => {
-                    const name = pill.getAttribute("data-sim-att");
-                    uiToast(
-                        en
-                            ? `In the full reader, clicking "${name}" opens its content or downloads the original file.`
-                            : `No leitor completo, clicar em "${name}" abre a leitura do anexo na tela ou baixa o arquivo original.`,
-                        "info",
-                        en ? "Attachment Preview (Simulator)" : "Visualização de Anexo (Simulador)"
-                    );
-                });
-            });
-        }
-
-        function applyLanguage(lang) {
-            state.lang = lang === "en" ? "en" : "pt";
-            localStorage.setItem("pstviewer_lang", state.lang);
-            document.documentElement.lang = state.lang === "en" ? "en" : "pt-BR";
-
-            document.querySelectorAll("[data-set-lang]").forEach((btn) => {
-                btn.classList.toggle("active", btn.getAttribute("data-set-lang") === state.lang);
-            });
-
-            document.querySelectorAll("[data-i18n]").forEach((el) => {
-                const key = el.getAttribute("data-i18n");
-                const val = t(key);
-                if (val.includes("<")) {
-                    el.innerHTML = val;
-                } else {
-                    el.textContent = val;
-                }
-            });
-
-            document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
-                const key = el.getAttribute("data-i18n-placeholder");
-                el.setAttribute("placeholder", t(key));
-            });
-
-            document.querySelectorAll("[data-i18n-title]").forEach((el) => {
-                const key = el.getAttribute("data-i18n-title");
-                el.setAttribute("title", t(key));
-            });
-
-            renderOutlook365Simulator();
-            if (state.user && !$("view-home").classList.contains("hidden")) {
-                loadMyActiveSessions();
-            }
-        }
-
-        document.querySelectorAll("[data-set-lang]").forEach((btn) => {
-            btn.addEventListener("click", () => {
-                applyLanguage(btn.getAttribute("data-set-lang"));
-            });
         });
 
         if ($("sim-search-input")) {

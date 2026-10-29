@@ -1001,11 +1001,11 @@ html, body {
 
 .auth-topbar {
     width: 100%;
-    max-width: 1140px;
+    max-width: 1420px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 4px 18px 4px;
+    padding: 8px 8px 14px 8px;
     flex-shrink: 0;
 }
 
@@ -1107,14 +1107,50 @@ html, body {
     line-height: 1;
 }
 
-.auth-landing-container {
+/* ============================================================================
+ * GRADE PRINCIPAL DO PORTAL: SIMULADOR (ESQUERDA) + LOGIN (DIREITA)
+ * ============================================================================ */
+.auth-portal-grid {
     width: 100%;
-    max-width: 1140px;
+    max-width: 1420px;
+    display: grid;
+    grid-template-columns: minmax(0, 1.48fr) minmax(360px, 420px);
+    gap: 32px;
+    align-items: start;
+    margin: 4px auto 36px auto;
+}
+
+.auth-sim-column {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.sim-header-brief {
+    margin-bottom: 12px;
+}
+
+.sim-headline {
+    font-size: 21px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 6px 0 6px 0;
+    letter-spacing: -0.3px;
+    line-height: 1.25;
+}
+
+.sim-lead {
+    font-size: 13.5px;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.45;
+}
+
+.auth-login-column {
+    min-width: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 36px;
-    margin-top: 4px;
 }
 
 .auth-center-card {
@@ -1122,9 +1158,9 @@ html, body {
     max-width: 420px;
     background: #ffffff;
     border-radius: 16px;
-    padding: 36px 34px 26px 34px;
+    padding: 34px 32px 24px 32px;
     box-shadow: 0 20px 50px rgba(15, 108, 189, 0.09), 0 4px 14px rgba(15, 23, 42, 0.04);
-    border: 1px solid #e2e8f0;
+    border: 1px solid #cbd5e1;
     position: relative;
     overflow: hidden;
     flex-shrink: 0;
@@ -1142,13 +1178,13 @@ html, body {
 
 .auth-brand-Hero {
     text-align: center;
-    margin-bottom: 24px;
+    margin-bottom: 22px;
 }
 
 .auth-logo-badge {
-    width: 60px;
-    height: 60px;
-    border-radius: 16px;
+    width: 58px;
+    height: 58px;
+    border-radius: 15px;
     background: linear-gradient(135deg, #0f6cbd 0%, #0284c7 100%);
     color: #ffffff;
     display: inline-flex;
@@ -1163,14 +1199,14 @@ html, body {
     font-weight: 800;
     letter-spacing: -0.7px;
     color: #0f172a;
-    margin: 0 0 8px 0;
+    margin: 0 0 6px 0;
     line-height: 1.15;
 }
 
 .auth-app-tagline {
-    font-size: 14px;
+    font-size: 13.5px;
     color: #64748b;
-    line-height: 1.5;
+    line-height: 1.45;
     margin: 0 auto;
     max-width: 310px;
 }
@@ -1199,35 +1235,19 @@ html, body {
     color: #64748b;
 }
 
-.auth-link-btn {
-    background: none;
-    border: none;
-    color: var(--brand-primary);
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    padding: 4px 8px;
-    border-radius: 4px;
-}
-
-.auth-link-btn:hover {
-    background: #eff6ff;
+.auth-version-pill {
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 999px;
+    border: 1px solid #e2e8f0;
 }
 
 /* ============================================================================
  * SIMULADOR INTERATIVO OUTLOOK 365 WEB NA TELA INICIAL
  * ============================================================================ */
-.o365-sim-section {
-    width: 100%;
-    max-width: 1100px;
-    margin-bottom: 24px;
-}
-
-.o365-sim-intro {
-    text-align: center;
-    margin-bottom: 18px;
-}
-
 .o365-sim-pill {
     display: inline-flex;
     align-items: center;
@@ -1240,7 +1260,7 @@ html, body {
     letter-spacing: 0.6px;
     padding: 5px 14px;
     border-radius: 999px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 .o365-pulse-dot {
@@ -1251,25 +1271,11 @@ html, body {
     box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.25);
 }
 
-.o365-sim-heading {
-    font-size: 21px;
-    font-weight: 800;
-    color: #0f172a;
-    margin: 0 0 6px 0;
-    letter-spacing: -0.3px;
-}
-
-.o365-sim-sub {
-    font-size: 13.5px;
-    color: #64748b;
-    margin: 0;
-}
-
 .o365-window {
     background: #ffffff;
     border-radius: 14px;
     border: 1px solid #cbd5e1;
-    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12), 0 4px 16px rgba(15, 108, 189, 0.08);
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.10), 0 4px 16px rgba(15, 108, 189, 0.08);
     overflow: hidden;
 }
 
@@ -2122,6 +2128,17 @@ html, body {
 
 .arch-box-list li {
     margin-bottom: 4px;
+}
+
+@media (max-width: 1160px) {
+    .auth-portal-grid {
+        grid-template-columns: 1fr;
+        max-width: 580px;
+        gap: 28px;
+    }
+    .auth-login-column {
+        order: -1;
+    }
 }
 
 @media (max-width: 960px) {
