@@ -9,9 +9,9 @@ echo ===========================================================================
 echo.
 
 if exist "venv\Scripts\python.exe" (
-    call venv\Scripts\python.exe setup_and_run.py --setup-only --reset-admin
+    call venv\Scripts\python.exe setup_and_run.py --reset-admin
 ) else (
-    python setup_and_run.py --setup-only --reset-admin
+    python setup_and_run.py --reset-admin
 )
 echo.
 pause

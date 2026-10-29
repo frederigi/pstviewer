@@ -498,22 +498,36 @@ def _spawn_detached_process(args_list: List[str], env: Dict[str, str], log_file:
         pyw = Path(sys.executable).with_name("pythonw.exe")
         if pyw.is_file():
             exe = str(pyw)
-        flags = (
+        base_flags = (
             subprocess.DETACHED_PROCESS
             | subprocess.CREATE_NEW_PROCESS_GROUP
             | subprocess.CREATE_NO_WINDOW
         )
-        proc = subprocess.Popen(
-            [exe, *args_list],
-            env=env,
-            cwd=str(PROJECT_ROOT),
-            stdin=subprocess.DEVNULL,
-            stdout=out_handle,
-            stderr=subprocess.STDOUT,
-            creationflags=flags,
-            close_fds=True,
-        )
-        return proc.pid
+        breakaway_flag = getattr(subprocess, "CREATE_BREAKAWAY_FROM_JOB", 0x01000000)
+        try:
+            proc = subprocess.Popen(
+                [exe, *args_list],
+                env=env,
+                cwd=str(PROJECT_ROOT),
+                stdin=subprocess.DEVNULL,
+                stdout=out_handle,
+                stderr=subprocess.STDOUT,
+                creationflags=base_flags | breakaway_flag,
+                close_fds=True,
+            )
+            return proc.pid
+        except OSError:
+            proc = subprocess.Popen(
+                [exe, *args_list],
+                env=env,
+                cwd=str(PROJECT_ROOT),
+                stdin=subprocess.DEVNULL,
+                stdout=out_handle,
+                stderr=subprocess.STDOUT,
+                creationflags=base_flags,
+                close_fds=True,
+            )
+            return proc.pid
     else:
         proc = subprocess.Popen(
             [exe, *args_list],
@@ -663,8 +677,9 @@ def main() -> int:
         if not install_missing_python_deps(to_install):
             return 1
 
-    # Se já estiver rodando em segundo plano, para antes de verificar a porta para manter a 8085
-    stop_background_services(silent=True)
+    # Se não for apenas setup, reinicia os serviços em segundo plano mantendo a porta 8085
+    if not args.setup_only:
+        stop_background_services(silent=True)
 
     http_port = _find_available_http_port(args.port)
     env_path, http_port = configure_database_and_env(
