@@ -125,9 +125,9 @@ def decode_mime_header_value(raw_val: Optional[str]) -> Optional[str]:
 def classify_folder_role(folder_name: str, depth: int) -> str:
     """Identifica o papel da pasta para organização visual semelhante ao Outlook."""
     norm = folder_name.strip().lower()
-    if norm in ("caixa de entrada", "inbox"):
+    if norm in ("caixa de entrada", "inbox", "entrada", "recebidos", "recebidas"):
         return "INBOX"
-    if norm in ("itens enviados", "sent items", "sent", "enviados"):
+    if norm in ("itens enviados", "sent items", "sent", "enviados", "enviadas"):
         return "SENT"
     if norm in ("rascunhos", "drafts"):
         return "DRAFTS"

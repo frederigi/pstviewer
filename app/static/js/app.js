@@ -677,10 +677,12 @@
         state.foldersFlat = data.folders || [];
         state.foldersTree = data.tree || [];
 
-        // Expande pastas de nível raiz e primeiro nível por padrão
+        // Expande automaticamente pastas container e primeiros níveis para exibir direto as pastas com e-mails
         if (state.expandedFolderIds.size === 0) {
             for (const f of state.foldersFlat) {
-                if (f.depth <= 1) state.expandedFolderIds.add(f.id);
+                if (f.depth <= 2 || f.message_count === 0) {
+                    state.expandedFolderIds.add(f.id);
+                }
             }
         }
 

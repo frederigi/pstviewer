@@ -28,9 +28,65 @@ from app.services.session_manager import get_owned_pst_session, resolve_session_
 router = APIRouter(prefix="/api/sessions/{session_uuid}", tags=["reader"])
 
 
-def _build_folder_tree(folders: List[PstFolder]) -> List[Dict[str, Any]]:
+MAPI_SYSTEM_FOLDER_PREFIXES = (
+    "spam search folder",
+    "pesquisar raiz",
+    "search root",
+    "finder",
+    "common views",
+    "deferred action",
+    "spooler queue",
+    "views",
+    "reminders",
+    "lembretes",
+    "sync issues",
+    "problemas de sincronização",
+    "problemas de sincronizacao",
+)
+
+MAPI_ROOT_WRAPPER_PREFIXES = (
+    "início do arquivo de dados",
+    "inicio do arquivo de dados",
+    "top of outlook data file",
+    "top of personal folders",
+    "início de pastas particulares",
+    "inicio de pastas particulares",
+    "raiz do pst",
+    "ipm_subtree",
+    "root - mailbox",
+)
+
+
+def _normalize_role(name: str, current_role: str) -> str:
+    norm = (name or "").strip().lower()
+    if norm in ("caixa de entrada", "inbox", "entrada", "recebidos", "recebidas"):
+        return "INBOX"
+    if norm in ("itens enviados", "sent items", "sent", "enviados", "enviadas"):
+        return "SENT"
+    return current_role
+
+
+def _is_mapi_system_folder(name: str) -> bool:
+    norm = (name or "").strip().lower()
+    return any(norm.startswith(p) for p in MAPI_SYSTEM_FOLDER_PREFIXES)
+
+
+def _is_mapi_root_wrapper(name: str) -> bool:
+    norm = (name or "").strip().lower()
+    return any(norm.startswith(p) for p in MAPI_ROOT_WRAPPER_PREFIXES)
+
+
+def _build_folder_tree(folders: List[PstFolder]) -> tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """
+    Constrói a árvore de pastas limpa para o usuário:
+      1. Oculta pastas internas de sistema do MAPI (ex: 'SPAM Search Folder 2', 'Pesquisar Raiz').
+      2. Oculta pastas vazias que não possuem nenhuma mensagem nem subpastas com mensagens
+         (ex: 'Itens Excluídos' vazio criado automaticamente pelo Outlook ao exportar).
+      3. Desembrulha o container técnico 'Início do arquivo de dados do Outlook' ('Top of Outlook data file')
+         quando ele próprio não tem mensagens avulsas, exibindo direto as pastas reais do backup.
+    """
     nodes_by_id: Dict[int, Dict[str, Any]] = {}
-    roots: List[Dict[str, Any]] = []
+    raw_roots: List[Dict[str, Any]] = []
 
     for f in folders:
         nodes_by_id[f.id] = {
@@ -38,9 +94,9 @@ def _build_folder_tree(folders: List[PstFolder]) -> List[Dict[str, Any]]:
             "parent_folder_id": f.parent_folder_id,
             "name": f.name,
             "full_path": f.full_path,
-            "folder_role": f.folder_role,
+            "folder_role": _normalize_role(f.name, f.folder_role),
             "depth": f.depth,
-            "message_count": f.message_count,
+            "message_count": f.message_count or 0,
             "sort_order": f.sort_order,
             "children": [],
         }
@@ -50,9 +106,69 @@ def _build_folder_tree(folders: List[PstFolder]) -> List[Dict[str, Any]]:
         if f.parent_folder_id and f.parent_folder_id in nodes_by_id:
             nodes_by_id[f.parent_folder_id]["children"].append(node)
         else:
-            roots.append(node)
+            raw_roots.append(node)
 
-    return roots
+    total_msgs_in_pst = sum((f.message_count or 0) for f in folders)
+
+    def _prune_tree(nodes: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        kept: List[Dict[str, Any]] = []
+        for node in nodes:
+            if _is_mapi_system_folder(node["name"]) and node["message_count"] == 0:
+                continue
+            node["children"] = _prune_tree(node["children"])
+            has_msgs_here = node["message_count"] > 0
+            has_msgs_in_children = len(node["children"]) > 0
+            # Se já existem mensagens extraídas no PST, oculta ramos 100% vazios
+            if total_msgs_in_pst > 0 and not has_msgs_here and not has_msgs_in_children:
+                continue
+            kept.append(node)
+        return kept
+
+    cleaned_roots = _prune_tree(raw_roots)
+
+    # 1. Desembrulha containers técnicos de topo do Outlook ('Início do arquivo de dados do Outlook')
+    unwrapped_roots: List[Dict[str, Any]] = []
+    for r in cleaned_roots:
+        if _is_mapi_root_wrapper(r["name"]) and r["message_count"] == 0 and r["children"]:
+            for child in r["children"]:
+                child["parent_folder_id"] = None
+                unwrapped_roots.append(child)
+        else:
+            unwrapped_roots.append(r)
+
+    # 2. Se o Outlook recriou pastas-pai vazias acima da pasta que o usuário realmente fez backup
+    #    (ex: 'Backups' [0 msgs] -> '05 - Maio' -> 'Entrada' / 'Enviadas'), avança direto até a pasta do backup!
+    while (
+        len(unwrapped_roots) == 1
+        and unwrapped_roots[0]["message_count"] == 0
+        and len(unwrapped_roots[0]["children"]) == 1
+    ):
+        only_child = unwrapped_roots[0]["children"][0]
+        only_child["parent_folder_id"] = None
+        unwrapped_roots = [only_child]
+
+    # Recalcula a profundidade (depth) e gera a lista plana limpa na ordem da árvore
+    flat_clean: List[Dict[str, Any]] = []
+
+    def _reindex_depth(nodes: List[Dict[str, Any]], current_depth: int) -> None:
+        for n in nodes:
+            n["depth"] = current_depth
+            flat_clean.append(
+                {
+                    "id": n["id"],
+                    "parent_folder_id": n["parent_folder_id"],
+                    "name": n["name"],
+                    "full_path": n["full_path"],
+                    "folder_role": n["folder_role"],
+                    "depth": n["depth"],
+                    "message_count": n["message_count"],
+                }
+            )
+            if n["children"]:
+                _reindex_depth(n["children"], current_depth + 1)
+
+    _reindex_depth(unwrapped_roots, 0)
+    return unwrapped_roots, flat_clean
 
 
 @router.get("/folders")
@@ -84,20 +200,7 @@ def get_session_folders(
         .order_by(PstFolder.depth.asc(), PstFolder.sort_order.asc(), PstFolder.name.asc())
     )
     folders = list(db.scalars(stmt).all())
-    tree = _build_folder_tree(folders)
-
-    flat_list = [
-        {
-            "id": f.id,
-            "parent_folder_id": f.parent_folder_id,
-            "name": f.name,
-            "full_path": f.full_path,
-            "folder_role": f.folder_role,
-            "depth": f.depth,
-            "message_count": f.message_count,
-        }
-        for f in folders
-    ]
+    tree, flat_list = _build_folder_tree(folders)
 
     return {
         "session_uuid": pst_sess.session_uuid,
