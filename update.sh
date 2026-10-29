@@ -1,18 +1,14 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # PST Viewer - Atualizador Rápido via SSH (Preserva Banco, Senhas e .env)
-# Atualiza tanto a pasta atual (ex: /var/www/mail) quanto /opt/pstviewer.
+# Funciona automaticamente tanto para quem clonou do GitHub quanto do Gitea!
 # ==============================================================================
 set -euo pipefail
 
 CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 APP_ROOT="/opt/pstviewer"
 APP_USER="pstviewer"
-REPO_URL="${1:-http://10.14.127.225:3000/anderson/pstviewer.git}"
-
-echo "=================================================================="
-echo " PST VIEWER - ATUALIZANDO CÓDIGO A PARTIR DE ${REPO_URL}"
-echo "=================================================================="
+DEFAULT_GITHUB_URL="https://github.com/frederigi/pstviewer.git"
 
 cd "${CURRENT_DIR}"
 
@@ -21,8 +17,23 @@ if [ ! -d "${CURRENT_DIR}/.git" ]; then
     git branch -M main
 fi
 
-git remote remove origin 2>/dev/null || true
-git remote add origin "${REPO_URL}"
+# Se o usuário passou uma URL por parâmetro, usa ela;
+# caso contrário, preserva o remote 'origin' original de onde foi clonado (GitHub ou Gitea)
+if [ -n "${1:-}" ]; then
+    REPO_URL="$1"
+    git remote remove origin 2>/dev/null || true
+    git remote add origin "${REPO_URL}"
+elif git remote get-url origin >/dev/null 2>&1; then
+    REPO_URL="$(git remote get-url origin)"
+else
+    REPO_URL="${DEFAULT_GITHUB_URL}"
+    git remote add origin "${REPO_URL}"
+fi
+
+echo "=================================================================="
+echo " PST VIEWER - ATUALIZANDO CÓDIGO A PARTIR DE:"
+echo " ${REPO_URL}"
+echo "=================================================================="
 
 echo "[1/3] Baixando última versão do repositório em ${CURRENT_DIR}..."
 git fetch origin main
