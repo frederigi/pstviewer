@@ -353,7 +353,12 @@
             warning: SVG_ICONS.alert,
             info: SVG_ICONS.info,
         };
-        const defaultTitles = {
+        const defaultTitles = isEn() ? {
+            success: "Operation Completed",
+            danger: "Attention / Error",
+            warning: "System Notice",
+            info: "Information",
+        } : {
             success: "Operação concluída",
             danger: "Atenção / Erro",
             warning: "Aviso do Sistema",
@@ -364,7 +369,7 @@
         toast.innerHTML = `
             <div class="ui-toast-icon">${icons[variant] || SVG_ICONS.info}</div>
             <div class="ui-toast-body">
-                <div class="ui-toast-title">${escapeHtml(title || defaultTitles[variant] || "Sistema")}</div>
+                <div class="ui-toast-title">${escapeHtml(title || defaultTitles[variant] || (isEn() ? "System" : "Sistema"))}</div>
                 <div class="ui-toast-msg">${escapeHtml(message)}</div>
             </div>
         `;
@@ -378,13 +383,18 @@
     }
 
     function uiConfirm({
-        title = "Confirmação do Sistema",
+        title = "",
         message = "",
-        confirmText = "Confirmar",
-        cancelText = "Cancelar",
+        confirmText = "",
+        cancelText = "",
         variant = "primary", // "primary" | "danger" | "warning"
         icon = SVG_ICONS.shield,
     } = {}) {
+        const en = isEn();
+        const finalTitle = title || (en ? "System Confirmation" : "Confirmação do Sistema");
+        const finalConfirm = confirmText || (en ? "Confirm" : "Confirmar");
+        const finalCancel = cancelText || (en ? "Cancel" : "Cancelar");
+
         return new Promise((resolve) => {
             const backdrop = document.createElement("div");
             backdrop.className = "ui-dialog-backdrop";
@@ -396,13 +406,13 @@
                     <div class="ui-dialog-body">
                         <div class="ui-dialog-icon ${iconVariant}">${icon}</div>
                         <div class="ui-dialog-content">
-                            <h3 class="ui-dialog-title">${escapeHtml(title)}</h3>
+                            <h3 class="ui-dialog-title">${escapeHtml(finalTitle)}</h3>
                             <p class="ui-dialog-message">${escapeHtml(message)}</p>
                         </div>
                     </div>
                     <div class="ui-dialog-footer">
-                        <button type="button" class="btn btn-outline" data-dialog-cancel>${escapeHtml(cancelText)}</button>
-                        <button type="button" class="btn ${btnClass}" data-dialog-confirm>${escapeHtml(confirmText)}</button>
+                        <button type="button" class="btn btn-outline" data-dialog-cancel>${escapeHtml(finalCancel)}</button>
+                        <button type="button" class="btn ${btnClass}" data-dialog-confirm>${escapeHtml(finalConfirm)}</button>
                     </div>
                 </div>
             `;
@@ -430,12 +440,16 @@
     }
 
     function uiAlert({
-        title = "Aviso do Sistema",
+        title = "",
         message = "",
-        buttonText = "Entendi",
+        buttonText = "",
         variant = "primary",
         icon = SVG_ICONS.info,
     } = {}) {
+        const en = isEn();
+        const finalTitle = title || (en ? "System Notice" : "Aviso do Sistema");
+        const finalButton = buttonText || (en ? "Got it" : "Entendi");
+
         return new Promise((resolve) => {
             const backdrop = document.createElement("div");
             backdrop.className = "ui-dialog-backdrop";
@@ -446,12 +460,12 @@
                     <div class="ui-dialog-body">
                         <div class="ui-dialog-icon ${iconVariant}">${icon}</div>
                         <div class="ui-dialog-content">
-                            <h3 class="ui-dialog-title">${escapeHtml(title)}</h3>
+                            <h3 class="ui-dialog-title">${escapeHtml(finalTitle)}</h3>
                             <p class="ui-dialog-message">${escapeHtml(message)}</p>
                         </div>
                     </div>
                     <div class="ui-dialog-footer">
-                        <button type="button" class="btn btn-primary" data-dialog-ok>${escapeHtml(buttonText)}</button>
+                        <button type="button" class="btn btn-primary" data-dialog-ok>${escapeHtml(finalButton)}</button>
                     </div>
                 </div>
             `;
@@ -476,14 +490,19 @@
     }
 
     function uiPrompt({
-        title = "Informar Valor",
+        title = "",
         message = "",
         placeholder = "",
         inputType = "password",
         minLength = 1,
-        confirmText = "Salvar",
-        cancelText = "Cancelar",
+        confirmText = "",
+        cancelText = "",
     } = {}) {
+        const en = isEn();
+        const finalTitle = title || (en ? "Enter Value" : "Informar Valor");
+        const finalConfirm = confirmText || (en ? "Save" : "Salvar");
+        const finalCancel = cancelText || (en ? "Cancel" : "Cancelar");
+
         return new Promise((resolve) => {
             const backdrop = document.createElement("div");
             backdrop.className = "ui-dialog-backdrop";
@@ -493,15 +512,15 @@
                     <div class="ui-dialog-body">
                         <div class="ui-dialog-icon icon-primary">${SVG_ICONS.key}</div>
                         <div class="ui-dialog-content">
-                            <h3 class="ui-dialog-title">${escapeHtml(title)}</h3>
+                            <h3 class="ui-dialog-title">${escapeHtml(finalTitle)}</h3>
                             <p class="ui-dialog-message">${escapeHtml(message)}</p>
                             <input type="${escapeHtml(inputType)}" class="form-control ui-dialog-input" placeholder="${escapeHtml(placeholder)}" minlength="${minLength}">
                             <div class="ui-dialog-err hidden" style="color:var(--danger);font-size:12px;margin-top:6px;"></div>
                         </div>
                     </div>
                     <div class="ui-dialog-footer">
-                        <button type="button" class="btn btn-outline" data-dialog-cancel>${escapeHtml(cancelText)}</button>
-                        <button type="button" class="btn btn-primary" data-dialog-confirm>${escapeHtml(confirmText)}</button>
+                        <button type="button" class="btn btn-outline" data-dialog-cancel>${escapeHtml(finalCancel)}</button>
+                        <button type="button" class="btn btn-primary" data-dialog-confirm>${escapeHtml(finalConfirm)}</button>
                     </div>
                 </div>
             `;
@@ -517,12 +536,32 @@
             const submit = () => {
                 const val = inp.value || "";
                 if (val.length < minLength) {
-                    errBox.textContent = `O campo deve ter pelo menos ${minLength} caracteres.`;
+                    errBox.textContent = en
+                        ? `This field must have at least ${minLength} characters.`
+                        : `O campo deve ter pelo menos ${minLength} caracteres.`;
                     errBox.classList.remove("hidden");
                     inp.focus();
                     return;
                 }
                 close(val);
+            };
+
+            const onKey = (ev) => {
+                if (ev.key === "Escape") close(null);
+                if (ev.key === "Enter") submit();
+            };
+            document.addEventListener("keydown", onKey);
+
+            backdrop.querySelector("[data-dialog-cancel]").addEventListener("click", () => close(null));
+            backdrop.querySelector("[data-dialog-confirm]").addEventListener("click", submit);
+            backdrop.addEventListener("click", (ev) => {
+                if (ev.target === backdrop) close(null);
+            });
+
+            document.body.appendChild(backdrop);
+            inp.focus();
+        });
+    }
             };
             const onKey = (ev) => {
                 if (ev.key === "Escape") close(null);
@@ -1394,18 +1433,25 @@
 
     async function closeSpecificSession(sessionUuid) {
         if (!sessionUuid) return;
+        const en = isEn();
         const ok = await uiConfirm({
-            title: "Fechar Visualização Temporária",
-            message: "Deseja encerrar a visualização deste PST aqui no leitor web? A leitura temporária do servidor será limpa (o arquivo .pst original no seu computador/rede continua 100% salvo e intacto).",
-            confirmText: "Sim, Fechar Consulta",
-            cancelText: "Continuar Lendo",
+            title: en ? "Close Temporary Viewing" : "Fechar Visualização Temporária",
+            message: en
+                ? "Do you want to close this PST viewing session? The server's temporary reading cache will be purged (the original .pst file on your computer or network remains 100% safe and intact)."
+                : "Deseja encerrar a visualização deste PST aqui no leitor web? A leitura temporária do servidor será limpa (o arquivo .pst original no seu computador/rede continua 100% salvo e intacto).",
+            confirmText: en ? "Yes, Close Session" : "Sim, Fechar Consulta",
+            cancelText: en ? "Continue Reading" : "Continuar Lendo",
             variant: "danger",
             icon: SVG_ICONS.trash,
         });
         if (!ok) return;
         try {
             await apiFetch(`/api/sessions/${sessionUuid}/close`, { method: "POST" });
-            uiToast("Visualização encerrada no servidor (seu arquivo .pst original permanece intacto no seu PC).", "success", "Consulta Encerrada");
+            uiToast(
+                en ? "Session closed on server (original .pst file remains intact on your PC)." : "Visualização encerrada no servidor (seu arquivo .pst original permanece intacto no seu PC).",
+                "success",
+                en ? "Session Closed" : "Consulta Encerrada"
+            );
             if (state.currentSessionUuid === sessionUuid) {
                 showHomeView();
             } else {
@@ -1413,7 +1459,7 @@
             }
         } catch (err) {
             await uiAlert({
-                title: "Erro ao Encerrar Sessão",
+                title: en ? "Error Closing Session" : "Erro ao Encerrar Sessão",
                 message: err.message,
                 variant: "danger",
                 icon: SVG_ICONS.alert,
@@ -1495,18 +1541,28 @@
                 });
                 body.querySelectorAll("[data-force-purge]").forEach((btn) => {
                     btn.addEventListener("click", async () => {
+                        const en = isEn();
                         const uuid = btn.getAttribute("data-force-purge");
                         const ok = await uiConfirm({
-                            title: "Forçar Expurgo de Sessão",
-                            message: `Deseja expurgar imediatamente a sessão temporária ${uuid.substring(0, 12)}... e remover todos os arquivos de disco?`,
-                            confirmText: "Expurgar Agora",
-                            cancelText: "Cancelar",
+                            title: en ? "Force Session Purge" : "Forçar Expurgo de Sessão",
+                            message: en
+                                ? `Do you want to immediately purge temporary session ${uuid.substring(0, 12)}... and remove all files from disk?`
+                                : `Deseja expurgar imediatamente a sessão temporária ${uuid.substring(0, 12)}... e remover todos os arquivos de disco?`,
+                            confirmText: en ? "Purge Now" : "Expurgar Agora",
+                            cancelText: en ? "Cancel" : "Cancelar",
                             variant: "danger",
                             icon: SVG_ICONS.trash,
                         });
                         if (!ok) return;
                         await apiFetch(`/api/admin/sessions/${uuid}/force-purge`, { method: "POST" });
-                        uiToast("Sessão expurgada com sucesso.", "success", "Expurgo Administrativo");
+                        uiToast(
+                            en ? "Session purged successfully." : "Sessão expurgada com sucesso.",
+                            "success",
+                            en ? "Administrative Purge" : "Expurgo Administrativo"
+                        );
+                        renderAdminTab("sessions");
+                    });
+                });
                         renderAdminTab("sessions");
                     });
                 });
@@ -1597,24 +1653,31 @@
                 });
                 body.querySelectorAll("[data-delete-u]").forEach((btn) => {
                     btn.addEventListener("click", async () => {
+                        const en = isEn();
                         const uid = btn.getAttribute("data-delete-u");
                         const uname = btn.getAttribute("data-delete-uname") || "";
                         const ok = await uiConfirm({
-                            title: "Excluir Conta de Usuário",
-                            message: `Deseja excluir permanentemente o usuário "${uname}"? Eventuais sessões PST temporárias abertas por ele serão encerradas e limpas do servidor.`,
-                            confirmText: "Sim, Excluir Usuário",
-                            cancelText: "Cancelar",
+                            title: en ? "Delete User Account" : "Excluir Conta de Usuário",
+                            message: en
+                                ? `Do you want to permanently delete user "${uname}"? Any temporary PST sessions opened by this user will be terminated and purged from the server.`
+                                : `Deseja excluir permanentemente o usuário "${uname}"? Eventuais sessões PST temporárias abertas por ele serão encerradas e limpas do servidor.`,
+                            confirmText: en ? "Yes, Delete User" : "Sim, Excluir Usuário",
+                            cancelText: en ? "Cancel" : "Cancelar",
                             variant: "danger",
                             icon: SVG_ICONS.trash,
                         });
                         if (!ok) return;
                         try {
                             await apiFetch(`/api/admin/users/${uid}`, { method: "DELETE" });
-                            uiToast(`Usuário "${uname}" excluído com sucesso.`, "success", "Gestão de Usuários");
+                            uiToast(
+                                en ? `User "${uname}" deleted successfully.` : `Usuário "${uname}" excluído com sucesso.`,
+                                "success",
+                                en ? "User Management" : "Gestão de Usuários"
+                            );
                             renderAdminTab("users");
                         } catch (err) {
                             await uiAlert({
-                                title: "Erro ao Excluir Usuário",
+                                title: en ? "Error Deleting User" : "Erro ao Excluir Usuário",
                                 message: err.message,
                                 variant: "danger",
                                 icon: SVG_ICONS.alert,
@@ -1678,18 +1741,28 @@
                 $("login-password").value = "";
                 onAuthenticated(data.user, data.csrf_token);
             } catch (err) {
-                showLoginView(err.message);
+                const en = isEn();
+                let msg = err.message || "";
+                if (en && msg.includes("Credenciais inválidas")) {
+                    msg = "Invalid username or password.";
+                } else if (en && msg.includes("bloqueada")) {
+                    msg = "Account is temporarily locked due to failed attempts.";
+                }
+                showLoginView(msg);
             } finally {
                 btn.disabled = false;
             }
         });
 
         $("btn-logout").addEventListener("click", async () => {
+            const en = isEn();
             const ok = await uiConfirm({
-                title: "Sair do PST Viewer",
-                message: "Deseja sair do sistema? A visualização temporária aberta no leitor web será fechada (o seu arquivo .pst original no computador ou na rede permanece 100% intacto).",
-                confirmText: "Sair do Sistema",
-                cancelText: "Continuar Conectado",
+                title: en ? "Sign Out of PST Viewer" : "Sair do PST Viewer",
+                message: en
+                    ? "Do you want to sign out? The temporary web viewing session will be closed (your original .pst file on your computer or network remains 100% untouched)."
+                    : "Deseja sair do sistema? A visualização temporária aberta no leitor web será fechada (o seu arquivo .pst original no computador ou na rede permanece 100% intacto).",
+                confirmText: en ? "Sign Out" : "Sair do Sistema",
+                cancelText: en ? "Stay Connected" : "Continuar Conectado",
                 variant: "primary",
                 icon: SVG_ICONS.logout,
             });
@@ -1697,7 +1770,7 @@
             try {
                 await apiFetch("/api/auth/logout", { method: "POST" });
             } catch (_e) {}
-            showLoginView("Você saiu do sistema e os dados temporários foram eliminados.");
+            showLoginView(en ? "You have signed out and temporary viewing data has been purged." : "Você saiu do sistema e os dados temporários foram eliminados.");
         });
 
         $("btn-go-home").addEventListener("click", () => {
@@ -1727,17 +1800,24 @@
         $("btn-reader-diagnostics").addEventListener("click", openDiagnosticsModal);
         $("btn-proc-cancel").addEventListener("click", async () => {
             if (!state.currentSessionUuid) return;
+            const en = isEn();
             const ok = await uiConfirm({
-                title: "Cancelar Processamento PST",
-                message: "Deseja interromper a extração em andamento e eliminar imediatamente todos os arquivos parciais?",
-                confirmText: "Sim, Cancelar e Limpar",
-                cancelText: "Continuar Processando",
+                title: en ? "Cancel PST Processing" : "Cancelar Processamento PST",
+                message: en
+                    ? "Do you want to stop the ongoing extraction and immediately purge all partial files?"
+                    : "Deseja interromper a extração em andamento e eliminar imediatamente todos os arquivos parciais?",
+                confirmText: en ? "Yes, Cancel and Purge" : "Sim, Cancelar e Limpar",
+                cancelText: en ? "Continue Processing" : "Continuar Processando",
                 variant: "danger",
                 icon: SVG_ICONS.alert,
             });
             if (!ok) return;
             await apiFetch(`/api/sessions/${state.currentSessionUuid}/cancel`, { method: "POST" });
-            uiToast("Processamento cancelado e dados parciais removidos.", "info", "Cancelado");
+            uiToast(
+                en ? "Processing canceled and partial data removed." : "Processamento cancelado e dados parciais removidos.",
+                "info",
+                en ? "Canceled" : "Cancelado"
+            );
             showHomeView();
         });
 

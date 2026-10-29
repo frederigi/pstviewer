@@ -46,60 +46,8 @@ html, body {
 }
 
 /* ============================================================================
- * TELA 1: LOGIN
+ * FORMULÁRIOS & CAMPOS GERAIS
  * ============================================================================ */
-.auth-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    background: linear-gradient(135deg, #0a2e5c 0%, #0f6cbd 100%);
-    padding: 16px;
-}
-
-.auth-card {
-    background: var(--bg-surface);
-    width: 100%;
-    max-width: 420px;
-    border-radius: 8px;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
-    padding: 32px;
-}
-
-.auth-brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 8px;
-}
-
-.auth-brand-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 8px;
-    background: var(--brand-primary);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 18px;
-}
-
-.auth-title {
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin: 0;
-}
-
-.auth-subtitle {
-    color: var(--text-secondary);
-    font-size: 13px;
-    margin: 0 0 24px 0;
-    line-height: 1.4;
-}
-
 .form-group {
     margin-bottom: 16px;
 }
@@ -1037,23 +985,27 @@ html, body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: flex-start;
     height: 100vh;
+    min-height: 100vh;
     overflow-y: auto;
+    overflow-x: hidden;
     background-color: #f2f7fd;
     background-image:
         radial-gradient(at 15% 15%, rgba(15, 108, 189, 0.09) 0px, transparent 48%),
         radial-gradient(at 85% 75%, rgba(56, 189, 248, 0.11) 0px, transparent 48%),
         linear-gradient(180deg, #eef5fc 0%, #f8fafc 45%, #eaf2fb 100%);
-    padding: 0 20px 48px 20px;
+    padding: 18px 20px 60px 20px;
+    box-sizing: border-box;
 }
 
 .auth-topbar {
     width: 100%;
-    max-width: 1180px;
+    max-width: 1140px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 4px;
+    padding: 8px 4px 18px 4px;
     flex-shrink: 0;
 }
 
