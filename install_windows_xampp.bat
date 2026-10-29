@@ -9,14 +9,14 @@ for %%A in (%*) do (
 )
 
 if "!IS_EN!"=="1" (
-    title PST Viewer - Smart Installer (Windows / XAMPP / MySQL)
+    title PST Viewer - Smart Installer [Windows / XAMPP / MySQL]
     echo ============================================================================
-    echo    PST VIEWER - SMART INSTALLATION ASSISTANT (WINDOWS / XAMPP)
+    echo    PST VIEWER - SMART INSTALLATION ASSISTANT [WINDOWS / XAMPP]
     echo ============================================================================
 ) else (
-    title PST Viewer - Instalador Inteligente (Windows / XAMPP / MySQL)
+    title PST Viewer - Instalador Inteligente [Windows / XAMPP / MySQL]
     echo ============================================================================
-    echo    PST VIEWER - ASSISTENTE INTELIGENTE DE INSTALACAO (WINDOWS / XAMPP)
+    echo    PST VIEWER - ASSISTENTE INTELIGENTE DE INSTALACAO [WINDOWS / XAMPP]
     echo ============================================================================
 )
 echo.
@@ -83,17 +83,17 @@ if "!PY_CMD!"=="" (
 
 for /f "tokens=*" %%i in ('!PY_CMD! --version 2^>^&1') do set PY_VER=%%i
 if "!IS_EN!"=="1" (
-    echo   - Automatically selected: !PY_VER! ^(!PY_CMD!^) [OK]
+    echo   - Automatically selected: !PY_VER! [!PY_CMD!] [OK]
 ) else (
-    echo   - Selecionado automaticamente: !PY_VER! ^(!PY_CMD!^) [OK]
+    echo   - Selecionado automaticamente: !PY_VER! [!PY_CMD!] [OK]
 )
 
 :: 2. Verifica se o MySQL/MariaDB (porta 3306, 3307 ou 3308) esta rodando
 echo.
 if "!IS_EN!"=="1" (
-    echo [2/3] Checking MySQL / MariaDB database service (XAMPP)...
+    echo [2/3] Checking MySQL / MariaDB database service...
 ) else (
-    echo [2/3] Verificando servico de Banco de Dados MySQL / MariaDB (XAMPP)...
+    echo [2/3] Verificando servico de Banco de Dados MySQL / MariaDB...
 )
 netstat -an | findstr /R ":3306 :3307 :3308 " | findstr "LISTENING" >nul 2>&1
 if %errorlevel% neq 0 (
@@ -110,11 +110,11 @@ if %errorlevel% neq 0 (
         if "!IS_EN!"=="1" (
             echo   [NOTICE] No active MySQL/MariaDB detected on ports 3306/3307/3308.
             echo   If using XAMPP, open XAMPP Control Panel and click "Start" on MySQL.
-            echo   ^(The setup wizard will ask for connection credentials if on another port/host^).
+            echo   The setup wizard will ask for connection credentials if on another port or host.
         ) else (
             echo   [AVISO] Nenhum MySQL/MariaDB detectado ativo nas portas 3306/3307/3308.
             echo   Se voce usa o XAMPP, abra o XAMPP Control Panel e clique em "Start" no MySQL.
-            echo   ^(O assistente pedira os dados de conexao caso esteja em outra porta/servidor^).
+            echo   O assistente pedira os dados de conexao caso esteja em outra porta ou servidor.
         )
     )
 ) else (
@@ -125,12 +125,12 @@ if %errorlevel% neq 0 (
     )
 )
 
-:: 3. Prepara o ambiente virtual (venv) e delega o diagnostico/instalacao de pacotes ao setup_and_run.py
+:: 3. Prepara o ambiente virtual isolado (venv) e delega ao setup_and_run.py
 echo.
 if "!IS_EN!"=="1" (
-    echo [3/3] Preparing isolated virtual environment (venv) and launching setup...
+    echo [3/3] Preparing isolated virtual environment [venv] and launching setup...
 ) else (
-    echo [3/3] Preparando ambiente virtual isolado (venv) e iniciando assistente...
+    echo [3/3] Preparando ambiente virtual isolado [venv] e iniciando assistente...
 )
 if not exist "venv\Scripts\python.exe" (
     if "!IS_EN!"=="1" (
