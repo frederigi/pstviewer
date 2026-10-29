@@ -130,8 +130,10 @@ sudo ./install.sh
 > ```
 > Para **atualizar um servidor Linux/Cloud já instalado via SSH** (mantendo seu banco de dados, usuários e configurações intactos):
 > ```bash
+> chmod +x update.sh
 > sudo ./update.sh
 > ```
+> *(Se o repositório GitHub ainda for privado ou você preferir atualizar do seu Gitea interno: `sudo ./update.sh http://10.14.127.225:3000/anderson/pstviewer.git`)*
 
 **O que o `install.sh` faz por você:**
 1. Analisa CPU, memória RAM, espaço livre em disco e verifica todos os pacotes APT (`python3-pypff`, `mariadb-server`, `poppler-utils`, `antiword`, `catdoc`, `tesseract-ocr`).
@@ -288,10 +290,19 @@ flowchart LR
 ### Atualizar Servidor Linux / Nuvem via SSH (`update.sh`)
 
 ```bash
-# Atualiza o código via Git (GitHub ou Gitea), sincroniza /opt/pstviewer se existir,
-# aplica migrações sem apagar seu banco ou config/pstviewer.env e reinicia os serviços:
+# 1. Conceda permissão de execução (se necessário)
+chmod +x update.sh
+
+# 2. Atualize a partir do GitHub oficial:
 sudo ./update.sh
+
+# OU atualize a partir do seu Gitea interno (ideal enquanto o GitHub estiver privado):
+sudo ./update.sh http://10.14.127.225:3000/anderson/pstviewer.git
 ```
+
+> [!NOTE]
+> **Repositório Privado vs. Público no GitHub:**
+> O GitHub não aceita mais senhas de conta via terminal (`Password authentication is not supported`). Se o seu repositório no GitHub for privado, torne-o público em **Settings -> Change visibility -> Make public**, ou use o seu **Gitea** na rede interna (`http://10.14.127.225:3000/anderson/pstviewer.git`), ou informe um Personal Access Token (PAT).
 
 ### Gerenciar Serviços no Linux (`systemd`)
 

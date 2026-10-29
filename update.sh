@@ -36,7 +36,19 @@ echo " ${REPO_URL}"
 echo "=================================================================="
 
 echo "[1/3] Baixando última versão do repositório em ${CURRENT_DIR}..."
-git fetch origin main
+if ! git fetch origin main; then
+    echo "------------------------------------------------------------------"
+    echo " [AVISO] Falha ao baixar atualizações do repositório remoto."
+    echo " Possíveis causas e como resolver:"
+    echo " 1. Se o repositório GitHub for privado, mude para Público em:"
+    echo "    GitHub -> Settings -> Danger Zone -> Change visibility -> Make public"
+    echo " 2. Ou atualize diretamente do seu Gitea interno (sem exigir senha):"
+    echo "    ./update.sh http://10.14.127.225:3000/anderson/pstviewer.git"
+    echo " 3. Ou configure um Token de Acesso Pessoal (PAT) do GitHub:"
+    echo "    git remote set-url origin https://<SEU_TOKEN>@github.com/frederigi/pstviewer.git"
+    echo "------------------------------------------------------------------"
+    exit 1
+fi
 git reset --hard origin/main
 
 if [ -d "${APP_ROOT}" ] && [ "${CURRENT_DIR}" != "${APP_ROOT}" ]; then

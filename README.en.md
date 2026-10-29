@@ -104,8 +104,10 @@ sudo ./install.sh --lang en
 >   ```
 > * **Fast SSH Update** on an existing Linux/Cloud server (preserves your database and `config/pstviewer.env`):
 >   ```bash
+>   chmod +x update.sh
 >   sudo ./update.sh
 >   ```
+>   *(If pulling from internal Gitea or while GitHub repo is private: `sudo ./update.sh http://10.14.127.225:3000/anderson/pstviewer.git`)*
 
 ---
 
@@ -211,8 +213,15 @@ flowchart LR
 ## 🛠️ Management & Administration Commands
 
 ```bash
-# Update a Linux / Cloud server via SSH (preserves database and config/pstviewer.env):
+# 1. Grant execution permission (if needed)
+chmod +x update.sh
+
+# 2. Update via official GitHub:
 sudo ./update.sh
+
+# OR update via internal Gitea (ideal while GitHub repo is private):
+sudo ./update.sh http://10.14.127.225:3000/anderson/pstviewer.git
+```
 
 # Check real-time status of all 3 systemd services:
 sudo systemctl status pstviewer-web.service pstviewer-worker.service pstviewer-cleaner.timer
@@ -263,3 +272,4 @@ pstviewer/
 <div align="center">
   <sub>Designed and Developed by <strong>Anderson Gonçalez</strong> — Information Technology</sub>
 </div>
+
