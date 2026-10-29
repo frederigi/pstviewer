@@ -161,7 +161,7 @@
     <g transform="translate(255, 169)">
       <rect x="0" y="0" width="375" height="92" fill="#ebf3fc"/>
       <rect x="0" y="0" width="4" height="92" fill="#0f6cbd"/>
-      <text x="16" y="22" class="font-ui" font-size="13" font-weight="700" fill="#0a2e5c">Diretoria Financeira &amp; Compliance</text>
+      <text x="16" y="22" class="font-ui" font-size="13" font-weight="700" fill="#0a2e5c">Helena Martins (Diretoria Financeira)</text>
       <text x="292" y="22" class="font-ui" font-size="11" font-weight="600" fill="#0f6cbd">29/10/2026 09:14</text>
       <text x="16" y="43" class="font-ui" font-size="12.5" font-weight="700" fill="#242424">📎 Relatório Consolidado Q4 + Auditoria PST</text>
       <text x="16" y="63" class="font-ui" font-size="11.5" fill="#616161">Segue em anexo a planilha orçamentária revisada e o</text>
@@ -172,7 +172,7 @@
     <!-- Item 2 -->
     <g transform="translate(255, 261)">
       <rect x="0" y="0" width="375" height="86" fill="#ffffff"/>
-      <text x="16" y="22" class="font-ui" font-size="13" font-weight="600" fill="#242424">Engenharia de Sistemas Cloud</text>
+      <text x="16" y="22" class="font-ui" font-size="13" font-weight="600" fill="#242424">Lucas Vance (Arquitetura Cloud)</text>
       <text x="292" y="22" class="font-ui" font-size="11" fill="#616161">28/10/2026 17:42</text>
       <text x="16" y="42" class="font-ui" font-size="12.5" font-weight="600" fill="#0f6cbd">📎 [URGENTE] Migração de Servidores Debian 12</text>
       <text x="16" y="62" class="font-ui" font-size="11.5" fill="#616161">Todos os testes de integridade SHA-256 e leitura MAPI</text>
@@ -183,7 +183,7 @@
     <!-- Item 3 -->
     <g transform="translate(255, 347)">
       <rect x="0" y="0" width="375" height="86" fill="#ffffff"/>
-      <text x="16" y="22" class="font-ui" font-size="13" font-weight="600" fill="#242424">Jurídico Corporativo</text>
+      <text x="16" y="22" class="font-ui" font-size="13" font-weight="600" fill="#242424">Sofia Alencar (Jurídico Corporativo)</text>
       <text x="292" y="22" class="font-ui" font-size="11" fill="#616161">27/10/2026 14:15</text>
       <text x="16" y="42" class="font-ui" font-size="12.5" font-weight="600" fill="#242424">📎 Minuta Contratual — Fornecedores 2027.docx</text>
       <text x="16" y="62" class="font-ui" font-size="11.5" fill="#616161">Encaminhamos a revisão final das cláusulas de LGPD e</text>
@@ -194,11 +194,11 @@
     <!-- Item 4 -->
     <g transform="translate(255, 433)">
       <rect x="0" y="0" width="375" height="86" fill="#ffffff"/>
-      <text x="16" y="22" class="font-ui" font-size="13" font-weight="600" fill="#242424">Anderson Gonçalez (B.T.I.)</text>
+      <text x="16" y="22" class="font-ui" font-size="13" font-weight="600" fill="#242424">Rafael Mendes (Coordenação de TI)</text>
       <text x="292" y="22" class="font-ui" font-size="11" fill="#616161">25/10/2026 11:05</text>
-      <text x="16" y="42" class="font-ui" font-size="12.5" font-weight="600" fill="#242424">Homologação Final do PST Viewer v1.0</text>
-      <text x="16" y="62" class="font-ui" font-size="11.5" fill="#616161">Arquitetura FastAPI + MariaDB InnoDB pronta para</text>
-      <text x="16" y="77" class="font-ui" font-size="11.5" fill="#616161">operação local ou em nuvem com instalador único.</text>
+      <text x="16" y="42" class="font-ui" font-size="12.5" font-weight="600" fill="#242424">Cronograma de Backup Trimestral concluído</text>
+      <text x="16" y="62" class="font-ui" font-size="11.5" fill="#616161">Os arquivos históricos dos departamentos foram</text>
+      <text x="16" y="77" class="font-ui" font-size="11.5" fill="#616161">organizados nas pastas mensais para consulta rápida.</text>
       <line x1="0" y1="86" x2="375" y2="86" stroke="#e1dfdd"/>
     </g>
 
@@ -223,10 +223,10 @@
 
       <!-- Avatar Circular -->
       <circle cx="22" cy="54" r="22" fill="#0f6cbd"/>
-      <text x="12" y="60" class="font-ui" font-size="15" font-weight="700" fill="#ffffff">DF</text>
+      <text x="11" y="60" class="font-ui" font-size="14.5" font-weight="700" fill="#ffffff">HM</text>
 
-      <text x="54" y="45" class="font-ui" font-size="13.5" font-weight="700" fill="#242424">Diretoria Financeira &amp; Compliance &lt;diretoria@corporativo.com.br&gt;</text>
-      <text x="54" y="64" class="font-ui" font-size="12" fill="#616161"><tspan font-weight="600">Para:</tspan> Anderson Gonçalez &lt;anderson@corporativo.com.br&gt;; Comitê Executivo</text>
+      <text x="54" y="45" class="font-ui" font-size="13.5" font-weight="700" fill="#242424">Helena Martins &lt;helena.martins@corporativo.com.br&gt;</text>
+      <text x="54" y="64" class="font-ui" font-size="12" fill="#616161"><tspan font-weight="600">Para:</tspan> Mariana Costa &lt;mariana.costa@corporativo.com.br&gt;; Comitê Executivo</text>
       <text x="54" y="81" class="font-ui" font-size="12" fill="#616161"><tspan font-weight="600">CC:</tspan> auditoria.interna@corporativo.com.br • <tspan font-weight="600">Recebido em:</tspan> 29/10/2026 às 09:14:22</text>
     </g>
 

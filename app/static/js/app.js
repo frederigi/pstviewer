@@ -7,6 +7,7 @@
     "use strict";
 
     const state = {
+        lang: localStorage.getItem("pstviewer_lang") || ((navigator.language || "").toLowerCase().startsWith("en") ? "en" : "pt"),
         user: null,
         csrfToken: null,
         currentSessionUuid: null,
@@ -24,7 +25,284 @@
         selectedMessageDetail: null,
         bodyViewMode: "html", // "html" | "plain" | "raw"
         pollTimer: null,
+        simFolder: "inbox",
+        simSelectedId: 1,
+        simQuery: "",
     };
+
+    const I18N = {
+        pt: {
+            "nav.about_system": "Sobre o sistema",
+            "nav.about": "Sobre",
+            "nav.back_home": "Voltar à Central de Consultas",
+            "nav.indexing": "Indexando...",
+            "nav.change_pw": "Alterar Senha",
+            "nav.change_pw_title": "Alterar sua senha de acesso",
+            "nav.admin": "Administração",
+            "nav.close_session": "Fechar Consulta",
+            "nav.close_session_title": "Fechar a visualização atual no leitor web (seu arquivo .pst original permanece intacto no seu PC)",
+            "nav.logout": "Sair",
+            "nav.logout_title": "Sair do sistema",
+            "login.tagline": "Abra, pesquise e leia seus arquivos de e-mail do Outlook com facilidade.",
+            "login.username_label": "Usuário",
+            "login.username_placeholder": "Digite seu usuário",
+            "login.password_label": "Senha",
+            "login.password_placeholder": "Digite sua senha",
+            "login.submit_btn": "Entrar",
+            "login.by": "Por",
+            "sim.badge": "SIMULADOR INTERATIVO • OUTLOOK 365 WEB",
+            "sim.heading": "Veja como é simples consultar seus backups de e-mail no navegador",
+            "sim.subtitle": "Clique nas pastas ou nas mensagens fictícias abaixo para testar o leitor antes mesmo de entrar.",
+            "sim.search_placeholder": "Experimente pesquisar no simulador (ex: orçamento, contrato, nuvem)...",
+            "sim.demo_mode": "Modo Demonstração",
+            "sim.ribbon_read": "Leitura Instantânea",
+            "sim.safe_pill": "✔ Arquivo original preservado",
+            "search.placeholder": "Pesquisar em todo o PST (assunto, corpo, remetente, destinatários e anexos)...",
+            "search.btn": "Pesquisar",
+            "search.filters": "Filtros",
+            "search.filters_title": "Filtros avançados de pesquisa",
+            "search.clear": "Limpar",
+            "home.open_title": "Abrir Arquivo de E-mails (.PST)",
+            "home.drop_heading": "Escolha um arquivo do Outlook (.pst) no seu computador",
+            "home.drop_sub": "Visualize suas pastas, leia suas mensagens, pesquise por palavras e abra seus anexos diretamente no navegador.",
+            "home.choose_btn": "Escolher Arquivo .PST",
+            "home.assurance": "<strong>Fique tranquilo:</strong> O arquivo original salvo no seu computador ou na rede <strong>não sofre nenhuma alteração</strong>.",
+            "home.active_files": "Arquivos Abertos",
+            "home.refresh": "Atualizar",
+            "home.no_sessions": "Nenhuma consulta PST ativa no momento. Escolha um arquivo .PST acima para iniciar.",
+            "proc.title": "Processando arquivo PST...",
+            "proc.stage": "Iniciando validação...",
+            "proc.folders": "Pastas Mapeadas",
+            "proc.messages": "Mensagens Extraídas",
+            "proc.attachments": "Anexos Processados",
+            "proc.corrupted": "Itens Corrompidos / Avisos",
+            "proc.hint": "Aguardando indexação inicial das pastas para liberar o leitor...",
+            "proc.diagnostics": "Ver Diagnóstico",
+            "proc.cancel": "Cancelar Leitura",
+            "proc.open_reader": "Abrir Leitor de E-mails",
+            "filter.sender": "Remetente",
+            "filter.recipient": "Destinatário (Para/CC/CCO)",
+            "filter.name_email": "Nome ou e-mail",
+            "filter.folder": "Pasta",
+            "filter.all_folders": "Todas as pastas do PST",
+            "filter.date_from": "Período (De)",
+            "filter.date_to": "Período (Até)",
+            "filter.attachments": "Presença de Anexos",
+            "filter.all_msgs": "Todas as mensagens",
+            "filter.with_att": "Somente com anexos",
+            "filter.without_att": "Sem anexos",
+            "filter.apply": "Aplicar",
+            "reader.folders": "Pastas",
+            "reader.diagnostics": "Diagnóstico do PST",
+            "reader.partial_notice": "Indexação em andamento: novas mensagens podem surgir",
+            "reader.print": "Imprimir E-mail",
+            "reader.save_eml": "Salvar EML",
+            "reader.export_txt": "Exportar TXT",
+            "reader.folders_pane_title": "Pastas do Arquivo PST",
+            "reader.messages": "Mensagens",
+            "reader.prev_page": "◀ Anterior",
+            "reader.next_page": "Próxima ▶",
+            "reader.empty_title": "Selecione uma mensagem na lista para ler seu conteúdo",
+            "reader.empty_sub": "Os anexos, cabeçalhos e opções de impressão aparecerão neste painel.",
+            "reader.mode_html": "Formatado",
+            "reader.mode_plain": "Texto",
+            "reader.mode_headers": "Cabeçalhos",
+            "reader.from": "De:",
+            "reader.to": "Para:",
+            "reader.date": "Data/Hora:",
+            "reader.folder": "Pasta PST:",
+            "sort.newest": "Mais recentes",
+            "sort.oldest": "Mais antigas",
+            "sort.sender": "Remetente (A-Z)",
+            "sort.subject": "Assunto (A-Z)",
+            "sort.size": "Maior tamanho",
+            "diag.title": "Diagnóstico Técnico do Arquivo PST",
+            "att.title": "Visualizar Anexo",
+            "att.print": "Imprimir Anexo",
+            "att.download": "Baixar Anexo",
+            "admin.title": "Administração do PST Viewer",
+            "admin.tab_sessions": "Sessões & Limpeza",
+            "admin.tab_users": "Usuários",
+            "admin.tab_settings": "Configurações & Limites",
+            "common.close_x": "Fechar ✕",
+            "common.close": "Fechar",
+            "common.got_it": "Entendi",
+            "about.badge_safe": "100% Seguro & Web",
+            "about.hero_sub": "Plataforma moderna para abertura, pesquisa rápida e leitura de arquivos de e-mail do Microsoft Outlook (.pst)",
+            "about.tab_story": "Propósito & Como Funciona",
+            "about.tab_privacy": "Preservação dos Seus Arquivos",
+            "about.tab_author": "Autoria & Recursos",
+            "about.story_title": "Por que o PST Viewer foi criado?",
+            "about.story_p1": "O <strong>PST Viewer</strong> nasceu da necessidade prática de consultar arquivos de backup do Microsoft Outlook (<code>.pst</code>) dos departamentos de forma rápida e sem complicação.",
+            "about.story_p2": "Após os backups periódicos de e-mail para liberar espaço nos servidores principais, localizar uma mensagem ou contrato antigo dentro de arquivos <code>.pst</code> exigia configurações pesadas no computador ou licenças caras de softwares pagos. Com esta plataforma, basta abrir o navegador para ler, pesquisar e imprimir qualquer e-mail em segundos.",
+            "about.steps_heading": "Como usar em 3 passos simples",
+            "about.step1_title": "Escolha seu arquivo .PST",
+            "about.step1_desc": "Selecione o arquivo no seu computador ou na pasta da rede. Apenas as pastas reais do seu backup são exibidas, sem pastas vazias desnecessárias.",
+            "about.step2_title": "Pesquise e Leia no Navegador",
+            "about.step2_desc": "Navegue no visual do Outlook 365, pesquise por palavras (inclusive dentro de anexos PDF, Word e Excel) e imprima ou salve o que precisar.",
+            "about.step3_title": "Feche com Tranquilidade",
+            "about.step3_desc": "Ao encerrar a consulta, a leitura temporária na web é limpa automaticamente e seu arquivo original permanece 100% intacto onde sempre esteve.",
+            "about.pc_title": "No seu Computador ou Pasta da Rede",
+            "about.pc_1": "<strong>Seu arquivo .pst original NUNCA é alterado:</strong> O arquivo que você escolheu continua 100% salvo e intacto no seu computador ou servidor de arquivos.",
+            "about.pc_2": "<strong>Zero instalação no cliente:</strong> Não precisa ter o Microsoft Outlook instalado para abrir seus backups.",
+            "about.pc_3": "<strong>Sem arquivos espalhados:</strong> Nada fica salvo na máquina, a menos que você clique em <em>Baixar</em>.",
+            "about.srv_title": "Na Sala de Leitura Temporária",
+            "about.srv_1": "<strong>Ambiente exclusivo por usuário:</strong> Cada sessão é isolada para que apenas você veja o arquivo que abriu.",
+            "about.srv_2": "<strong>Limpeza imediata ao fechar:</strong> Ao clicar em <em>Fechar Consulta</em> ou <em>Sair</em>, a visualização temporária aberta no servidor é descartada na hora.",
+            "about.srv_3": "<strong>Descarte por inatividade:</strong> Se você esquecer a aba aberta, o sistema limpa a visualização temporária sozinho.",
+            "about.created_by": "Idealizado e Desenvolvido por",
+            "about.author_dept": "Tecnologia da Informação • Soluções Corporativas",
+            "about.features_heading": "Diferenciais da Plataforma",
+            "about.feat1_t": "Árvore Limpa e Inteligente",
+            "about.feat1_d": "Filtra pastas vazias do sistema e foca exatamente nas pastas do seu backup.",
+            "about.feat2_t": "Busca dentro de Anexos",
+            "about.feat2_d": "Encontra termos tanto no corpo do e-mail quanto dentro de PDFs, Word e Excel.",
+            "about.feat3_t": "Bilíngue Interativo (PT / EN)",
+            "about.feat3_d": "Interface e instaladores prontos para uso em Português e Inglês com 1 clique.",
+            "about.feat4_t": "Impressão A4 e Exportação EML",
+            "about.feat4_d": "Gera folha de impressão limpa ou exporta mensagens individuais no padrão universal."
+        },
+        en: {
+            "nav.about_system": "About the system",
+            "nav.about": "About",
+            "nav.back_home": "Back to Home Dashboard",
+            "nav.indexing": "Indexing...",
+            "nav.change_pw": "Change Password",
+            "nav.change_pw_title": "Change your account password",
+            "nav.admin": "Administration",
+            "nav.close_session": "Close Session",
+            "nav.close_session_title": "Close current web view (your original .pst file remains 100% untouched on your PC)",
+            "nav.logout": "Sign Out",
+            "nav.logout_title": "Sign out of the system",
+            "login.tagline": "Open, search, and read your Microsoft Outlook email archives with ease.",
+            "login.username_label": "Username",
+            "login.username_placeholder": "Enter your username",
+            "login.password_label": "Password",
+            "login.password_placeholder": "Enter your password",
+            "login.submit_btn": "Sign In",
+            "login.by": "By",
+            "sim.badge": "INTERACTIVE SIMULATOR • OUTLOOK 365 WEB",
+            "sim.heading": "See how easy it is to browse your email backups right in your browser",
+            "sim.subtitle": "Click the folders or fictitious sample emails below to test the reader before signing in.",
+            "sim.search_placeholder": "Try searching the simulator (e.g., budget, contract, cloud)...",
+            "sim.demo_mode": "Live Demo Mode",
+            "sim.ribbon_read": "Instant Reader",
+            "sim.safe_pill": "✔ Original file preserved",
+            "search.placeholder": "Search entire PST (subject, body, sender, recipients & attachments)...",
+            "search.btn": "Search",
+            "search.filters": "Filters",
+            "search.filters_title": "Advanced search filters",
+            "search.clear": "Clear",
+            "home.open_title": "Open Email Archive (.PST)",
+            "home.drop_heading": "Choose an Outlook (.pst) file from your computer",
+            "home.drop_sub": "Browse your folders, read messages, search keywords, and open attachments directly in your browser.",
+            "home.choose_btn": "Choose .PST File",
+            "home.assurance": "<strong>Peace of mind:</strong> The original file saved on your computer or network drive is <strong>never modified</strong>.",
+            "home.active_files": "Open Archives",
+            "home.refresh": "Refresh",
+            "home.no_sessions": "No active PST sessions right now. Choose a .PST file above to begin.",
+            "proc.title": "Processing PST archive...",
+            "proc.stage": "Starting validation...",
+            "proc.folders": "Mapped Folders",
+            "proc.messages": "Extracted Messages",
+            "proc.attachments": "Processed Attachments",
+            "proc.corrupted": "Corrupted Items / Warnings",
+            "proc.hint": "Waiting for initial folder indexing to unlock the reader...",
+            "proc.diagnostics": "View Diagnostics",
+            "proc.cancel": "Cancel Reading",
+            "proc.open_reader": "Open Email Reader",
+            "filter.sender": "Sender",
+            "filter.recipient": "Recipient (To/CC/BCC)",
+            "filter.name_email": "Name or email",
+            "filter.folder": "Folder",
+            "filter.all_folders": "All PST folders",
+            "filter.date_from": "Date (From)",
+            "filter.date_to": "Date (To)",
+            "filter.attachments": "Attachments",
+            "filter.all_msgs": "All messages",
+            "filter.with_att": "With attachments only",
+            "filter.without_att": "Without attachments",
+            "filter.apply": "Apply",
+            "reader.folders": "Folders",
+            "reader.diagnostics": "PST Diagnostics",
+            "reader.partial_notice": "Background indexing active: new messages may appear",
+            "reader.print": "Print Email",
+            "reader.save_eml": "Save EML",
+            "reader.export_txt": "Export TXT",
+            "reader.folders_pane_title": "PST Archive Folders",
+            "reader.messages": "Messages",
+            "reader.prev_page": "◀ Prev",
+            "reader.next_page": "Next ▶",
+            "reader.empty_title": "Select a message from the list to read its content",
+            "reader.empty_sub": "Attachments, headers, and print options will appear in this pane.",
+            "reader.mode_html": "Formatted",
+            "reader.mode_plain": "Plain Text",
+            "reader.mode_headers": "Headers",
+            "reader.from": "From:",
+            "reader.to": "To:",
+            "reader.date": "Date/Time:",
+            "reader.folder": "PST Folder:",
+            "sort.newest": "Newest first",
+            "sort.oldest": "Oldest first",
+            "sort.sender": "Sender (A-Z)",
+            "sort.subject": "Subject (A-Z)",
+            "sort.size": "Largest size",
+            "diag.title": "PST Technical Diagnostics",
+            "att.title": "View Attachment",
+            "att.print": "Print Attachment",
+            "att.download": "Download Attachment",
+            "admin.title": "PST Viewer Administration",
+            "admin.tab_sessions": "Sessions & Cleanup",
+            "admin.tab_users": "Users",
+            "admin.tab_settings": "Settings & Limits",
+            "common.close_x": "Close ✕",
+            "common.close": "Close",
+            "common.got_it": "Got it",
+            "about.badge_safe": "100% Safe & Web-Based",
+            "about.hero_sub": "Modern platform for opening, fast searching, and reading Microsoft Outlook (.pst) email archives",
+            "about.tab_story": "Purpose & How It Works",
+            "about.tab_privacy": "Your Files Are Preserved",
+            "about.tab_author": "Author & Capabilities",
+            "about.story_title": "Why was PST Viewer created?",
+            "about.story_p1": "<strong>PST Viewer</strong> was created from the practical need to inspect departmental Microsoft Outlook backup archives (<code>.pst</code>) quickly and effortlessly.",
+            "about.story_p2": "After periodic email backups are moved off the primary mail server to free up storage, finding an old message or contract inside <code>.pst</code> files used to require complex desktop setups or expensive commercial licenses. With this web platform, you simply open your browser to read, search, and print any email in seconds.",
+            "about.steps_heading": "How it works in 3 simple steps",
+            "about.step1_title": "Choose your .PST file",
+            "about.step1_desc": "Select the file from your computer or network share. Only your actual backed-up folders are shown—no cluttered empty system folders.",
+            "about.step2_title": "Search & Read in Browser",
+            "about.step2_desc": "Browse in an Outlook 365 interface, search keywords (including inside PDF, Word, and Excel attachments), and print or save what you need.",
+            "about.step3_title": "Close with Peace of Mind",
+            "about.step3_desc": "When you finish, the temporary web reading session is automatically cleaned up while your original file stays 100% untouched where it has always been.",
+            "about.pc_title": "On Your Computer or Network Share",
+            "about.pc_1": "<strong>Your original .pst file is NEVER modified:</strong> The file you selected stays 100% saved and intact on your computer or file server.",
+            "about.pc_2": "<strong>Zero client installation:</strong> No need to have Microsoft Outlook installed to inspect your backups.",
+            "about.pc_3": "<strong>No leftover local files:</strong> Nothing is written to your machine unless you click <em>Download</em>.",
+            "about.srv_title": "Inside the Ephemeral Reading Room",
+            "about.srv_1": "<strong>Isolated per user:</strong> Each reading session is private so only you can view the archive you opened.",
+            "about.srv_2": "<strong>Instant cleanup on close:</strong> Clicking <em>Close Session</em> or <em>Sign Out</em> immediately purges the temporary web copy.",
+            "about.srv_3": "<strong>Automatic idle expiration:</strong> If you leave the tab open, the background cleaner removes the temporary view automatically.",
+            "about.created_by": "Designed & Developed by",
+            "about.author_dept": "Information Technology • Enterprise Solutions",
+            "about.features_heading": "Platform Highlights",
+            "about.feat1_t": "Smart Clean Folder Tree",
+            "about.feat1_d": "Automatically hides empty MAPI system folders and focuses directly on your backed-up folders.",
+            "about.feat2_t": "Deep Attachment Search",
+            "about.feat2_d": "Finds keywords inside both email bodies and attached PDF, Word, and Excel documents.",
+            "about.feat3_t": "Interactive Bilingual (PT / EN)",
+            "about.feat3_d": "Web interface and automated installers ready for Portuguese and English with 1 click.",
+            "about.feat4_t": "A4 Print & Universal EML Export",
+            "about.feat4_d": "Generates clean printouts or exports individual emails in standard RFC 5322 (.eml) format."
+        }
+    };
+
+    function isEn() {
+        return state.lang === "en";
+    }
+
+    function t(key) {
+        const dict = I18N[state.lang] || I18N.pt;
+        return dict[key] !== undefined ? dict[key] : (I18N.pt[key] || key);
+    }
 
     const $ = (id) => document.getElementById(id);
 
@@ -455,17 +733,22 @@
     }
 
     async function promptChangeOwnPassword(isFirstAccess = false) {
+        const en = isEn();
         const newPw = await uiPrompt({
             title: isFirstAccess
-                ? "Primeiro Acesso — Defina sua Senha Pessoal"
-                : "Alterar Minha Senha de Acesso",
+                ? (en ? "First Sign-In — Set Your Personal Password" : "Primeiro Acesso — Defina sua Senha Pessoal")
+                : (en ? "Change My Account Password" : "Alterar Minha Senha de Acesso"),
             message: isFirstAccess
-                ? "Você acessou com uma senha temporária gerada pelo instalador. Escolha abaixo uma senha pessoal fácil de lembrar (mínimo 8 caracteres):"
-                : "Digite sua nova senha de acesso (mínimo de 8 caracteres):",
-            placeholder: "Digite a nova senha (mín. 8 caracteres)",
+                ? (en
+                    ? "You signed in with a temporary password generated by the installer. Choose an easy-to-remember personal password below (min. 8 characters):"
+                    : "Você acessou com uma senha temporária gerada pelo instalador. Escolha abaixo uma senha pessoal fácil de lembrar (mínimo 8 caracteres):")
+                : (en
+                    ? "Enter your new account password (minimum 8 characters):"
+                    : "Digite sua nova senha de acesso (mínimo de 8 caracteres):"),
+            placeholder: en ? "Enter new password (min. 8 chars)" : "Digite a nova senha (mín. 8 caracteres)",
             inputType: "password",
-            confirmText: "Salvar Nova Senha",
-            cancelText: isFirstAccess ? "Manter a Atual" : "Cancelar",
+            confirmText: en ? "Save New Password" : "Salvar Nova Senha",
+            cancelText: isFirstAccess ? (en ? "Keep Current" : "Manter a Atual") : (en ? "Cancel" : "Cancelar"),
             minLength: 8,
         });
         if (!newPw) return;
@@ -477,9 +760,13 @@
             if (state.user) {
                 state.user.must_change_password = false;
             }
-            uiToast("Sua senha pessoal foi salva com sucesso!", "success", "Senha Atualizada");
+            uiToast(
+                en ? "Your personal password has been saved!" : "Sua senha pessoal foi salva com sucesso!",
+                "success",
+                en ? "Password Updated" : "Senha Atualizada"
+            );
         } catch (err) {
-            uiToast(err.message, "danger", "Erro ao alterar senha");
+            uiToast(err.message, "danger", en ? "Password Error" : "Erro ao alterar senha");
         }
     }
 
@@ -500,26 +787,27 @@
 
     async function loadMyActiveSessions() {
         const container = $("home-sessions-list");
-        container.innerHTML = `<div style="color:var(--text-secondary);">Carregando sessões...</div>`;
+        const en = isEn();
+        container.innerHTML = `<div style="color:var(--text-secondary);">${en ? "Loading active sessions..." : "Carregando sessões..."}</div>`;
         try {
             const data = await apiFetch("/api/sessions");
             const list = data.sessions || [];
             if (list.length === 0) {
                 container.innerHTML = `
                     <div style="padding:14px;background:var(--bg-subtle);border-radius:6px;color:var(--text-secondary);">
-                        Nenhuma consulta PST ativa no momento. Envie um arquivo PST acima para iniciar.
+                        ${t("home.no_sessions")}
                     </div>`;
                 return;
             }
             let html = `<table class="table-clean">
                 <thead>
                     <tr>
-                        <th>Arquivo</th>
-                        <th>Formato</th>
-                        <th>Estado</th>
-                        <th>Pastas / E-mails</th>
-                        <th>Expira por inatividade</th>
-                        <th style="text-align:right;">Ações</th>
+                        <th>${en ? "File" : "Arquivo"}</th>
+                        <th>${en ? "Format" : "Formato"}</th>
+                        <th>${en ? "Status" : "Estado"}</th>
+                        <th>${en ? "Folders / Emails" : "Pastas / E-mails"}</th>
+                        <th>${en ? "Idle Expiration" : "Expira por inatividade"}</th>
+                        <th style="text-align:right;">${en ? "Actions" : "Ações"}</th>
                     </tr>
                 </thead>
                 <tbody>`;
@@ -530,14 +818,14 @@
                         <td><strong>${escapeHtml(s.display_label)}</strong><br><small style="color:var(--text-secondary);">${formatBytes(s.file_size_bytes)}</small></td>
                         <td>${escapeHtml(s.pst_format || "—")}</td>
                         <td><span class="badge ${canOpen ? "badge-success" : "badge-info"}">${escapeHtml(s.status)} (${s.progress_percent}%)</span></td>
-                        <td>${s.processed_folders} pastas / ${s.processed_messages} msgs</td>
+                        <td>${s.processed_folders} ${en ? "folders" : "pastas"} / ${s.processed_messages} msgs</td>
                         <td>${formatDateTime(s.idle_expires_at)}</td>
                         <td style="text-align:right;">
                             ${canOpen
-                                ? `<button class="btn btn-primary btn-sm" data-open-sess="${escapeHtml(s.session_uuid)}">Abrir Leitor</button>`
-                                : `<button class="btn btn-outline btn-sm" data-watch-sess="${escapeHtml(s.session_uuid)}">Ver Progresso</button>`
+                                ? `<button class="btn btn-primary btn-sm" data-open-sess="${escapeHtml(s.session_uuid)}">${en ? "Open Reader" : "Abrir Leitor"}</button>`
+                                : `<button class="btn btn-outline btn-sm" data-watch-sess="${escapeHtml(s.session_uuid)}">${en ? "View Progress" : "Ver Progresso"}</button>`
                             }
-                            <button class="btn btn-danger btn-sm" data-close-sess="${escapeHtml(s.session_uuid)}">Encerrar e Limpar</button>
+                            <button class="btn btn-danger btn-sm" data-close-sess="${escapeHtml(s.session_uuid)}">${en ? "Close & Clean" : "Encerrar e Limpar"}</button>
                         </td>
                     </tr>`;
             }
@@ -1531,14 +1819,444 @@
             window.location.href = `/api/sessions/${state.currentSessionUuid}/messages/${state.selectedMessageId}/export.txt`;
         });
 
-        // Sobre / Como Funciona / Créditos
-        ["btn-login-about", "btn-open-about", "btn-home-about"].forEach((id) => {
+        /* ==================================================================
+         * SIMULADOR INTERATIVO OUTLOOK 365 WEB (PESSOAS FICTÍCIAS + BILÍNGUE)
+         * ================================================================== */
+        const SIM_DATA = {
+            pt: {
+                fileBadge: "📁 backup_departamentos_2026.pst",
+                folders: [
+                    { id: "inbox", name: "📥 Caixa de Entrada", count: 4 },
+                    { id: "sent", name: "📤 Itens Enviados", count: 2 },
+                    { id: "contracts", name: "📂 Contratos & Finanças", count: 2 },
+                ],
+                messages: [
+                    {
+                        id: 1,
+                        folder: "inbox",
+                        sender: "Helena Martins",
+                        email: "helena.martins@auroracorp.com",
+                        to: "Mariana Costa <mariana.costa@auroracorp.com>; Equipe Financeira",
+                        initials: "HM",
+                        color: "#0f6cbd",
+                        date: "29/10/2026 09:14",
+                        subject: "Relatório Consolidado Q4 e Planejamento 2027",
+                        snippet: "Segue em anexo o fechamento trimestral revisado e a planilha de metas...",
+                        attachments: [
+                            { name: "Fechamento_Trimestral_Q4.pdf", size: "1,4 MB" },
+                            { name: "Metas_Orcamento_2027.xlsx", size: "620 KB" },
+                        ],
+                        body: `<p>Olá pessoal,</p><p>Encaminho em anexo o <strong>Relatório Consolidado do 4º Trimestre</strong> e a planilha atualizada com as projeções dos departamentos para 2027.</p><p>Todos os documentos já foram conferidos pela equipe de controladoria e estão prontos para consulta.</p><p>Atenciosamente,<br><strong>Helena Martins</strong><br>Diretoria Financeira • Aurora Corp</p>`,
+                    },
+                    {
+                        id: 2,
+                        folder: "inbox",
+                        sender: "Lucas Vance",
+                        email: "lucas.vance@auroracorp.com",
+                        to: "Coordenação de Operações <operacoes@auroracorp.com>",
+                        initials: "LV",
+                        color: "#0284c7",
+                        date: "28/10/2026 17:42",
+                        subject: "Cronograma de Migração de Servidores Nuvem",
+                        snippet: "A janela de manutenção programada para o próximo sábado foi aprovada...",
+                        attachments: [
+                            { name: "Plano_Migracao_Cloud.docx", size: "410 KB" },
+                        ],
+                        body: `<p>Boa tarde equipe,</p><p>Confirmamos que a atualização dos servidores em nuvem ocorrerá neste sábado às 08h00, sem impacto para os usuários finais.</p><p>O roteiro completo está no documento Word em anexo.</p><p>Abraços,<br><strong>Lucas Vance</strong><br>Arquitetura Cloud</p>`,
+                    },
+                    {
+                        id: 3,
+                        folder: "inbox",
+                        sender: "Sofia Alencar",
+                        email: "sofia.alencar@auroracorp.com",
+                        to: "Compras & Suprimentos <compras@auroracorp.com>",
+                        initials: "SA",
+                        color: "#7c3aed",
+                        date: "27/10/2026 14:15",
+                        subject: "Minuta Aprovada — Renovação de Fornecedores",
+                        snippet: "Enviamos a versão final revisada pelo jurídico para assinatura digital...",
+                        attachments: [
+                            { name: "Minuta_Fornecedores_2027.pdf", size: "980 KB" },
+                        ],
+                        body: `<p>Prezados,</p><p>A revisão jurídica do contrato anual de fornecedores foi concluída. O arquivo PDF em anexo já contempla todas as cláusulas atualizadas.</p><p>Cordialmente,<br><strong>Sofia Alencar</strong><br>Consultoria Jurídica</p>`,
+                    },
+                    {
+                        id: 4,
+                        folder: "inbox",
+                        sender: "Marcos Oliveira",
+                        email: "marcos.oliveira@auroracorp.com",
+                        to: "Recursos Humanos <rh@auroracorp.com>",
+                        initials: "MO",
+                        color: "#059669",
+                        date: "25/10/2026 11:05",
+                        subject: "Calendário de Integração de Novos Colaboradores",
+                        snippet: "Lista das turmas confirmadas para a primeira semana de novembro...",
+                        attachments: [],
+                        body: `<p>Bom dia,</p><p>As salas de treinamento para a integração de novembro já estão reservadas. Teremos 18 novos integrantes distribuídos em duas turmas.</p><p>Atenciosamente,<br><strong>Marcos Oliveira</strong><br>Desenvolvimento Humano</p>`,
+                    },
+                    {
+                        id: 5,
+                        folder: "sent",
+                        sender: "Clara Novak",
+                        email: "clara.novak@auroracorp.com",
+                        to: "Helena Martins <helena.martins@auroracorp.com>",
+                        initials: "CN",
+                        color: "#d97706",
+                        date: "29/10/2026 10:02",
+                        subject: "RE: Relatório Consolidado Q4 e Planejamento 2027",
+                        snippet: "Obrigada pelo envio, Helena! Já validamos os números do nosso setor...",
+                        attachments: [],
+                        body: `<p>Olá Helena,</p><p>Muito obrigada pelo envio! Já revisamos as abas da planilha e os valores do nosso departamento estão 100% corretos.</p><p>Um abraço,<br><strong>Clara Novak</strong></p>`,
+                    },
+                    {
+                        id: 6,
+                        folder: "sent",
+                        sender: "Daniel Costa",
+                        email: "daniel.costa@auroracorp.com",
+                        to: "Sofia Alencar <sofia.alencar@auroracorp.com>",
+                        initials: "DC",
+                        color: "#dc2626",
+                        date: "27/10/2026 16:30",
+                        subject: "ENC: Comprovante de Assinatura de Contrato",
+                        snippet: "Segue o protocolo de assinatura eletrônica concluído hoje à tarde...",
+                        attachments: [
+                            { name: "Protocolo_Assinatura.pdf", size: "315 KB" },
+                        ],
+                        body: `<p>Olá Sofia,</p><p>Segue em anexo o comprovante de assinatura digital referente ao contrato de serviços logísticos.</p><p>Atenciosamente,<br><strong>Daniel Costa</strong></p>`,
+                    },
+                ],
+            },
+            en: {
+                fileBadge: "📁 corporate_departments_2026.pst",
+                folders: [
+                    { id: "inbox", name: "📥 Inbox", count: 4 },
+                    { id: "sent", name: "📤 Sent Items", count: 2 },
+                    { id: "contracts", name: "📂 Contracts & Finance", count: 2 },
+                ],
+                messages: [
+                    {
+                        id: 1,
+                        folder: "inbox",
+                        sender: "Helena Martins",
+                        email: "helena.martins@auroracorp.com",
+                        to: "Mariana Costa <mariana.costa@auroracorp.com>; Finance Team",
+                        initials: "HM",
+                        color: "#0f6cbd",
+                        date: "10/29/2026 09:14 AM",
+                        subject: "Q4 Consolidated Report & 2027 Budget Planning",
+                        snippet: "Please find attached the revised quarterly closing and target sheet...",
+                        attachments: [
+                            { name: "Q4_Quarterly_Closing.pdf", size: "1.4 MB" },
+                            { name: "Budget_Targets_2027.xlsx", size: "620 KB" },
+                        ],
+                        body: `<p>Hello everyone,</p><p>Please find attached the <strong>Q4 Consolidated Financial Report</strong> along with the updated departmental budget projections for 2027.</p><p>All figures have been verified by the controlling team and are ready for review.</p><p>Best regards,<br><strong>Helena Martins</strong><br>Finance Director • Aurora Corp</p>`,
+                    },
+                    {
+                        id: 2,
+                        folder: "inbox",
+                        sender: "Lucas Vance",
+                        email: "lucas.vance@auroracorp.com",
+                        to: "Operations Team <operations@auroracorp.com>",
+                        initials: "LV",
+                        color: "#0284c7",
+                        date: "10/28/2026 05:42 PM",
+                        subject: "Cloud Server Upgrade Schedule",
+                        snippet: "The maintenance window scheduled for next Saturday has been approved...",
+                        attachments: [
+                            { name: "Cloud_Migration_Plan.docx", size: "410 KB" },
+                        ],
+                        body: `<p>Good afternoon team,</p><p>We confirm that the cloud server upgrade will take place this Saturday at 8:00 AM with zero downtime for end users.</p><p>The complete checklist is available in the attached Word document.</p><p>Best,<br><strong>Lucas Vance</strong><br>Cloud Architecture</p>`,
+                    },
+                    {
+                        id: 3,
+                        folder: "inbox",
+                        sender: "Sofia Alencar",
+                        email: "sofia.alencar@auroracorp.com",
+                        to: "Procurement & Supply <procurement@auroracorp.com>",
+                        initials: "SA",
+                        color: "#7c3aed",
+                        date: "10/27/2026 02:15 PM",
+                        subject: "Approved Draft — Vendor Master Renewal",
+                        snippet: "Sending the final version reviewed by Legal for digital signature...",
+                        attachments: [
+                            { name: "Vendor_Agreement_2027.pdf", size: "980 KB" },
+                        ],
+                        body: `<p>Dear team,</p><p>The legal review for the annual vendor agreement is now complete. The attached PDF includes all updated compliance clauses.</p><p>Kind regards,<br><strong>Sofia Alencar</strong><br>Corporate Legal</p>`,
+                    },
+                    {
+                        id: 4,
+                        folder: "inbox",
+                        sender: "Marcos Oliveira",
+                        email: "marcos.oliveira@auroracorp.com",
+                        to: "Human Resources <hr@auroracorp.com>",
+                        initials: "MO",
+                        color: "#059669",
+                        date: "10/25/2026 11:05 AM",
+                        subject: "New Hire Onboarding Schedule — November",
+                        snippet: "Confirmed training groups for the first week of November...",
+                        attachments: [],
+                        body: `<p>Good morning,</p><p>The training rooms for the November onboarding sessions are booked. We will welcome 18 new team members across two groups.</p><p>Sincerely,<br><strong>Marcos Oliveira</strong><br>People & Culture</p>`,
+                    },
+                    {
+                        id: 5,
+                        folder: "sent",
+                        sender: "Clara Novak",
+                        email: "clara.novak@auroracorp.com",
+                        to: "Helena Martins <helena.martins@auroracorp.com>",
+                        initials: "CN",
+                        color: "#d97706",
+                        date: "10/29/2026 10:02 AM",
+                        subject: "RE: Q4 Consolidated Report & 2027 Budget Planning",
+                        snippet: "Thanks for sending this over, Helena! We validated our department numbers...",
+                        attachments: [],
+                        body: `<p>Hi Helena,</p><p>Thank you for sending this over! We reviewed the spreadsheet tabs and our department's figures are 100% accurate.</p><p>Warm regards,<br><strong>Clara Novak</strong></p>`,
+                    },
+                    {
+                        id: 6,
+                        folder: "sent",
+                        sender: "Daniel Costa",
+                        email: "daniel.costa@auroracorp.com",
+                        to: "Sofia Alencar <sofia.alencar@auroracorp.com>",
+                        initials: "DC",
+                        color: "#dc2626",
+                        date: "10/27/2026 04:30 PM",
+                        subject: "FW: Digital Contract Signature Receipt",
+                        snippet: "Attached is the electronic signature certificate completed this afternoon...",
+                        attachments: [
+                            { name: "Signature_Certificate.pdf", size: "315 KB" },
+                        ],
+                        body: `<p>Hi Sofia,</p><p>Please find attached the digital signature receipt for the logistics services agreement.</p><p>Best regards,<br><strong>Daniel Costa</strong></p>`,
+                    },
+                ],
+            },
+        };
+
+        function renderOutlook365Simulator() {
+            const foldersEl = $("sim-folders-list");
+            const msgsEl = $("sim-messages-container");
+            const readEl = $("sim-reading-pane");
+            if (!foldersEl || !msgsEl || !readEl) return;
+
+            const en = isEn();
+            const data = SIM_DATA[state.lang] || SIM_DATA.pt;
+            if ($("sim-file-badge")) {
+                $("sim-file-badge").textContent = data.fileBadge;
+            }
+
+            // Render folders
+            foldersEl.innerHTML = data.folders.map((f) => `
+                <div class="o365-folder-item ${state.simFolder === f.id ? "active" : ""}" data-sim-folder="${f.id}">
+                    <span>${escapeHtml(f.name)}</span>
+                    <span class="o365-folder-badge">${f.count}</span>
+                </div>
+            `).join("");
+
+            foldersEl.querySelectorAll("[data-sim-folder]").forEach((el) => {
+                el.addEventListener("click", () => {
+                    state.simFolder = el.getAttribute("data-sim-folder");
+                    state.simQuery = "";
+                    if ($("sim-search-input")) $("sim-search-input").value = "";
+                    renderOutlook365Simulator();
+                });
+            });
+
+            // Filter messages
+            const q = (state.simQuery || "").toLowerCase().trim();
+            let filtered = data.messages.filter((m) => {
+                if (q) {
+                    return (
+                        m.subject.toLowerCase().includes(q) ||
+                        m.sender.toLowerCase().includes(q) ||
+                        m.snippet.toLowerCase().includes(q) ||
+                        m.body.toLowerCase().includes(q)
+                    );
+                }
+                if (state.simFolder === "contracts") {
+                    return m.id === 1 || m.id === 3;
+                }
+                return m.folder === state.simFolder;
+            });
+
+            if (!filtered.some((m) => m.id === state.simSelectedId) && filtered.length > 0) {
+                state.simSelectedId = filtered[0].id;
+            }
+
+            const activeFolderObj = data.folders.find((f) => f.id === state.simFolder) || data.folders[0];
+            if ($("sim-folder-title")) {
+                $("sim-folder-title").textContent = q
+                    ? (en ? `Search: "${state.simQuery}"` : `Busca: "${state.simQuery}"`)
+                    : activeFolderObj.name.replace(/^[^\s]+\s/, "");
+            }
+            if ($("sim-folder-count")) {
+                $("sim-folder-count").textContent = `${filtered.length} ${en ? "items" : "itens"}`;
+            }
+
+            if (filtered.length === 0) {
+                msgsEl.innerHTML = `<div style="padding:24px 14px;text-align:center;color:#64748b;font-size:12.5px;">${en ? "No sample messages matched your search." : "Nenhuma mensagem de exemplo encontrada."}</div>`;
+                readEl.innerHTML = "";
+                return;
+            }
+
+            msgsEl.innerHTML = filtered.map((m) => `
+                <div class="o365-msg-card ${m.id === state.simSelectedId ? "active" : ""}" data-sim-msg="${m.id}">
+                    <div class="o365-avatar" style="background:${m.color};">${escapeHtml(m.initials)}</div>
+                    <div style="flex:1;min-width:0;">
+                        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;">
+                            <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(m.sender)}</strong>
+                            <span style="font-size:10.5px;color:#64748b;flex-shrink:0;">${escapeHtml(m.date.split(" ")[0])}</span>
+                        </div>
+                        <div style="font-size:12px;font-weight:700;color:#0f6cbd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:2px 0;">
+                            ${m.attachments.length ? "📎 " : ""}${escapeHtml(m.subject)}
+                        </div>
+                        <div style="font-size:11.5px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                            ${escapeHtml(m.snippet)}
+                        </div>
+                    </div>
+                </div>
+            `).join("");
+
+            msgsEl.querySelectorAll("[data-sim-msg]").forEach((el) => {
+                el.addEventListener("click", () => {
+                    state.simSelectedId = Number(el.getAttribute("data-sim-msg"));
+                    renderOutlook365Simulator();
+                });
+            });
+
+            const sel = filtered.find((m) => m.id === state.simSelectedId) || filtered[0];
+            readEl.innerHTML = `
+                <h4 class="o365-read-subj">${escapeHtml(sel.subject)}</h4>
+                <div class="o365-read-sender-row">
+                    <div class="o365-avatar" style="background:${sel.color};">${escapeHtml(sel.initials)}</div>
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-size:13px;font-weight:700;color:#0f172a;">
+                            ${escapeHtml(sel.sender)} <span style="font-weight:400;color:#64748b;font-size:12px;">&lt;${escapeHtml(sel.email)}&gt;</span>
+                        </div>
+                        <div style="font-size:11.5px;color:#64748b;">
+                            <strong>${en ? "To:" : "Para:"}</strong> ${escapeHtml(sel.to)} • ${escapeHtml(sel.date)}
+                        </div>
+                    </div>
+                </div>
+                ${sel.attachments.length ? `
+                    <div class="o365-att-bar">
+                        ${sel.attachments.map((a) => `
+                            <span class="o365-att-pill" data-sim-att="${escapeHtml(a.name)}">
+                                📎 ${escapeHtml(a.name)} <small style="color:#64748b;">(${escapeHtml(a.size)})</small>
+                            </span>
+                        `).join("")}
+                    </div>
+                ` : ""}
+                <div class="o365-read-body">${sel.body}</div>
+            `;
+
+            readEl.querySelectorAll("[data-sim-att]").forEach((pill) => {
+                pill.addEventListener("click", () => {
+                    const name = pill.getAttribute("data-sim-att");
+                    uiToast(
+                        en
+                            ? `In the full reader, clicking "${name}" opens its content or downloads the original file.`
+                            : `No leitor completo, clicar em "${name}" abre a leitura do anexo na tela ou baixa o arquivo original.`,
+                        "info",
+                        en ? "Attachment Preview (Simulator)" : "Visualização de Anexo (Simulador)"
+                    );
+                });
+            });
+        }
+
+        function applyLanguage(lang) {
+            state.lang = lang === "en" ? "en" : "pt";
+            localStorage.setItem("pstviewer_lang", state.lang);
+            document.documentElement.lang = state.lang === "en" ? "en" : "pt-BR";
+
+            document.querySelectorAll("[data-set-lang]").forEach((btn) => {
+                btn.classList.toggle("active", btn.getAttribute("data-set-lang") === state.lang);
+            });
+
+            document.querySelectorAll("[data-i18n]").forEach((el) => {
+                const key = el.getAttribute("data-i18n");
+                const val = t(key);
+                if (val.includes("<")) {
+                    el.innerHTML = val;
+                } else {
+                    el.textContent = val;
+                }
+            });
+
+            document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
+                const key = el.getAttribute("data-i18n-placeholder");
+                el.setAttribute("placeholder", t(key));
+            });
+
+            document.querySelectorAll("[data-i18n-title]").forEach((el) => {
+                const key = el.getAttribute("data-i18n-title");
+                el.setAttribute("title", t(key));
+            });
+
+            renderOutlook365Simulator();
+            if (state.user && !$("view-home").classList.contains("hidden")) {
+                loadMyActiveSessions();
+            }
+        }
+
+        document.querySelectorAll("[data-set-lang]").forEach((btn) => {
+            btn.addEventListener("click", () => {
+                applyLanguage(btn.getAttribute("data-set-lang"));
+            });
+        });
+
+        if ($("sim-search-input")) {
+            $("sim-search-input").addEventListener("input", (ev) => {
+                state.simQuery = ev.target.value;
+                renderOutlook365Simulator();
+            });
+        }
+
+        if ($("sim-btn-print")) {
+            $("sim-btn-print").addEventListener("click", () => {
+                uiToast(
+                    isEn()
+                        ? "In the live reader, this button opens a clean A4 print sheet ready for paper or PDF."
+                        : "No leitor real, este botão gera uma folha A4 limpa pronta para impressora ou salvar em PDF.",
+                    "info",
+                    isEn() ? "Print Email (Simulator)" : "Imprimir E-mail (Simulador)"
+                );
+            });
+        }
+
+        if ($("sim-btn-eml")) {
+            $("sim-btn-eml").addEventListener("click", () => {
+                uiToast(
+                    isEn()
+                        ? "In the live reader, this downloads the selected email in universal .EML format."
+                        : "No leitor real, este botão baixa o e-mail selecionado no formato universal .EML.",
+                    "info",
+                    isEn() ? "Export EML (Simulator)" : "Salvar EML (Simulador)"
+                );
+            });
+        }
+
+        // Sobre / Como Funciona / Créditos e Abas Interativas
+        ["btn-login-about", "btn-login-about-top", "btn-open-about", "btn-home-about"].forEach((id) => {
             const el = $(id);
             if (el) {
                 el.addEventListener("click", () => {
                     $("modal-about").classList.remove("hidden");
                 });
             }
+        });
+
+        document.querySelectorAll("[data-about-tab]").forEach((tabBtn) => {
+            tabBtn.addEventListener("click", () => {
+                const targetTab = tabBtn.getAttribute("data-about-tab");
+                document.querySelectorAll("[data-about-tab]").forEach((b) => {
+                    b.classList.toggle("active", b === tabBtn);
+                });
+                ["story", "privacy", "author"].forEach((paneKey) => {
+                    const pane = $(`about-pane-${paneKey}`);
+                    if (pane) {
+                        pane.classList.toggle("hidden", paneKey !== targetTab);
+                    }
+                });
+            });
         });
 
         // Administração
@@ -1558,6 +2276,7 @@
             });
         });
 
+        applyLanguage(state.lang);
         checkCurrentSession();
     });
 })();

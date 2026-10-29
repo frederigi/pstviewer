@@ -1,5 +1,16 @@
 <div align="center">
 
+<!-- BARRA INTERATIVA DE SELEÇÃO DE IDIOMA (PT-BR / EN-US) -->
+<p align="center">
+  <a href="README.md">
+    <img src="https://img.shields.io/badge/🇧🇷_Idioma-Português_(Ativo)-0f6cbd?style=for-the-badge" alt="Português Ativo" />
+  </a>
+  &nbsp;&nbsp;
+  <a href="README.en.md">
+    <img src="https://img.shields.io/badge/🇺🇸_Language-Read_in_English_(EN--US)-107c10?style=for-the-badge" alt="Read in English" />
+  </a>
+</p>
+
 # 📧 PST Viewer
 ### Plataforma Corporativa de Inspeção, Leitura e Pesquisa Temporária de Arquivos Microsoft Outlook (`.pst`)
 
@@ -11,16 +22,40 @@
 [![Privacidade](https://img.shields.io/badge/Pol%C3%ADtica-Reten%C3%A7%C3%A3o_Zero_(LGPD)-107c10?style=for-the-badge&logo=shield&logoColor=white)](#seguran%C3%A7a-isolamento-e-descarte-autom%C3%A1tico)
 
 <p align="center">
-  <strong>Leitor web inspirado no Microsoft Outlook • Pesquisa profunda em e-mails e dentro de anexos (PDF/Office) • Instalação automática em 1 comando</strong>
+  <strong>Leitor web estilo Outlook 365 + Simulador Interativo • Pesquisa profunda em e-mails e anexos (PDF/Office) • Bilíngue Interativo (PT / EN)</strong>
 </p>
 
 [Visão Geral](#-visão-geral) •
-[Interface do Leitor](#-interface-do-leitor-estilo-microsoft-outlook) •
+[Interface & Simulador Outlook 365](#-interface-do-leitor-estilo-microsoft-outlook) •
 [Instalação Rápida](#-instalação-execute-e-saia-usando) •
 [Arquitetura](#-arquitetura-e-fluxo-de-dados) •
-[Comandos Úteis](#-comandos-de-gerenciamento-e-administração)
+[Comandos Úteis](#-comandos-de-gerenciamento-e-administração) •
+[🇺🇸 Full English Docs (`README.en.md`)](README.en.md)
 
 </div>
+
+<details>
+<summary><strong>🌐 🇺🇸 English Speaker? Click here for the Interactive Quick Start (or open <a href="README.en.md">README.en.md</a> for full English docs)</strong></summary>
+
+<br>
+
+**PST Viewer** is a turnkey enterprise web application for opening, searching, printing, and exporting Microsoft Outlook (`.pst`) archives directly in your browser with **Zero Data Retention** (your original `.pst` file is never modified and temporary reading data is purged automatically on close/logout).
+
+* **Interactive Language Switcher (`🇧🇷 PT` | `🇺🇸 EN`):** Switch languages with 1 click on the login screen, inside the app top bar, or during CLI installation (`--lang en`).
+* **Linux / Cloud 1-Command Install (in English):**
+  ```bash
+  git clone https://github.com/frederigi/pstviewer.git && cd pstviewer
+  chmod +x install.sh && sudo ./install.sh --lang en
+  ```
+* **Windows + XAMPP 1-Click Install (in English):**
+  ```powershell
+  git clone https://github.com/frederigi/pstviewer.git
+  cd pstviewer
+  .\install_windows_xampp.bat --lang en
+  ```
+* 👉 **[Click here to read the complete documentation in English (`README.en.md`)](README.en.md)**
+
+</details>
 
 ---
 
@@ -46,6 +81,8 @@ Abaixo está a visualização da área de trabalho em **3 painéis** gerada a pa
 
 | Recurso | Descrição Técnica |
 | :--- | :--- |
+| 🌍 **Bilíngue Interativo (`🇧🇷 PT` / `🇺🇸 EN`)** | Seletor interativo de idiomas em 1 clique no topo da tela (e também nos instaladores CLI via `--lang pt` ou `--lang en`), permitindo instalar, configurar e usar o sistema em **Português** ou **Inglês**. |
+| 🖥️ **Simulador Outlook 365 Web na Tela Inicial** | A página inicial conta com um simulador interativo do Outlook 365 Web com pastas e e-mails fictícios clicáveis para que qualquer usuário teste a experiência na hora. |
 | 📂 **Árvore Limpa (Foco no Backup Real)** | Oculta automaticamente pastas técnicas ocultas do MAPI (`SPAM Search Folder`, `Pesquisar Raiz`), pastas vazias (`Itens Excluídos` sem itens) e cascas vazias (`Início do arquivo de dados do Outlook`), exibindo direto a pasta real do seu backup. |
 | ⚡ **Abertura Progressiva (`READY_PARTIAL`)** | Não é preciso esperar um PST de vários Gigabytes terminar para começar a ler: assim que a 1ª pasta é mapeada, o leitor já é liberado enquanto o worker indexa o restante em background. |
 | 🔍 **Pesquisa Global + Conteúdo de Anexos** | Busca `FULLTEXT` combinada com filtros por pasta, remetente, destinatário (`Para`/`CC`/`CCO`), período de datas e textos extraídos de dentro de arquivos **PDF, DOCX, XLSX, PPTX, RTF, DOC, TXT, CSV, HTML e ZIP**. |
@@ -312,12 +349,14 @@ pstviewer/
 ├── scripts/                  # Utilitários CLI (create_admin.py) e suítes de testes automatizados
 ├── Dockerfile                # Imagem Debian Bookworm com libpff, poppler, antiword e tesseract
 ├── docker-compose.yml        # Orquestração completa pronta para uso
-├── install.sh                    # Instalador automático unificado para Linux / Cloud VPS
+├── install.sh                    # Instalador automático bilíngue (PT/EN) para Linux / Cloud VPS
 ├── update.sh                     # Atualizador rápido via SSH para servidores Linux / Cloud
 ├── install_windows_xampp.bat     # Instalador e inicializador automático (1 clique) para Windows + XAMPP
 ├── reset_admin_password.bat      # Atalho de 1 clique no Windows para escolher/redefinir a senha do admin
 ├── stop_windows.bat              # Atalho de 1 clique no Windows para encerrar os serviços em background
-├── setup_and_run.py              # Assistente multiplataforma para execução com MySQL local / XAMPP
+├── setup_and_run.py              # Assistente bilíngue (PT/EN) para execução com MySQL local / XAMPP
+├── README.md                     # Documentação completa em Português (com barra interativa de idioma)
+├── README.en.md                  # Full documentation in English (with interactive language bar)
 └── requirements.txt              # Dependências Python com suporte a pacotes binários pré-compilados
 ```
 

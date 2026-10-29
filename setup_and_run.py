@@ -1,15 +1,8 @@
 #!/usr/bin/env python3
 """
 PST Viewer — Assistente Inteligente de Diagnóstico, Instalação e Execução em Segundo Plano.
+Smart Bilingual Setup & Background Runner (Português / English).
 Compatível com Windows (XAMPP / MySQL Server / MariaDB), Linux e Nuvem.
-
-Destaques:
-  1. Verifica versões de Python, espaço em disco, pacotes e banco MySQL/MariaDB.
-  2. Instala dependências usando pacotes binários pré-compilados (.whl).
-  3. Configura o banco `pstviewer` no MySQL/XAMPP, roda as migrações e cria o usuário `admin`.
-  4. Inicia os 3 serviços (Web Server, Worker PST e Cleaner) EM SEGUNDO PLANO (Background Daemon),
-     totalmente desacoplados do terminal — o usuário pode fechar o PowerShell/CMD à vontade!
-  5. Registra inicialização automática no logon do Windows para continuar ativo após reiniciar.
 """
 
 from __future__ import annotations
@@ -36,6 +29,8 @@ ENV_FILE = CONFIG_DIR / "pstviewer.env"
 STORAGE_ROOT = PROJECT_ROOT / "storage"
 PID_FILE = STORAGE_ROOT / "logs" / "pstviewer_pids.json"
 
+LANG = os.environ.get("PSTVIEWER_LANG", "").strip().lower() or "pt"
+
 REQUIRED_LIBRARIES: List[Tuple[str, str, str]] = [
     ("fastapi", "fastapi", "0.115.0"),
     ("uvicorn[standard]", "uvicorn", "0.30.0"),
@@ -56,10 +51,43 @@ REQUIRED_LIBRARIES: List[Tuple[str, str, str]] = [
 ]
 
 
+def _is_en() -> bool:
+    return LANG.startswith("en")
+
+
+def _msg(pt_text: str, en_text: str) -> str:
+    return en_text if _is_en() else pt_text
+
+
 def _banner(title: str) -> None:
     print("\n" + "=" * 76)
     print(f"  {title}")
     print("=" * 76)
+
+
+def _select_language_interactive(cli_lang: Optional[str], interactive: bool) -> None:
+    global LANG
+    if cli_lang in ("pt", "en"):
+        LANG = cli_lang
+        return
+    env_lang = os.environ.get("PSTVIEWER_LANG", "").strip().lower()
+    if env_lang in ("pt", "en"):
+        LANG = env_lang
+        return
+    if not interactive:
+        LANG = "pt"
+        return
+
+    print("\n" + "=" * 76)
+    print("  🌐 SELECIONE O IDIOMA / SELECT YOUR LANGUAGE")
+    print("=" * 76)
+    print("  [1] Português (Brasil) — Padrão")
+    print("  [2] English (International)")
+    choice = input("  Opção / Option [1/2] (Enter = 1): ").strip().lower()
+    if choice in ("2", "en", "eng", "english"):
+        LANG = "en"
+    else:
+        LANG = "pt"
 
 
 def _parse_ver(v_str: str) -> Tuple[int, ...]:
@@ -126,7 +154,12 @@ def stop_background_services(silent: bool = False) -> int:
             pass
         PID_FILE.unlink(missing_ok=True)
     if not silent:
-        print(f"  [OK] {stopped} serviço(s) em segundo plano do PST Viewer foram encerrados.")
+        print(
+            _msg(
+                f"  [OK] {stopped} serviço(s) em segundo plano do PST Viewer foram encerrados.",
+                f"  [OK] {stopped} PST Viewer background service(s) stopped.",
+            )
+        )
     return stopped
 
 
@@ -156,7 +189,12 @@ def get_background_status() -> Dict[str, object]:
 
 def check_system_requirements() -> Dict[str, object]:
     """Faz diagnóstico completo de versão do Python, disco, bibliotecas e ferramentas."""
-    _banner("1. DIAGNÓSTICO INTELIGENTE DE REQUISITOS E VERSÕES DA MÁQUINA")
+    _banner(
+        _msg(
+            "1. DIAGNÓSTICO INTELIGENTE DE REQUISITOS E VERSÕES DA MÁQUINA",
+            "1. SMART SYSTEM REQUIREMENTS & VERSION DIAGNOSTICS",
+        )
+    )
 
     py_ver = sys.version.split()[0]
     py_ok = sys.version_info >= (3, 10)
@@ -164,43 +202,78 @@ def check_system_requirements() -> Dict[str, object]:
     disk = shutil.disk_usage(PROJECT_ROOT)
     free_gb = round(disk.free / (1024 ** 3), 2)
 
-    print(f"  • Sistema Operacional : {os_desc}")
-    print(f"  • Interpretador Python: v{py_ver} ({sys.executable})")
+    print(_msg(f"  • Sistema Operacional : {os_desc}", f"  • Operating System    : {os_desc}"))
+    print(_msg(f"  • Interpretador Python: v{py_ver} ({sys.executable})", f"  • Python Interpreter  : v{py_ver} ({sys.executable})"))
     if not py_ok:
-        print("    [ERRO] Versão muito antiga! O sistema requer Python 3.10 ou superior.")
+        print(
+            _msg(
+                "    [ERRO] Versão muito antiga! O sistema requer Python 3.10 ou superior.",
+                "    [ERROR] Python version too old! Python 3.10 or newer is required.",
+            )
+        )
     elif sys.version_info >= (3, 14):
-        print("    [INFO] Python 3.14+ detectado -> Modo de pacotes binários pré-compilados ativado.")
+        print(
+            _msg(
+                "    [INFO] Python 3.14+ detectado -> Modo de pacotes binários pré-compilados ativado.",
+                "    [INFO] Python 3.14+ detected -> Pre-compiled binary wheel mode enabled.",
+            )
+        )
     else:
-        print("    [OK]   Versão do Python totalmente compatível.")
+        print(_msg("    [OK]   Versão do Python totalmente compatível.", "    [OK]   Python version is fully compatible."))
 
-    print(f"  • Espaço Livre Disco  : {free_gb} GB", end="")
+    print(_msg(f"  • Espaço Livre Disco  : {free_gb} GB", f"  • Free Disk Space     : {free_gb} GB"), end="")
     if free_gb < 2.0:
-        print(" [AVISO: Pouco espaço livre! Recomendado >= 5 GB]")
+        print(_msg(" [AVISO: Pouco espaço livre! Recomendado >= 5 GB]", " [WARNING: Low free disk space! Recommended >= 5 GB]"))
     elif free_gb < 15.0:
-        print(" [OK - Cota mínima será ajustada automaticamente para seu disco]")
+        print(_msg(" [OK - Cota mínima será ajustada automaticamente]", " [OK - Disk quota will be auto-adjusted]"))
     else:
         print(" [OK]")
 
     to_install: List[str] = []
-    print("\n  Status das bibliotecas Python necessárias:")
+    print(_msg("\n  Status das bibliotecas Python necessárias:", "\n  Required Python libraries status:"))
     for pip_spec, dist_name, min_ver in REQUIRED_LIBRARIES:
         inst_v = _get_installed_version(dist_name)
         if inst_v is None:
-            print(f"    [AUSENTE]    {dist_name:<22} (requer >= {min_ver}) -> será instalado")
+            print(
+                _msg(
+                    f"    [AUSENTE]    {dist_name:<22} (requer >= {min_ver}) -> será instalado",
+                    f"    [MISSING]    {dist_name:<22} (requires >= {min_ver}) -> will install",
+                )
+            )
             to_install.append(f"{pip_spec}>={min_ver}")
         elif _parse_ver(inst_v) < _parse_ver(min_ver):
-            print(f"    [ATUALIZAR]  {dist_name:<22} (atual: v{inst_v} | requer >= {min_ver})")
+            print(
+                _msg(
+                    f"    [ATUALIZAR]  {dist_name:<22} (atual: v{inst_v} | requer >= {min_ver})",
+                    f"    [UPGRADE]    {dist_name:<22} (current: v{inst_v} | requires >= {min_ver})",
+                )
+            )
             to_install.append(f"{pip_spec}>={min_ver}")
         else:
-            print(f"    [OK]         {dist_name:<22} (v{inst_v} instalada)")
+            print(
+                _msg(
+                    f"    [OK]         {dist_name:<22} (v{inst_v} instalada)",
+                    f"    [OK]         {dist_name:<22} (v{inst_v} installed)",
+                )
+            )
 
     has_pypff = False
     try:
         import pypff  # type: ignore
         has_pypff = True
-        print(f"    [OK]         {'libpff-python (pypff)':<22} (v{pypff.get_version()} nativa ativa)")
+        print(
+            _msg(
+                f"    [OK]         {'libpff-python (pypff)':<22} (v{pypff.get_version()} nativa ativa)",
+                f"    [OK]         {'libpff-python (pypff)':<22} (v{pypff.get_version()} native engine active)",
+            )
+        )
     except ImportError:
-        print(f"    [AUSENTE]    {'libpff-python (pypff)':<22} (motor nativo PST -> será instalado)")
+        print(
+            _msg(
+                f"    [AUSENTE]    {'libpff-python (pypff)':<22} (motor nativo PST -> será instalado)",
+                f"    [MISSING]    {'libpff-python (pypff)':<22} (native PST engine -> will install)",
+            )
+        )
         to_install.append("libpff-python")
 
     return {
@@ -213,16 +286,26 @@ def check_system_requirements() -> Dict[str, object]:
 
 def install_missing_python_deps(to_install: List[str]) -> bool:
     """Instala pacotes ausentes priorizando wheels binários pré-compilados (--only-binary=:all:)."""
-    _banner("2. INSTALAÇÃO INTELIGENTE DE DEPENDÊNCIAS PYTHON")
+    _banner(
+        _msg(
+            "2. INSTALAÇÃO INTELIGENTE DE DEPENDÊNCIAS PYTHON",
+            "2. SMART PYTHON DEPENDENCY INSTALLATION",
+        )
+    )
 
-    print("  -> Atualizando gerenciador pip...")
+    print(_msg("  -> Atualizando gerenciador pip...", "  -> Upgrading pip package manager..."))
     subprocess.run(
         [sys.executable, "-m", "pip", "install", "--upgrade", "pip"],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
 
-    print("  -> Baixando pacotes binários pré-compilados compatíveis com seu Python...")
+    print(
+        _msg(
+            "  -> Baixando pacotes binários pré-compilados compatíveis com seu Python...",
+            "  -> Downloading pre-compiled binary wheels for your Python version...",
+        )
+    )
     cmd_binary = [
         sys.executable,
         "-m",
@@ -234,21 +317,31 @@ def install_missing_python_deps(to_install: List[str]) -> bool:
     ]
     res = subprocess.run(cmd_binary)
     if res.returncode == 0:
-        print("  [OK] Todas as dependências foram instaladas com sucesso via pacotes pré-compilados!")
+        print(
+            _msg(
+                "  [OK] Todas as dependências foram instaladas com sucesso via pacotes pré-compilados!",
+                "  [OK] All dependencies were installed successfully using pre-compiled wheels!",
+            )
+        )
         return True
 
-    print("\n  [INFO] Ajustando instalação individual para compatibilidade de versão...")
+    print(
+        _msg(
+            "\n  [INFO] Ajustando instalação individual para compatibilidade de versão...",
+            "\n  [INFO] Adjusting individual package installation for version compatibility...",
+        )
+    )
     failed_pkgs: List[str] = []
     for spec in to_install:
         pkg_base = spec.split(">=")[0].split("==")[0]
-        print(f"    • Instalando {pkg_base}...", end=" ", flush=True)
+        print(_msg(f"    • Instalando {pkg_base}...", f"    • Installing {pkg_base}..."), end=" ", flush=True)
         r1 = subprocess.run(
             [sys.executable, "-m", "pip", "install", "--only-binary=:all:", "--prefer-binary", spec],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
         if r1.returncode == 0:
-            print("[OK - Binário]")
+            print(_msg("[OK - Binário]", "[OK - Binary]"))
             continue
 
         r2 = subprocess.run(
@@ -266,16 +359,21 @@ def install_missing_python_deps(to_install: List[str]) -> bool:
             stderr=subprocess.DEVNULL,
         )
         if r3.returncode == 0:
-            print("[OK - Versão Adaptada]")
+            print(_msg("[OK - Versão Adaptada]", "[OK - Adapted Version]"))
         else:
-            print("[FALHOU]")
+            print(_msg("[FALHOU]", "[FAILED]"))
             failed_pkgs.append(pkg_base)
 
     if failed_pkgs:
         print(
-            f"\n  [ERRO] Não foi possível instalar: {', '.join(failed_pkgs)}"
-            f"\n  Solução recomendada: Instale o Python 3.12 LTS (winget install Python.Python.3.12)"
-            "\n  ou execute via Docker (docker compose up -d --build)."
+            _msg(
+                f"\n  [ERRO] Não foi possível instalar: {', '.join(failed_pkgs)}"
+                f"\n  Solução recomendada: Instale o Python 3.12 LTS (winget install Python.Python.3.12)"
+                "\n  ou execute via Docker (docker compose up -d --build).",
+                f"\n  [ERROR] Failed to install: {', '.join(failed_pkgs)}"
+                f"\n  Recommended fix: Install Python 3.12 LTS (winget install Python.Python.3.12)"
+                "\n  or run via Docker (docker compose up -d --build).",
+            )
         )
         return False
 
@@ -283,10 +381,6 @@ def install_missing_python_deps(to_install: List[str]) -> bool:
 
 
 def _ensure_xampp_mysql_started(host: str, preferred_port: int) -> None:
-    """
-    No Windows, se o MySQL/MariaDB ainda não estiver rodando no boot, procura o MySQL do XAMPP
-    (C:\\xampp, D:\\xampp, E:\\xampp) ou serviço MySQL/MariaDB do Windows e o inicia automaticamente.
-    """
     if os.name != "nt" or host not in ("127.0.0.1", "localhost"):
         return
 
@@ -295,7 +389,6 @@ def _ensure_xampp_mysql_started(host: str, preferred_port: int) -> None:
         if sock.connect_ex((host, preferred_port)) == 0:
             return
 
-    # Tenta iniciar serviço Windows MySQL/MariaDB caso exista
     for svc_name in ("MySQL", "MySQL80", "MySQL84", "MariaDB"):
         subprocess.run(
             ["net", "start", svc_name],
@@ -303,12 +396,16 @@ def _ensure_xampp_mysql_started(host: str, preferred_port: int) -> None:
             stderr=subprocess.DEVNULL,
         )
 
-    # Procura instalação do XAMPP em unidades comuns
     for drive in ("C:", "D:", "E:"):
         mysqld_exe = Path(f"{drive}\\xampp\\mysql\\bin\\mysqld.exe")
         my_ini = Path(f"{drive}\\xampp\\mysql\\bin\\my.ini")
         if mysqld_exe.is_file():
-            print(f"  [AUTO-START] Iniciando MySQL do XAMPP ({mysqld_exe}) em segundo plano...")
+            print(
+                _msg(
+                    f"  [AUTO-START] Iniciando MySQL do XAMPP ({mysqld_exe}) em segundo plano...",
+                    f"  [AUTO-START] Starting XAMPP MySQL ({mysqld_exe}) in background...",
+                )
+            )
             flags = (
                 subprocess.DETACHED_PROCESS
                 | subprocess.CREATE_NEW_PROCESS_GROUP
@@ -327,13 +424,12 @@ def _ensure_xampp_mysql_started(host: str, preferred_port: int) -> None:
                 creationflags=flags,
                 close_fds=True,
             )
-            # Aguarda até 12 segundos o MySQL do XAMPP abrir a porta
             for _ in range(24):
                 time.sleep(0.5)
                 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                     s.settimeout(0.5)
                     if s.connect_ex((host, preferred_port)) == 0:
-                        print("  [OK] MySQL do XAMPP iniciado automaticamente!")
+                        print(_msg("  [OK] MySQL do XAMPP iniciado automaticamente!", "  [OK] XAMPP MySQL started automatically!"))
                         return
             break
 
@@ -358,11 +454,16 @@ def configure_database_and_env(
     bind_port: int,
     interactive: bool,
 ) -> Tuple[Path, int]:
-    _banner("3. DETECÇÃO E CONFIGURAÇÃO DO MYSQL / MARIADB (XAMPP / LOCAL / NUVEM)")
+    _banner(
+        _msg(
+            "3. DETECÇÃO E CONFIGURAÇÃO DO MYSQL / MARIADB (XAMPP / LOCAL / NUVEM)",
+            "3. MYSQL / MARIADB DETECTION & CONFIGURATION (XAMPP / LOCAL / CLOUD)",
+        )
+    )
     import pymysql
 
     if ENV_FILE.is_file():
-        print(f"  [OK] Configuração existente carregada de: {ENV_FILE}")
+        print(_msg(f"  [OK] Configuração existente carregada de: {ENV_FILE}", f"  [OK] Existing configuration loaded from: {ENV_FILE}"))
         for line in ENV_FILE.read_text(encoding="utf-8").splitlines():
             if line.startswith("PSTVIEWER_BIND_PORT="):
                 try:
@@ -382,7 +483,10 @@ def configure_database_and_env(
     detected_port = _detect_open_mysql_port(db_host, db_port)
     if detected_port != db_port:
         print(
-            f"  [AUTO-DETECÇÃO] Porta {db_port} fechada, mas banco detectado ativo na porta {detected_port}!"
+            _msg(
+                f"  [AUTO-DETECÇÃO] Porta {db_port} fechada, mas banco detectado ativo na porta {detected_port}!",
+                f"  [AUTO-DETECT] Port {db_port} closed, but database detected active on port {detected_port}!",
+            )
         )
         db_port = detected_port
 
@@ -400,9 +504,14 @@ def configure_database_and_env(
             with conn.cursor() as cur:
                 cur.execute("SELECT VERSION();")
                 ver_row = cur.fetchone()
-                db_ver = ver_row[0] if ver_row else "Desconhecida"
+                db_ver = ver_row[0] if ver_row else "Unknown"
                 engine_type = "MariaDB" if "mariadb" in db_ver.lower() else "MySQL"
-                print(f"  [OK] Conectado com sucesso ao {engine_type} (versão: {db_ver}) em {db_host}:{db_port}")
+                print(
+                    _msg(
+                        f"  [OK] Conectado com sucesso ao {engine_type} (versão: {db_ver}) em {db_host}:{db_port}",
+                        f"  [OK] Connected to {engine_type} (version: {db_ver}) at {db_host}:{db_port}",
+                    )
+                )
 
                 cur.execute(
                     f"CREATE DATABASE IF NOT EXISTS `{db_name}` "
@@ -411,22 +520,45 @@ def configure_database_and_env(
             conn.commit()
             conn.close()
             connected = True
-            print(f"  [OK] Banco de dados '{db_name}' (UTF8MB4 InnoDB) verificado e pronto!")
+            print(
+                _msg(
+                    f"  [OK] Banco de dados '{db_name}' (UTF8MB4 InnoDB) verificado e pronto!",
+                    f"  [OK] Database '{db_name}' (UTF8MB4 InnoDB) verified and ready!",
+                )
+            )
         except Exception as exc:
-            print(f"\n  [AVISO] Não foi possível conectar ao MySQL em {db_host}:{db_port} com usuário '{db_user}':")
-            print(f"          Detalhe: {exc}")
+            print(
+                _msg(
+                    f"\n  [AVISO] Não foi possível conectar ao MySQL em {db_host}:{db_port} com usuário '{db_user}':",
+                    f"\n  [WARNING] Could not connect to MySQL at {db_host}:{db_port} with user '{db_user}':",
+                )
+            )
+            print(f"          Detail: {exc}")
             if not interactive:
                 raise RuntimeError(
-                    "Falha na conexão com o MySQL/MariaDB. Verifique se o MySQL (XAMPP) está iniciado."
+                    _msg(
+                        "Falha na conexão com o MySQL/MariaDB. Verifique se o MySQL (XAMPP) está iniciado.",
+                        "Failed to connect to MySQL/MariaDB. Make sure MySQL (XAMPP) is running.",
+                    )
                 ) from exc
-            print("\n  Por favor, confira se o MySQL está iniciado no painel do XAMPP ou informe as credenciais:")
-            db_host = input(f"    Host do MySQL [{db_host}]: ").strip() or db_host
-            port_str = input(f"    Porta do MySQL [{db_port}]: ").strip()
+            print(
+                _msg(
+                    "\n  Por favor, confira se o MySQL está iniciado no painel do XAMPP ou informe as credenciais:",
+                    "\n  Please make sure MySQL is started in XAMPP Control Panel or enter your credentials:",
+                )
+            )
+            db_host = input(f"    MySQL Host [{db_host}]: ").strip() or db_host
+            port_str = input(f"    MySQL Port [{db_port}]: ").strip()
             if port_str.isdigit():
                 db_port = int(port_str)
-            db_user = input(f"    Usuário do MySQL [{db_user}]: ").strip() or db_user
-            db_password = input("    Senha do MySQL (pressione Enter se for vazia no XAMPP): ").strip()
-            db_name = input(f"    Nome do Banco [{db_name}]: ").strip() or db_name
+            db_user = input(f"    MySQL User [{db_user}]: ").strip() or db_user
+            db_password = input(
+                _msg(
+                    "    Senha do MySQL (pressione Enter se for vazia no XAMPP): ",
+                    "    MySQL Password (press Enter if empty in XAMPP): ",
+                )
+            ).strip()
+            db_name = input(f"    Database Name [{db_name}]: ").strip() or db_name
 
     sessions_dir = (STORAGE_ROOT / "sessions").resolve()
     quarantine_dir = (STORAGE_ROOT / "quarantine").resolve()
@@ -461,14 +593,19 @@ def configure_database_and_env(
         ]
     )
     ENV_FILE.write_text(env_content, encoding="utf-8")
-    print(f"  [OK] Arquivo de ambiente gerado em: {ENV_FILE}")
+    print(_msg(f"  [OK] Arquivo de ambiente gerado em: {ENV_FILE}", f"  [OK] Environment file created at: {ENV_FILE}"))
     return ENV_FILE, bind_port
 
 
 def run_migrations_and_adapt_settings(
     env_path: Path, free_gb: float, reset_admin: bool = False, interactive: bool = True
 ) -> Tuple[str, str]:
-    _banner("4. MIGRAÇÕES DO BANCO, AJUSTE DE DISCO E CREDENCIAIS DO ADMIN")
+    _banner(
+        _msg(
+            "4. MIGRAÇÕES DO BANCO, AJUSTE DE DISCO E CREDENCIAIS DO ADMIN",
+            "4. DATABASE MIGRATIONS, DISK TUNING & ADMIN CREDENTIALS",
+        )
+    )
     env = os.environ.copy()
     env["PYTHONPATH"] = str(PROJECT_ROOT)
     env["PSTVIEWER_ENV_FILE"] = str(env_path)
@@ -486,9 +623,13 @@ def run_migrations_and_adapt_settings(
             "db.commit(); db.close()"
         )
         subprocess.run([sys.executable, "-c", adapt_code], env=env, check=False)
-        print(f"  [AUTO-AJUSTE] Cota mínima de espaço livre adaptada para {safe_min_mb} MB conforme seu disco.")
+        print(
+            _msg(
+                f"  [AUTO-AJUSTE] Cota mínima de espaço livre adaptada para {safe_min_mb} MB conforme seu disco.",
+                f"  [AUTO-TUNE] Minimum free disk quota adjusted to {safe_min_mb} MB for your drive.",
+            )
+        )
 
-    # Verifica se o admin já existe no banco
     check_code = (
         "from sqlalchemy import select; "
         "from app.database.session import SessionLocal; "
@@ -502,24 +643,44 @@ def run_migrations_and_adapt_settings(
     admin_exists = "EXISTS" in (chk.stdout or "")
 
     if admin_exists and not reset_admin and interactive:
-        ans = input("\n  O usuário 'admin' já existe. Deseja redefinir a senha do 'admin' agora? [s/N]: ").strip()
+        ans = input(
+            _msg(
+                "\n  O usuário 'admin' já existe. Deseja redefinir a senha do 'admin' agora? [s/N]: ",
+                "\n  The 'admin' user already exists. Would you like to reset the 'admin' password now? [y/N]: ",
+            )
+        ).strip()
         if ans.lower() in ("s", "sim", "y", "yes"):
             reset_admin = True
 
     if admin_exists and not reset_admin:
-        return "admin", "(Senha atual preservada — rode reset_admin_password.bat se esquecer)"
+        return (
+            "admin",
+            _msg(
+                "(Senha atual preservada — rode reset_admin_password.bat se esquecer)",
+                "(Current password preserved — run reset_admin_password.bat if needed)",
+            ),
+        )
 
     chosen_pw = ""
     if interactive:
-        print("\n  [DEFINIÇÃO DE SENHA DO ADMINISTRADOR]")
+        print(_msg("\n  [DEFINIÇÃO DE SENHA DO ADMINISTRADOR]", "\n  [ADMINISTRATOR PASSWORD SETUP]"))
         while True:
             chosen_pw = input(
-                "  Digite a senha que deseja para o usuário 'admin' (mín. 8 caracteres)\n"
-                "  [ou pressione Enter para gerar uma senha temporária]: "
+                _msg(
+                    "  Digite a senha que deseja para o usuário 'admin' (mín. 8 caracteres)\n"
+                    "  [ou pressione Enter para gerar uma senha temporária]: ",
+                    "  Enter the password you want for the 'admin' user (min. 8 characters)\n"
+                    "  [or press Enter to auto-generate a temporary password]: ",
+                )
             ).strip()
             if not chosen_pw or len(chosen_pw) >= 8:
                 break
-            print("  [AVISO] A senha deve ter pelo menos 8 caracteres. Tente novamente.")
+            print(
+                _msg(
+                    "  [AVISO] A senha deve ter pelo menos 8 caracteres. Tente novamente.",
+                    "  [WARNING] Password must be at least 8 characters long. Please try again.",
+                )
+            )
 
     auto_generated = not bool(chosen_pw)
     final_pw = chosen_pw or secrets.token_urlsafe(10)
@@ -537,7 +698,13 @@ def run_migrations_and_adapt_settings(
 
     subprocess.run(cmd, env=env, capture_output=True, text=True, check=True)
     if auto_generated:
-        return "admin", f"{final_pw}  (Temporária -> o navegador pedirá para você criar a sua no 1º login!)"
+        return (
+            "admin",
+            _msg(
+                f"{final_pw}  (Temporária -> o navegador pedirá para você criar a sua no 1º login!)",
+                f"{final_pw}  (Temporary -> the browser will prompt you to set your own on 1st sign-in!)",
+            ),
+        )
     return "admin", final_pw
 
 
@@ -550,11 +717,6 @@ def _find_available_http_port(preferred_port: int) -> int:
 
 
 def _spawn_detached_process(args_list: List[str], env: Dict[str, str], log_file: Path) -> int:
-    """
-    Inicia um processo 100% desacoplado do terminal/PowerShell atual.
-    No Windows, usa `pythonw.exe` (subsistema GUI sem janela de console) + flags de desacoplamento,
-    garantindo que fechar o PowerShell ou CMD JAMAIS encerre o serviço!
-    """
     log_file.parent.mkdir(parents=True, exist_ok=True)
     out_handle = open(log_file, "a", encoding="utf-8")
 
@@ -658,7 +820,6 @@ def start_services_in_background(env_path: Path, http_port: int) -> Dict[str, in
         encoding="utf-8",
     )
 
-    # Aguarda até 10 segundos para confirmar que o servidor HTTP já está respondendo
     health_url = f"http://127.0.0.1:{http_port}/api/health"
     for _ in range(20):
         time.sleep(0.5)
@@ -669,13 +830,11 @@ def start_services_in_background(env_path: Path, http_port: int) -> Dict[str, in
         except Exception:
             continue
 
-    # Registra inicialização automática no Windows (Pasta Inicializar + Agendador de Tarefas)
     if os.name == "nt":
         pyw = Path(sys.executable).with_name("pythonw.exe")
         runner_exe = str(pyw if pyw.is_file() else Path(sys.executable))
         script_path = str(PROJECT_ROOT / "setup_and_run.py")
 
-        # 1. Cria script VBS invisível na pasta Startup do Windows (não requer Admin e nunca falha)
         appdata = os.environ.get("APPDATA")
         if appdata:
             startup_dir = Path(appdata) / "Microsoft" / "Windows" / "Start Menu" / "Programs" / "Startup"
@@ -691,7 +850,6 @@ def start_services_in_background(env_path: Path, http_port: int) -> Dict[str, in
                 except Exception:
                     pass
 
-        # 2. Também registra no Agendador de Tarefas (ONLOGON)
         task_cmd = f'"{runner_exe}" "{script_path}" --yes --no-browser'
         subprocess.run(
             [
@@ -713,20 +871,24 @@ def start_services_in_background(env_path: Path, http_port: int) -> Dict[str, in
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="PST Viewer - Assistente Inteligente Setup & Run")
-    parser.add_argument("--yes", "-y", action="store_true", help="Instala tudo sem confirmação interativa")
-    parser.add_argument("--setup-only", action="store_true", help="Apenas instala e configura sem iniciar o servidor")
-    parser.add_argument("--stop", action="store_true", help="Encerra os serviços em segundo plano do PST Viewer")
-    parser.add_argument("--status", action="store_true", help="Exibe o status dos serviços em segundo plano")
-    parser.add_argument("--no-browser", action="store_true", help="Não abre o navegador automaticamente no final")
-    parser.add_argument("--reset-admin", action="store_true", help="Gera uma nova senha para o usuário admin")
-    parser.add_argument("--port", type=int, default=8085, help="Porta HTTP da aplicação (padrão: 8085)")
-    parser.add_argument("--db-host", default="127.0.0.1", help="Host do MySQL/MariaDB (padrão: 127.0.0.1)")
-    parser.add_argument("--db-port", type=int, default=3306, help="Porta do MySQL/MariaDB (padrão: 3306)")
-    parser.add_argument("--db-user", default="root", help="Usuário do MySQL/MariaDB (padrão: root)")
-    parser.add_argument("--db-password", default="", help="Senha do MySQL/MariaDB (padrão: vazio para XAMPP)")
-    parser.add_argument("--db-name", default="pstviewer", help="Nome do banco (padrão: pstviewer)")
+    parser = argparse.ArgumentParser(description="PST Viewer - Smart Setup & Background Runner (PT/EN)")
+    parser.add_argument("--lang", choices=["pt", "en"], default=None, help="Idioma / Language (pt | en)")
+    parser.add_argument("--yes", "-y", action="store_true", help="Non-interactive mode / Instala sem confirmação")
+    parser.add_argument("--setup-only", action="store_true", help="Setup only without starting services")
+    parser.add_argument("--stop", action="store_true", help="Stop background services / Encerra serviços")
+    parser.add_argument("--status", action="store_true", help="Show background services status")
+    parser.add_argument("--no-browser", action="store_true", help="Do not open browser automatically")
+    parser.add_argument("--reset-admin", action="store_true", help="Set/reset admin password")
+    parser.add_argument("--port", type=int, default=8085, help="HTTP port (default: 8085)")
+    parser.add_argument("--db-host", default="127.0.0.1", help="MySQL/MariaDB host (default: 127.0.0.1)")
+    parser.add_argument("--db-port", type=int, default=3306, help="MySQL/MariaDB port (default: 3306)")
+    parser.add_argument("--db-user", default="root", help="MySQL/MariaDB user (default: root)")
+    parser.add_argument("--db-password", default="", help="MySQL/MariaDB password (default: empty for XAMPP)")
+    parser.add_argument("--db-name", default="pstviewer", help="Database name (default: pstviewer)")
     args = parser.parse_args()
+
+    interactive = (not args.yes) and sys.stdin.isatty() and (not args.stop) and (not args.status)
+    _select_language_interactive(args.lang, interactive)
 
     if args.stop:
         stop_background_services(silent=False)
@@ -736,32 +898,53 @@ def main() -> int:
         st = get_background_status()
         if st.get("running"):
             print(
-                f"  [ATIVO EM SEGUNDO PLANO] URL: http://127.0.0.1:{st['port']} | "
-                f"PIDs -> Web: {st['web_pid']}, Worker: {st['worker_pid']}, Cleaner: {st['cleaner_pid']}"
+                _msg(
+                    f"  [ATIVO EM SEGUNDO PLANO] URL: http://127.0.0.1:{st['port']} | "
+                    f"PIDs -> Web: {st['web_pid']}, Worker: {st['worker_pid']}, Cleaner: {st['cleaner_pid']}",
+                    f"  [RUNNING IN BACKGROUND] URL: http://127.0.0.1:{st['port']} | "
+                    f"PIDs -> Web: {st['web_pid']}, Worker: {st['worker_pid']}, Cleaner: {st['cleaner_pid']}",
+                )
             )
         else:
-            print("  [PARADO] Os serviços em segundo plano do PST Viewer não estão em execução.")
+            print(
+                _msg(
+                    "  [PARADO] Os serviços em segundo plano do PST Viewer não estão em execução.",
+                    "  [STOPPED] PST Viewer background services are not currently running.",
+                )
+            )
         return 0
-
-    interactive = (not args.yes) and sys.stdin.isatty()
 
     status = check_system_requirements()
     if not status["py_ok"]:
-        print("\n[ERRO] Atualize seu Python para 3.10+ antes de continuar.")
+        print(
+            _msg(
+                "\n[ERRO] Atualize seu Python para 3.10+ antes de continuar.",
+                "\n[ERROR] Please upgrade Python to 3.10+ before continuing.",
+            )
+        )
         return 1
 
     to_install: List[str] = status["to_install"]  # type: ignore
     if to_install:
-        print(f"\n  [AÇÃO NECESSÁRIA] {len(to_install)} pacote(s) precisam ser instalados ou atualizados.")
+        print(
+            _msg(
+                f"\n  [AÇÃO NECESSÁRIA] {len(to_install)} pacote(s) precisam ser instalados ou atualizados.",
+                f"\n  [ACTION REQUIRED] {len(to_install)} package(s) need to be installed or updated.",
+            )
+        )
         if interactive:
-            ans = input("  Deseja que o assistente instale/atualize automaticamente agora? [S/n]: ").strip() or "S"
+            ans = input(
+                _msg(
+                    "  Deseja que o assistente instale/atualize automaticamente agora? [S/n]: ",
+                    "  Would you like the wizard to install/update them automatically now? [Y/n]: ",
+                )
+            ).strip() or "Y"
             if ans.lower() not in ("s", "sim", "y", "yes"):
-                print("  Instalação cancelada pelo usuário.")
+                print(_msg("  Instalação cancelada pelo usuário.", "  Installation cancelled by user."))
                 return 0
         if not install_missing_python_deps(to_install):
             return 1
 
-    # Se não for apenas setup, reinicia os serviços em segundo plano mantendo a porta 8085
     if not args.setup_only:
         stop_background_services(silent=True)
 
@@ -789,18 +972,34 @@ def main() -> int:
     pids = start_services_in_background(env_path, http_port)
     url = f"http://127.0.0.1:{http_port}"
 
-    _banner("✔ PST VIEWER ATIVO EM SEGUNDO PLANO (PODE FECHAR O TERMINAL!)")
-    print("  Os serviços foram iniciados de forma independente em segundo plano:")
-    print(f"  • Servidor Web FastAPI : ATIVO (PID {pids['web_pid']})")
-    print(f"  • Worker Extrator PST  : ATIVO (PID {pids['worker_pid']})")
-    print(f"  • Guardião de Limpeza  : ATIVO (PID {pids['cleaner_pid']})")
+    _banner(
+        _msg(
+            "✔ PST VIEWER ATIVO EM SEGUNDO PLANO (PODE FECHAR O TERMINAL!)",
+            "✔ PST VIEWER RUNNING IN BACKGROUND (YOU CAN CLOSE THIS TERMINAL!)",
+        )
+    )
+    print(
+        _msg(
+            "  Os serviços foram iniciados de forma independente em segundo plano:",
+            "  All background services have started independently:",
+        )
+    )
+    print(_msg(f"  • Servidor Web FastAPI : ATIVO (PID {pids['web_pid']})", f"  • FastAPI Web Server   : ACTIVE (PID {pids['web_pid']})"))
+    print(_msg(f"  • Worker Extrator PST  : ATIVO (PID {pids['worker_pid']})", f"  • PST Extractor Worker : ACTIVE (PID {pids['worker_pid']})"))
+    print(_msg(f"  • Guardião de Limpeza  : ATIVO (PID {pids['cleaner_pid']})", f"  • Session Cleaner      : ACTIVE (PID {pids['cleaner_pid']})"))
     print("-" * 76)
-    print(f"  • Endereço de Acesso   : {url}")
-    print(f"  • Usuário Admin        : {admin_user}")
-    print(f"  • Senha Admin          : {admin_pw}")
+    print(_msg(f"  • Endereço de Acesso   : {url}", f"  • Web Access URL       : {url}"))
+    print(_msg(f"  • Usuário Admin        : {admin_user}", f"  • Admin Username       : {admin_user}"))
+    print(_msg(f"  • Senha Admin          : {admin_pw}", f"  • Admin Password       : {admin_pw}"))
     print("-" * 76)
-    print("  💡 Você já pode FECHAR esta janela do PowerShell/CMD tranquilamente!")
-    print("     O sistema continuará rodando em segundo plano.")
+    print(
+        _msg(
+            "  💡 Você já pode FECHAR esta janela do PowerShell/CMD tranquilamente!\n"
+            "     O sistema continuará rodando em segundo plano.",
+            "  💡 You can safely CLOSE this PowerShell/CMD window now!\n"
+            "     The system will keep running in the background.",
+        )
+    )
     print("=" * 76)
 
     if not args.no_browser:

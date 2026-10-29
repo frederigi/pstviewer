@@ -9,3 +9,4 @@ if exist "venv\Scripts\python.exe" (
     python setup_and_run.py --stop
 )
 pause
+
