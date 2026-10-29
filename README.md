@@ -122,31 +122,69 @@ docker exec -it pstviewer-web /opt/pstviewer/venv/bin/python /opt/pstviewer/scri
 
 ---
 
-### 💻 Opção 3: Instalação Local Assistida (Usando MySQL do XAMPP, MariaDB ou MySQL Server)
+### 💻 Opção 3: Instalação do Zero no Windows com XAMPP (ou MySQL Local)
+
+Ideal para quem deseja rodar o sistema localmente no Windows aproveitando o banco **MySQL/MariaDB do XAMPP** (sem precisar configurar banco de dados manualmente nem criar tabelas no phpMyAdmin).
 
 > [!NOTE]
-> **Compatibilidade com XAMPP / MySQL Local:**
-> O PST Viewer é uma aplicação **Python (FastAPI)** com servidor próprio, portanto não depende do Apache/PHP do XAMPP, mas **conecta perfeitamente ao banco MySQL/MariaDB do XAMPP** (porta `3306`, usuário `root` sem senha) ou a qualquer MySQL local/remoto.
+> **Como o PST Viewer usa o XAMPP?**
+> O PST Viewer é uma aplicação **Python (FastAPI)** com servidor web próprio (`Uvicorn`). Ele **não usa o Apache/PHP** (`htdocs`), mas **usa automaticamente o banco de dados MySQL/MariaDB do XAMPP** na porta `3306` (usuário padrão `root` sem senha).
 
-1. Abra o painel do seu **XAMPP** (ou serviço MySQL/MariaDB local) e inicie o módulo **MySQL** na porta `3306`.
-2. No terminal ou PowerShell, execute o assistente interativo:
+#### Passo 1: Instalar os 2 requisitos base no Windows (caso ainda não tenha)
+
+Se a máquina estiver totalmente do zero, instale via terminal (**PowerShell**) com um único comando via `winget` (ou baixe pelos instaladores oficiais):
 
 ```powershell
-# Clone o projeto
-git clone https://github.com/frederigi/pstviewer.git
-cd pstviewer
-
-# Execute o assistente que verifica requisitos, instala pacotes, cria o banco e inicia tudo:
-python setup_and_run.py
+# Instala o XAMPP, o Python 3.12 e o Git automaticamente no Windows:
+winget install -e --id ApacheFriends.Xampp.8.2
+winget install -e --id Python.Python.3.12
+winget install -e --id Git.Git
 ```
 
-**Parâmetros opcionais do `setup_and_run.py`:**
+#### Passo 2: Baixar o Projeto e Iniciar o MySQL do XAMPP
+
+1. Abra o **XAMPP Control Panel** e clique em **Start** apenas na linha **MySQL** (até ficar verde na porta `3306`).
+   *(Se o XAMPP estiver em `C:\xampp`, o próprio instalador do Passo 3 consegue iniciar o MySQL sozinho caso você esqueça!)*
+2. No **PowerShell** ou **Prompt de Comando (CMD)**, baixe o projeto na pasta de sua preferência:
 
 ```powershell
-# Especificar credenciais personalizadas do MySQL ou porta HTTP diferente:
-python setup_and_run.py --db-host 127.0.0.1 --db-port 3306 --db-user root --db-password "" --port 8085
+git clone https://github.com/frederigi/pstviewer.git
+cd pstviewer
+```
 
-# Apenas configurar o banco e gerar uma nova senha para o admin sem iniciar o servidor:
+#### Passo 3: Executar o Instalador Automático (`install_windows_xampp.bat`)
+
+Você pode dar **duplo clique** no arquivo `install_windows_xampp.bat` na pasta do projeto ou executá-lo pelo terminal:
+
+```powershell
+.\install_windows_xampp.bat
+```
+
+> [!TIP]
+> **Preferindo rodar direto via Python (Windows, Linux ou macOS com MySQL local):**
+> ```powershell
+> # Cria o ambiente virtual, instala as dependências e executa o assistente:
+> python -m venv venv
+> .\venv\Scripts\activate
+> pip install -r requirements.txt
+> python setup_and_run.py
+> ```
+
+**O que o `install_windows_xampp.bat` + `setup_and_run.py` fazem sozinhos do zero:**
+1. **Verificam a máquina:** Checam a versão do Python (oferecendo instalar via `winget` se ausente), o espaço livre em disco e as bibliotecas necessárias.
+2. **Iniciam e conectam no MySQL do XAMPP (`127.0.0.1:3306`):** Se o MySQL do `C:\xampp` estiver parado, o script o inicia automaticamente; em seguida, conecta com o usuário `root` e cria o banco `pstviewer` (`utf8mb4_unicode_ci`) sem que você precise abrir o phpMyAdmin.
+3. **Criam o ambiente isolado (`venv`) e o arquivo `config/pstviewer.env`:** Configuram automaticamente as pastas temporárias locais (`./storage/sessions`, `./storage/quarantine`, `./storage/logs`).
+4. **Executam as migrações:** Criam todas as tabelas InnoDB e índices `FULLTEXT` automaticamente.
+5. **Geram o usuário Administrador:** Criam a conta **`admin`** e **exibem a senha gerada em destaque na tela**.
+6. **Iniciam os 3 Serviços Juntos:** Sobem o Servidor Web (`http://127.0.0.1:8085`), o Worker de Extração PST e o Guardião de Limpeza na mesma janela.
+
+**Comandos avançados do assistente (`setup_and_run.py`):**
+
+```powershell
+# Caso o seu MySQL tenha senha no root ou rode em outra porta:
+python setup_and_run.py --db-host 127.0.0.1 --db-port 3306 --db-user root --db-password "SUA_SENHA" --port 8085
+
+# Gerar uma nova senha para o usuário 'admin' a qualquer momento:
 python setup_and_run.py --setup-only --reset-admin
 ```
 
@@ -253,9 +291,10 @@ pstviewer/
 ├── scripts/                  # Utilitários CLI (create_admin.py) e suítes de testes automatizados
 ├── Dockerfile                # Imagem Debian Bookworm com libpff, poppler, antiword e tesseract
 ├── docker-compose.yml        # Orquestração completa pronta para uso
-├── install.sh                # Instalador automático unificado para Linux / Cloud VPS
-├── setup_and_run.py          # Assistente multiplataforma para execução com MySQL local / XAMPP
-└── requirements.txt          # Dependências Python fixadas
+├── install.sh                    # Instalador automático unificado para Linux / Cloud VPS
+├── install_windows_xampp.bat     # Instalador e inicializador automático (1 clique) para Windows + XAMPP
+├── setup_and_run.py              # Assistente multiplataforma para execução com MySQL local / XAMPP
+└── requirements.txt              # Dependências Python fixadas
 ```
 
 ---
