@@ -1,23 +1,22 @@
 #!/usr/bin/env python3
 """
-PST Viewer — Assistente Inteligente de Diagnóstico, Instalação e Inicialização.
+PST Viewer — Assistente Inteligente de Diagnóstico, Instalação e Execução em Segundo Plano.
 Compatível com Windows (XAMPP / MySQL Server / MariaDB), Linux e Nuvem.
 
-Inteligência de Adaptação a Diferentes Versões:
-  1. Detecta a versão exata do Python (3.10 a 3.14+) e busca sempre pacotes binários
-     pré-compilados (.whl) compatíveis com a versão do usuário, sem exigir compilador C++/Rust.
-  2. Inspeciona as versões já instaladas de cada biblioteca e informa o que está [OK],
-     o que será [ATUALIZADO] e o que será [INSTALADO].
-  3. Detecta automaticamente o MySQL/MariaDB (inclusive portas 3306, 3307, 3308 e diferentes
-     versões do XAMPP como MariaDB 10.4+, 10.6+, 11.x ou MySQL 5.7/8.0/8.4).
-  4. Adapta automaticamente o limite mínimo de espaço em disco conforme a máquina do usuário.
-  5. Cria o usuário `admin`, exibe login e senha em destaque e inicia os 3 serviços.
+Destaques:
+  1. Verifica versões de Python, espaço em disco, pacotes e banco MySQL/MariaDB.
+  2. Instala dependências usando pacotes binários pré-compilados (.whl).
+  3. Configura o banco `pstviewer` no MySQL/XAMPP, roda as migrações e cria o usuário `admin`.
+  4. Inicia os 3 serviços (Web Server, Worker PST e Cleaner) EM SEGUNDO PLANO (Background Daemon),
+     totalmente desacoplados do terminal — o usuário pode fechar o PowerShell/CMD à vontade!
+  5. Registra inicialização automática no logon do Windows para continuar ativo após reiniciar.
 """
 
 from __future__ import annotations
 
 import argparse
 from importlib.metadata import PackageNotFoundError, version as pkg_version
+import json
 import os
 import platform
 from pathlib import Path
@@ -27,12 +26,15 @@ import socket
 import subprocess
 import sys
 import time
+import urllib.request
 from typing import Dict, List, Optional, Tuple
+import webbrowser
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 CONFIG_DIR = PROJECT_ROOT / "config"
 ENV_FILE = CONFIG_DIR / "pstviewer.env"
 STORAGE_ROOT = PROJECT_ROOT / "storage"
+PID_FILE = STORAGE_ROOT / "logs" / "pstviewer_pids.json"
 
 REQUIRED_LIBRARIES: List[Tuple[str, str, str]] = [
     ("fastapi", "fastapi", "0.115.0"),
@@ -74,6 +76,82 @@ def _get_installed_version(dist_name: str) -> Optional[str]:
         return pkg_version(dist_name)
     except PackageNotFoundError:
         return None
+
+
+def _is_pid_running(pid: int) -> bool:
+    if pid <= 0:
+        return False
+    if os.name == "nt":
+        proc = subprocess.run(
+            ["tasklist", "/FI", f"PID eq {pid}", "/NH"],
+            capture_output=True,
+            text=True,
+        )
+        return str(pid) in (proc.stdout or "")
+    try:
+        os.kill(pid, 0)
+        return True
+    except OSError:
+        return False
+
+
+def _kill_pid(pid: int) -> None:
+    if pid <= 0:
+        return
+    if os.name == "nt":
+        subprocess.run(
+            ["taskkill", "/F", "/T", "/PID", str(pid)],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+    else:
+        try:
+            os.kill(pid, 15)
+        except OSError:
+            pass
+
+
+def stop_background_services(silent: bool = False) -> int:
+    """Encerra os processos em segundo plano registrados no arquivo de PID."""
+    stopped = 0
+    if PID_FILE.is_file():
+        try:
+            data = json.loads(PID_FILE.read_text(encoding="utf-8"))
+            for key in ("web_pid", "worker_pid", "cleaner_pid"):
+                pid = int(data.get(key, 0) or 0)
+                if _is_pid_running(pid):
+                    _kill_pid(pid)
+                    stopped += 1
+        except Exception:
+            pass
+        PID_FILE.unlink(missing_ok=True)
+    if not silent:
+        print(f"  [OK] {stopped} serviço(s) em segundo plano do PST Viewer foram encerrados.")
+    return stopped
+
+
+def get_background_status() -> Dict[str, object]:
+    """Retorna se os serviços estão ativos em segundo plano e seus PIDs."""
+    if not PID_FILE.is_file():
+        return {"running": False}
+    try:
+        data = json.loads(PID_FILE.read_text(encoding="utf-8"))
+        web_pid = int(data.get("web_pid", 0) or 0)
+        worker_pid = int(data.get("worker_pid", 0) or 0)
+        cleaner_pid = int(data.get("cleaner_pid", 0) or 0)
+        port = int(data.get("port", 8085) or 8085)
+        web_ok = _is_pid_running(web_pid)
+        worker_ok = _is_pid_running(worker_pid)
+        cleaner_ok = _is_pid_running(cleaner_pid)
+        return {
+            "running": (web_ok and worker_ok),
+            "web_pid": web_pid if web_ok else None,
+            "worker_pid": worker_pid if worker_ok else None,
+            "cleaner_pid": cleaner_pid if cleaner_ok else None,
+            "port": port,
+        }
+    except Exception:
+        return {"running": False}
 
 
 def check_system_requirements() -> Dict[str, object]:
@@ -125,18 +203,6 @@ def check_system_requirements() -> Dict[str, object]:
         print(f"    [AUSENTE]    {'libpff-python (pypff)':<22} (motor nativo PST -> será instalado)")
         to_install.append("libpff-python")
 
-    print("\n  Utilitários externos opcionais (indexação extra de PDF / OCR / DOC legado):")
-    for bin_name, desc in (
-        ("pdftotext", "Extração de texto de PDFs (Poppler)"),
-        ("tesseract", "OCR de imagens e PDFs escaneados"),
-        ("antiword", "Leitura de arquivos .DOC do Word 97-2003"),
-    ):
-        found = shutil.which(bin_name)
-        if found:
-            print(f"    [DETECTADO]  {bin_name:<12} -> {desc}")
-        else:
-            print(f"    [OPCIONAL]   {bin_name:<12} -> Não instalado (o sistema funcionará normalmente sem ele)")
-
     return {
         "py_ok": py_ok,
         "free_gb": free_gb,
@@ -146,10 +212,7 @@ def check_system_requirements() -> Dict[str, object]:
 
 
 def install_missing_python_deps(to_install: List[str]) -> bool:
-    """
-    Instala pacotes ausentes priorizando wheels binários pré-compilados (--only-binary=:all:),
-    evitando falhas por falta de compilador C++/Rust na máquina do usuário.
-    """
+    """Instala pacotes ausentes priorizando wheels binários pré-compilados (--only-binary=:all:)."""
     _banner("2. INSTALAÇÃO INTELIGENTE DE DEPENDÊNCIAS PYTHON")
 
     print("  -> Atualizando gerenciador pip...")
@@ -159,7 +222,6 @@ def install_missing_python_deps(to_install: List[str]) -> bool:
         stderr=subprocess.DEVNULL,
     )
 
-    # Tentativa 1: Rápida em lote forçando apenas binários pré-compilados (.whl)
     print("  -> Baixando pacotes binários pré-compilados compatíveis com seu Python...")
     cmd_binary = [
         sys.executable,
@@ -175,7 +237,6 @@ def install_missing_python_deps(to_install: List[str]) -> bool:
         print("  [OK] Todas as dependências foram instaladas com sucesso via pacotes pré-compilados!")
         return True
 
-    # Tentativa 2: Pacote por pacote com fallback inteligente caso algum pacote seja pure-python sem wheel
     print("\n  [INFO] Ajustando instalação individual para compatibilidade de versão...")
     failed_pkgs: List[str] = []
     for spec in to_install:
@@ -199,7 +260,6 @@ def install_missing_python_deps(to_install: List[str]) -> bool:
             print("[OK]")
             continue
 
-        # Último fallback sem trava de versão mínima
         r3 = subprocess.run(
             [sys.executable, "-m", "pip", "install", "--prefer-binary", pkg_base],
             stdout=subprocess.DEVNULL,
@@ -214,9 +274,7 @@ def install_missing_python_deps(to_install: List[str]) -> bool:
     if failed_pkgs:
         print(
             f"\n  [ERRO] Não foi possível instalar: {', '.join(failed_pkgs)}"
-            f"\n  Motivo provável: Sua versão do Python ({sys.version.split()[0]}) ainda não possui"
-            "\n  pacote pré-compilado para essa biblioteca e sua máquina não tem Visual C++ Build Tools."
-            "\n  Solução recomendada: Instale o Python 3.12 LTS (winget install Python.Python.3.12)"
+            f"\n  Solução recomendada: Instale o Python 3.12 LTS (winget install Python.Python.3.12)"
             "\n  ou execute via Docker (docker compose up -d --build)."
         )
         return False
@@ -225,7 +283,6 @@ def install_missing_python_deps(to_install: List[str]) -> bool:
 
 
 def _detect_open_mysql_port(host: str, preferred_port: int) -> int:
-    """Verifica a porta preferida e, se fechada, escaneia portas alternativas comuns (3306, 3307, 3308)."""
     candidates = [preferred_port] + [p for p in (3306, 3307, 3308) if p != preferred_port]
     for port in candidates:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
@@ -243,13 +300,19 @@ def configure_database_and_env(
     db_name: str,
     bind_port: int,
     interactive: bool,
-) -> Path:
+) -> Tuple[Path, int]:
     _banner("3. DETECÇÃO E CONFIGURAÇÃO DO MYSQL / MARIADB (XAMPP / LOCAL / NUVEM)")
     import pymysql
 
     if ENV_FILE.is_file():
         print(f"  [OK] Configuração existente carregada de: {ENV_FILE}")
-        return ENV_FILE
+        for line in ENV_FILE.read_text(encoding="utf-8").splitlines():
+            if line.startswith("PSTVIEWER_BIND_PORT="):
+                try:
+                    bind_port = int(line.split("=", 1)[1].strip())
+                except ValueError:
+                    pass
+        return ENV_FILE, bind_port
 
     detected_port = _detect_open_mysql_port(db_host, db_port)
     if detected_port != db_port:
@@ -334,7 +397,7 @@ def configure_database_and_env(
     )
     ENV_FILE.write_text(env_content, encoding="utf-8")
     print(f"  [OK] Arquivo de ambiente gerado em: {ENV_FILE}")
-    return ENV_FILE
+    return ENV_FILE, bind_port
 
 
 def run_migrations_and_adapt_settings(
@@ -347,7 +410,6 @@ def run_migrations_and_adapt_settings(
 
     subprocess.check_call([sys.executable, "-m", "app.database.migrations"], env=env)
 
-    # Se o disco local tiver menos de 20 GB livres, adapta min_free_disk_mb automaticamente
     if free_gb < 20.0:
         safe_min_mb = max(512, min(2048, int((free_gb * 1024) * 0.2)))
         adapt_code = (
@@ -381,7 +443,6 @@ def run_migrations_and_adapt_settings(
 
 
 def _find_available_http_port(preferred_port: int) -> int:
-    """Verifica se a porta HTTP está livre; se estiver ocupada por outro programa, escolhe a próxima."""
     for port in range(preferred_port, preferred_port + 20):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             if s.connect_ex(("127.0.0.1", port)) != 0:
@@ -389,10 +450,143 @@ def _find_available_http_port(preferred_port: int) -> int:
     return preferred_port
 
 
+def _spawn_detached_process(args_list: List[str], env: Dict[str, str], log_file: Path) -> int:
+    """
+    Inicia um processo 100% desacoplado do terminal/PowerShell atual.
+    No Windows, usa `pythonw.exe` (subsistema GUI sem janela de console) + flags de desacoplamento,
+    garantindo que fechar o PowerShell ou CMD JAMAIS encerre o serviço!
+    """
+    log_file.parent.mkdir(parents=True, exist_ok=True)
+    out_handle = open(log_file, "a", encoding="utf-8")
+
+    exe = sys.executable
+    if os.name == "nt":
+        pyw = Path(sys.executable).with_name("pythonw.exe")
+        if pyw.is_file():
+            exe = str(pyw)
+        flags = (
+            subprocess.DETACHED_PROCESS
+            | subprocess.CREATE_NEW_PROCESS_GROUP
+            | subprocess.CREATE_NO_WINDOW
+        )
+        proc = subprocess.Popen(
+            [exe, *args_list],
+            env=env,
+            cwd=str(PROJECT_ROOT),
+            stdin=subprocess.DEVNULL,
+            stdout=out_handle,
+            stderr=subprocess.STDOUT,
+            creationflags=flags,
+            close_fds=True,
+        )
+        return proc.pid
+    else:
+        proc = subprocess.Popen(
+            [exe, *args_list],
+            env=env,
+            cwd=str(PROJECT_ROOT),
+            stdin=subprocess.DEVNULL,
+            stdout=out_handle,
+            stderr=subprocess.STDOUT,
+            start_new_session=True,
+            close_fds=True,
+        )
+        return proc.pid
+
+
+def start_services_in_background(env_path: Path, http_port: int) -> Dict[str, int]:
+    """Inicia Web Server, Worker PST e Cleaner em segundo plano e aguarda o Health Check responder."""
+    stop_background_services(silent=True)
+
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(PROJECT_ROOT)
+    env["PSTVIEWER_ENV_FILE"] = str(env_path)
+
+    app_log_dir = STORAGE_ROOT / "logs" / "application"
+    app_log_dir.mkdir(parents=True, exist_ok=True)
+
+    worker_pid = _spawn_detached_process(
+        ["-m", "app.workers.pst_worker", "--poll-interval", "2.0"],
+        env=env,
+        log_file=app_log_dir / "worker.log",
+    )
+    cleaner_pid = _spawn_detached_process(
+        ["-m", "app.workers.cleaner_daemon", "--interval", "60"],
+        env=env,
+        log_file=app_log_dir / "cleaner.log",
+    )
+    web_pid = _spawn_detached_process(
+        [
+            "-m",
+            "uvicorn",
+            "app.main:app",
+            "--host",
+            "0.0.0.0",
+            "--port",
+            str(http_port),
+            "--no-access-log",
+        ],
+        env=env,
+        log_file=app_log_dir / "web.log",
+    )
+
+    PID_FILE.parent.mkdir(parents=True, exist_ok=True)
+    PID_FILE.write_text(
+        json.dumps(
+            {
+                "web_pid": web_pid,
+                "worker_pid": worker_pid,
+                "cleaner_pid": cleaner_pid,
+                "port": http_port,
+                "started_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+    # Aguarda até 10 segundos para confirmar que o servidor HTTP já está respondendo
+    health_url = f"http://127.0.0.1:{http_port}/api/health"
+    for _ in range(20):
+        time.sleep(0.5)
+        try:
+            with urllib.request.urlopen(health_url, timeout=1.5) as resp:
+                if resp.status == 200:
+                    break
+        except Exception:
+            continue
+
+    # Registra tarefa automática no logon do Windows (sem exigir privilégio de Admin)
+    if os.name == "nt":
+        pyw = Path(sys.executable).with_name("pythonw.exe")
+        runner_exe = str(pyw if pyw.is_file() else Path(sys.executable))
+        task_cmd = f'"{runner_exe}" "{PROJECT_ROOT / "setup_and_run.py"}" --yes --no-browser'
+        subprocess.run(
+            [
+                "schtasks",
+                "/Create",
+                "/TN",
+                "PSTViewer_Background_Service",
+                "/TR",
+                task_cmd,
+                "/SC",
+                "ONLOGON",
+                "/F",
+            ],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+
+    return {"web_pid": web_pid, "worker_pid": worker_pid, "cleaner_pid": cleaner_pid}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="PST Viewer - Assistente Inteligente Setup & Run")
     parser.add_argument("--yes", "-y", action="store_true", help="Instala tudo sem confirmação interativa")
     parser.add_argument("--setup-only", action="store_true", help="Apenas instala e configura sem iniciar o servidor")
+    parser.add_argument("--stop", action="store_true", help="Encerra os serviços em segundo plano do PST Viewer")
+    parser.add_argument("--status", action="store_true", help="Exibe o status dos serviços em segundo plano")
+    parser.add_argument("--no-browser", action="store_true", help="Não abre o navegador automaticamente no final")
     parser.add_argument("--reset-admin", action="store_true", help="Gera uma nova senha para o usuário admin")
     parser.add_argument("--port", type=int, default=8085, help="Porta HTTP da aplicação (padrão: 8085)")
     parser.add_argument("--db-host", default="127.0.0.1", help="Host do MySQL/MariaDB (padrão: 127.0.0.1)")
@@ -401,6 +595,21 @@ def main() -> int:
     parser.add_argument("--db-password", default="", help="Senha do MySQL/MariaDB (padrão: vazio para XAMPP)")
     parser.add_argument("--db-name", default="pstviewer", help="Nome do banco (padrão: pstviewer)")
     args = parser.parse_args()
+
+    if args.stop:
+        stop_background_services(silent=False)
+        return 0
+
+    if args.status:
+        st = get_background_status()
+        if st.get("running"):
+            print(
+                f"  [ATIVO EM SEGUNDO PLANO] URL: http://127.0.0.1:{st['port']} | "
+                f"PIDs -> Web: {st['web_pid']}, Worker: {st['worker_pid']}, Cleaner: {st['cleaner_pid']}"
+            )
+        else:
+            print("  [PARADO] Os serviços em segundo plano do PST Viewer não estão em execução.")
+        return 0
 
     interactive = (not args.yes) and sys.stdin.isatty()
 
@@ -420,11 +629,11 @@ def main() -> int:
         if not install_missing_python_deps(to_install):
             return 1
 
-    http_port = _find_available_http_port(args.port)
-    if http_port != args.port:
-        print(f"\n  [AUTO-AJUSTE] A porta {args.port} já estava em uso; utilizando porta livre {http_port}!")
+    # Se já estiver rodando em segundo plano, para antes de verificar a porta para manter a 8085
+    stop_background_services(silent=True)
 
-    env_path = configure_database_and_env(
+    http_port = _find_available_http_port(args.port)
+    env_path, http_port = configure_database_and_env(
         db_host=args.db_host,
         db_port=args.db_port,
         db_user=args.db_user,
@@ -440,62 +649,32 @@ def main() -> int:
         reset_admin=args.reset_admin,
     )
 
-    _banner("SISTEMA PRONTO — CREDENCIAIS DO ADMINISTRADOR")
-    print(f"  • Endereço de Acesso : http://127.0.0.1:{http_port}")
-    print(f"  • Usuário Admin      : {admin_user}")
-    print(f"  • Senha Admin        : {admin_pw}")
-    print("=" * 76)
-
     if args.setup_only:
         return 0
 
-    print("\nIniciando serviços integrados (Servidor Web + Worker PST + Guardião de Limpeza)...")
-    print(f"Abra seu navegador em: http://127.0.0.1:{http_port}")
-    print("Pressione Ctrl+C a qualquer momento para encerrar os serviços.\n")
+    pids = start_services_in_background(env_path, http_port)
+    url = f"http://127.0.0.1:{http_port}"
 
-    env = os.environ.copy()
-    env["PYTHONPATH"] = str(PROJECT_ROOT)
-    env["PSTVIEWER_ENV_FILE"] = str(env_path)
+    _banner("✔ PST VIEWER ATIVO EM SEGUNDO PLANO (PODE FECHAR O TERMINAL!)")
+    print("  Os serviços foram iniciados de forma independente em segundo plano:")
+    print(f"  • Servidor Web FastAPI : ATIVO (PID {pids['web_pid']})")
+    print(f"  • Worker Extrator PST  : ATIVO (PID {pids['worker_pid']})")
+    print(f"  • Guardião de Limpeza  : ATIVO (PID {pids['cleaner_pid']})")
+    print("-" * 76)
+    print(f"  • Endereço de Acesso   : {url}")
+    print(f"  • Usuário Admin        : {admin_user}")
+    print(f"  • Senha Admin          : {admin_pw}")
+    print("-" * 76)
+    print("  💡 Você já pode FECHAR esta janela do PowerShell/CMD tranquilamente!")
+    print("     O sistema continuará rodando em segundo plano.")
+    print("=" * 76)
 
-    procs = []
-    try:
-        worker_proc = subprocess.Popen(
-            [sys.executable, "-m", "app.workers.pst_worker", "--poll-interval", "2.0"],
-            env=env,
-        )
-        procs.append(worker_proc)
+    if not args.no_browser:
+        try:
+            webbrowser.open(url)
+        except Exception:
+            pass
 
-        cleaner_proc = subprocess.Popen(
-            [sys.executable, "-m", "app.workers.cleaner_daemon", "--interval", "60"],
-            env=env,
-        )
-        procs.append(cleaner_proc)
-
-        web_proc = subprocess.Popen(
-            [
-                sys.executable,
-                "-m",
-                "uvicorn",
-                "app.main:app",
-                "--host",
-                "0.0.0.0",
-                "--port",
-                str(http_port),
-            ],
-            env=env,
-        )
-        procs.append(web_proc)
-
-        while True:
-            time.sleep(1)
-            if web_proc.poll() is not None:
-                break
-    except KeyboardInterrupt:
-        print("\nEncerrando todos os serviços do PST Viewer com segurança...")
-    finally:
-        for p in procs:
-            if p.poll() is None:
-                p.terminate()
     return 0
 
 

@@ -176,16 +176,19 @@ Você pode dar **duplo clique** no arquivo `install_windows_xampp.bat` na pasta 
 3. **Criam o ambiente isolado (`venv`) e o arquivo `config/pstviewer.env`:** Configuram automaticamente as pastas temporárias locais (`./storage/sessions`, `./storage/quarantine`, `./storage/logs`).
 4. **Executam as migrações:** Criam todas as tabelas InnoDB e índices `FULLTEXT` automaticamente.
 5. **Geram o usuário Administrador:** Criam a conta **`admin`** e **exibem a senha gerada em destaque na tela**.
-6. **Iniciam os 3 Serviços Juntos:** Sobem o Servidor Web (`http://127.0.0.1:8085`), o Worker de Extração PST e o Guardião de Limpeza na mesma janela.
+6. **Iniciam os 3 Serviços em Segundo Plano (Background Daemon):** Sobem o Servidor Web (`http://127.0.0.1:8085`), o Worker de Extração PST e o Guardião de Limpeza de forma **100% desacoplada do terminal** (`pythonw.exe` + registro automático no logon do Windows). **Você pode fechar o PowerShell/CMD tranquilamente e o sistema continuará funcionando!**
 
-**Comandos avançados do assistente (`setup_and_run.py`):**
+**Comandos úteis no Windows (Status, Parar ou Redefinir Senha):**
 
 ```powershell
-# Caso o seu MySQL tenha senha no root ou rode em outra porta:
-python setup_and_run.py --db-host 127.0.0.1 --db-port 3306 --db-user root --db-password "SUA_SENHA" --port 8085
+# Ver se os serviços estão rodando em segundo plano e quais os PIDs:
+.\venv\Scripts\python.exe setup_and_run.py --status
+
+# Parar todos os serviços em segundo plano (ou dê duplo clique em stop_windows.bat):
+.\venv\Scripts\python.exe setup_and_run.py --stop
 
 # Gerar uma nova senha para o usuário 'admin' a qualquer momento:
-python setup_and_run.py --setup-only --reset-admin
+.\venv\Scripts\python.exe setup_and_run.py --reset-admin
 ```
 
 ---
