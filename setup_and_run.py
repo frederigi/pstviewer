@@ -282,7 +282,64 @@ def install_missing_python_deps(to_install: List[str]) -> bool:
     return True
 
 
+def _ensure_xampp_mysql_started(host: str, preferred_port: int) -> None:
+    """
+    No Windows, se o MySQL/MariaDB ainda não estiver rodando no boot, procura o MySQL do XAMPP
+    (C:\\xampp, D:\\xampp, E:\\xampp) ou serviço MySQL/MariaDB do Windows e o inicia automaticamente.
+    """
+    if os.name != "nt" or host not in ("127.0.0.1", "localhost"):
+        return
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.settimeout(1.0)
+        if sock.connect_ex((host, preferred_port)) == 0:
+            return
+
+    # Tenta iniciar serviço Windows MySQL/MariaDB caso exista
+    for svc_name in ("MySQL", "MySQL80", "MySQL84", "MariaDB"):
+        subprocess.run(
+            ["net", "start", svc_name],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+
+    # Procura instalação do XAMPP em unidades comuns
+    for drive in ("C:", "D:", "E:"):
+        mysqld_exe = Path(f"{drive}\\xampp\\mysql\\bin\\mysqld.exe")
+        my_ini = Path(f"{drive}\\xampp\\mysql\\bin\\my.ini")
+        if mysqld_exe.is_file():
+            print(f"  [AUTO-START] Iniciando MySQL do XAMPP ({mysqld_exe}) em segundo plano...")
+            flags = (
+                subprocess.DETACHED_PROCESS
+                | subprocess.CREATE_NEW_PROCESS_GROUP
+                | subprocess.CREATE_NO_WINDOW
+            )
+            cmd = [str(mysqld_exe)]
+            if my_ini.is_file():
+                cmd.append(f"--defaults-file={my_ini}")
+            cmd.append("--standalone")
+            subprocess.Popen(
+                cmd,
+                cwd=str(mysqld_exe.parent),
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                creationflags=flags,
+                close_fds=True,
+            )
+            # Aguarda até 12 segundos o MySQL do XAMPP abrir a porta
+            for _ in range(24):
+                time.sleep(0.5)
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                    s.settimeout(0.5)
+                    if s.connect_ex((host, preferred_port)) == 0:
+                        print("  [OK] MySQL do XAMPP iniciado automaticamente!")
+                        return
+            break
+
+
 def _detect_open_mysql_port(host: str, preferred_port: int) -> int:
+    _ensure_xampp_mysql_started(host, preferred_port)
     candidates = [preferred_port] + [p for p in (3306, 3307, 3308) if p != preferred_port]
     for port in candidates:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
@@ -312,6 +369,14 @@ def configure_database_and_env(
                     bind_port = int(line.split("=", 1)[1].strip())
                 except ValueError:
                     pass
+            elif line.startswith("PSTVIEWER_DB_HOST="):
+                db_host = line.split("=", 1)[1].strip()
+            elif line.startswith("PSTVIEWER_DB_PORT="):
+                try:
+                    db_port = int(line.split("=", 1)[1].strip())
+                except ValueError:
+                    pass
+        _ensure_xampp_mysql_started(db_host, db_port)
         return ENV_FILE, bind_port
 
     detected_port = _detect_open_mysql_port(db_host, db_port)
@@ -604,11 +669,30 @@ def start_services_in_background(env_path: Path, http_port: int) -> Dict[str, in
         except Exception:
             continue
 
-    # Registra tarefa automática no logon do Windows (sem exigir privilégio de Admin)
+    # Registra inicialização automática no Windows (Pasta Inicializar + Agendador de Tarefas)
     if os.name == "nt":
         pyw = Path(sys.executable).with_name("pythonw.exe")
         runner_exe = str(pyw if pyw.is_file() else Path(sys.executable))
-        task_cmd = f'"{runner_exe}" "{PROJECT_ROOT / "setup_and_run.py"}" --yes --no-browser'
+        script_path = str(PROJECT_ROOT / "setup_and_run.py")
+
+        # 1. Cria script VBS invisível na pasta Startup do Windows (não requer Admin e nunca falha)
+        appdata = os.environ.get("APPDATA")
+        if appdata:
+            startup_dir = Path(appdata) / "Microsoft" / "Windows" / "Start Menu" / "Programs" / "Startup"
+            if startup_dir.is_dir():
+                vbs_file = startup_dir / "PSTViewer_AutoStart.vbs"
+                vbs_content = (
+                    'Set WshShell = CreateObject("WScript.Shell")\r\n'
+                    f'WshShell.CurrentDirectory = "{PROJECT_ROOT}"\r\n'
+                    f'WshShell.Run """{runner_exe}"" ""{script_path}"" --yes --no-browser", 0, False\r\n'
+                )
+                try:
+                    vbs_file.write_text(vbs_content, encoding="utf-8")
+                except Exception:
+                    pass
+
+        # 2. Também registra no Agendador de Tarefas (ONLOGON)
+        task_cmd = f'"{runner_exe}" "{script_path}" --yes --no-browser'
         subprocess.run(
             [
                 "schtasks",
