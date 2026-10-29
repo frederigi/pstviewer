@@ -315,13 +315,26 @@ systemctl restart pstviewer-worker.service pstviewer-web.service
 # ------------------------------------------------------------------------------
 echo -e "\n${BOLD}[7/7] Configurando credenciais do usuário Administrador...${RESET}"
 
-ADMIN_PW=$(python3 -c "import secrets; print(secrets.token_urlsafe(10))")
-if [ "${RESET_ADMIN_PW}" = true ]; then
+CHOSEN_PW=""
+if [ "${AUTO_YES}" = false ] && [ -t 0 ]; then
+    echo -e "\n${CYAN}Definição de senha para o usuário 'admin':${RESET}"
+    read -r -p "Digite a senha que deseja para o 'admin' (mín. 8 caracteres) [Enter = gerar automática]: " CHOSEN_PW
+fi
+
+if [ -n "${CHOSEN_PW}" ]; then
+    ADMIN_PW="${CHOSEN_PW}"
+    MUST_CHANGE_FLAG=""
+else
+    ADMIN_PW=$(python3 -c "import secrets; print(secrets.token_urlsafe(10))")
+    MUST_CHANGE_FLAG="--must-change-password"
+fi
+
+if [ "${RESET_ADMIN_PW}" = true ] || [ -n "${CHOSEN_PW}" ]; then
     ADMIN_OUT=$(PYTHONPATH="${APP_ROOT}" PSTVIEWER_ENV_FILE="${ENV_FILE}" \
-        "${APP_ROOT}/venv/bin/python" "${APP_ROOT}/scripts/create_admin.py" --username admin --password "${ADMIN_PW}")
+        "${APP_ROOT}/venv/bin/python" "${APP_ROOT}/scripts/create_admin.py" --username admin --password "${ADMIN_PW}" ${MUST_CHANGE_FLAG})
 else
     ADMIN_OUT=$(PYTHONPATH="${APP_ROOT}" PSTVIEWER_ENV_FILE="${ENV_FILE}" \
-        "${APP_ROOT}/venv/bin/python" "${APP_ROOT}/scripts/create_admin.py" --username admin --password "${ADMIN_PW}" --if-not-exists)
+        "${APP_ROOT}/venv/bin/python" "${APP_ROOT}/scripts/create_admin.py" --username admin --password "${ADMIN_PW}" --if-not-exists ${MUST_CHANGE_FLAG})
 fi
 
 INTERNAL_IP=$(hostname -I 2>/dev/null | awk '{print $1}')

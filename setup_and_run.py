@@ -401,9 +401,9 @@ def configure_database_and_env(
 
 
 def run_migrations_and_adapt_settings(
-    env_path: Path, free_gb: float, reset_admin: bool = False
+    env_path: Path, free_gb: float, reset_admin: bool = False, interactive: bool = True
 ) -> Tuple[str, str]:
-    _banner("4. MIGRAÇÕES DO BANCO, AJUSTE DE DISCO E CRIAÇÃO DO ADMIN")
+    _banner("4. MIGRAÇÕES DO BANCO, AJUSTE DE DISCO E CREDENCIAIS DO ADMIN")
     env = os.environ.copy()
     env["PYTHONPATH"] = str(PROJECT_ROOT)
     env["PSTVIEWER_ENV_FILE"] = str(env_path)
@@ -423,23 +423,57 @@ def run_migrations_and_adapt_settings(
         subprocess.run([sys.executable, "-c", adapt_code], env=env, check=False)
         print(f"  [AUTO-AJUSTE] Cota mínima de espaço livre adaptada para {safe_min_mb} MB conforme seu disco.")
 
-    admin_pw = secrets.token_urlsafe(10)
+    # Verifica se o admin já existe no banco
+    check_code = (
+        "from sqlalchemy import select; "
+        "from app.database.session import SessionLocal; "
+        "from app.database.models import User; "
+        "db = SessionLocal(); "
+        "u = db.scalar(select(User).where(User.username == 'admin')); "
+        "print('EXISTS' if u else 'NEW'); "
+        "db.close()"
+    )
+    chk = subprocess.run([sys.executable, "-c", check_code], env=env, capture_output=True, text=True)
+    admin_exists = "EXISTS" in (chk.stdout or "")
+
+    if admin_exists and not reset_admin and interactive:
+        ans = input("\n  O usuário 'admin' já existe. Deseja redefinir a senha do 'admin' agora? [s/N]: ").strip()
+        if ans.lower() in ("s", "sim", "y", "yes"):
+            reset_admin = True
+
+    if admin_exists and not reset_admin:
+        return "admin", "(Senha atual preservada — rode reset_admin_password.bat se esquecer)"
+
+    chosen_pw = ""
+    if interactive:
+        print("\n  [DEFINIÇÃO DE SENHA DO ADMINISTRADOR]")
+        while True:
+            chosen_pw = input(
+                "  Digite a senha que deseja para o usuário 'admin' (mín. 8 caracteres)\n"
+                "  [ou pressione Enter para gerar uma senha temporária]: "
+            ).strip()
+            if not chosen_pw or len(chosen_pw) >= 8:
+                break
+            print("  [AVISO] A senha deve ter pelo menos 8 caracteres. Tente novamente.")
+
+    auto_generated = not bool(chosen_pw)
+    final_pw = chosen_pw or secrets.token_urlsafe(10)
+
     cmd = [
         sys.executable,
         str(PROJECT_ROOT / "scripts" / "create_admin.py"),
         "--username",
         "admin",
         "--password",
-        admin_pw,
+        final_pw,
     ]
-    if not reset_admin:
-        cmd.append("--if-not-exists")
+    if auto_generated:
+        cmd.append("--must-change-password")
 
-    proc = subprocess.run(cmd, env=env, capture_output=True, text=True, check=True)
-    out = proc.stdout or ""
-    if "já está cadastrado" in out and not reset_admin:
-        return "admin", "(Senha atual preservada — use --reset-admin se quiser gerar outra)"
-    return "admin", admin_pw
+    subprocess.run(cmd, env=env, capture_output=True, text=True, check=True)
+    if auto_generated:
+        return "admin", f"{final_pw}  (Temporária -> o navegador pedirá para você criar a sua no 1º login!)"
+    return "admin", final_pw
 
 
 def _find_available_http_port(preferred_port: int) -> int:
@@ -647,6 +681,7 @@ def main() -> int:
         env_path,
         free_gb=float(status["free_gb"]),  # type: ignore
         reset_admin=args.reset_admin,
+        interactive=interactive,
     )
 
     if args.setup_only:

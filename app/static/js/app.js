@@ -454,6 +454,35 @@
         }
     }
 
+    async function promptChangeOwnPassword(isFirstAccess = false) {
+        const newPw = await uiPrompt({
+            title: isFirstAccess
+                ? "Primeiro Acesso — Defina sua Senha Pessoal"
+                : "Alterar Minha Senha de Acesso",
+            message: isFirstAccess
+                ? "Você acessou com uma senha temporária gerada pelo instalador. Escolha abaixo uma senha pessoal fácil de lembrar (mínimo 8 caracteres):"
+                : "Digite sua nova senha de acesso (mínimo de 8 caracteres):",
+            placeholder: "Digite a nova senha (mín. 8 caracteres)",
+            inputType: "password",
+            confirmText: "Salvar Nova Senha",
+            cancelText: isFirstAccess ? "Manter a Atual" : "Cancelar",
+            minLength: 8,
+        });
+        if (!newPw) return;
+        try {
+            await apiFetch("/api/auth/change-password", {
+                method: "POST",
+                body: { new_password: newPw },
+            });
+            if (state.user) {
+                state.user.must_change_password = false;
+            }
+            uiToast("Sua senha pessoal foi salva com sucesso!", "success", "Senha Atualizada");
+        } catch (err) {
+            uiToast(err.message, "danger", "Erro ao alterar senha");
+        }
+    }
+
     function onAuthenticated(user, csrfToken) {
         state.user = user;
         state.csrfToken = csrfToken;
@@ -464,6 +493,9 @@
             $("btn-open-admin").classList.add("hidden");
         }
         showHomeView();
+        if (user.must_change_password) {
+            setTimeout(() => promptChangeOwnPassword(true), 350);
+        }
     }
 
     async function loadMyActiveSessions() {
@@ -1509,6 +1541,9 @@
 
         // Administração
         $("btn-open-admin").addEventListener("click", () => openAdminModal("sessions"));
+        if ($("btn-change-password")) {
+            $("btn-change-password").addEventListener("click", () => promptChangeOwnPassword(false));
+        }
         document.querySelectorAll(".admin-tab-btn").forEach((btn) => {
             btn.addEventListener("click", () => renderAdminTab(btn.getAttribute("data-tab")));
         });
