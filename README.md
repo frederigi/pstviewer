@@ -124,16 +124,17 @@ sudo ./install.sh
 > ```bash
 > sudo ./install.sh --yes
 > ```
-> Para **escolher ou gerar uma nova senha** para o usuário `admin` a qualquer momento:
+> Para **escolher ou redefinir a senha do admin e desbloquear a conta** a qualquer momento:
 > ```bash
-> sudo ./install.sh --reset-admin
+> chmod +x reset_password.sh
+> sudo ./reset_password.sh
 > ```
 > Para **atualizar um servidor Linux/Cloud já instalado via SSH** (mantendo seu banco de dados, usuários e configurações intactos):
 > ```bash
 > chmod +x update.sh
 > sudo ./update.sh
 > ```
-> *(Se o repositório GitHub ainda for privado ou você preferir atualizar do seu Gitea interno: `sudo ./update.sh http://10.14.127.225:3000/anderson/pstviewer.git`)*
+> *(Se o repositório GitHub for privado, o script faz fallback automático para o Gitea interno `http://10.14.127.225:3000/anderson/pstviewer.git` ou você pode passar a URL como argumento!)*
 
 **O que o `install.sh` faz por você:**
 1. Analisa CPU, memória RAM, espaço livre em disco e verifica todos os pacotes APT (`python3-pypff`, `mariadb-server`, `poppler-utils`, `antiword`, `catdoc`, `tesseract-ocr`).
@@ -362,6 +363,7 @@ pstviewer/
 ├── docker-compose.yml        # Orquestração completa pronta para uso
 ├── install.sh                    # Instalador automático bilíngue (PT/EN) para Linux / Cloud VPS
 ├── update.sh                     # Atualizador rápido via SSH para servidores Linux / Cloud
+├── reset_password.sh             # Script rápido Linux para redefinir senha do admin e desbloquear conta
 ├── install_windows_xampp.bat     # Instalador e inicializador automático (1 clique) para Windows + XAMPP
 ├── reset_admin_password.bat      # Atalho de 1 clique no Windows para escolher/redefinir a senha do admin
 ├── stop_windows.bat              # Atalho de 1 clique no Windows para encerrar os serviços em background

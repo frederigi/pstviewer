@@ -98,16 +98,17 @@ sudo ./install.sh --lang en
 >   ```bash
 >   sudo ./install.sh --lang en --yes
 >   ```
-> * Choose or generate a new password for the `admin` user at any time:
+> * Choose or reset the `admin` password and unlock the account at any time:
 >   ```bash
->   sudo ./install.sh --lang en --reset-admin
+>   chmod +x reset_password.sh
+>   sudo ./reset_password.sh
 >   ```
 > * **Fast SSH Update** on an existing Linux/Cloud server (preserves your database and `config/pstviewer.env`):
 >   ```bash
 >   chmod +x update.sh
 >   sudo ./update.sh
 >   ```
->   *(If pulling from internal Gitea or while GitHub repo is private: `sudo ./update.sh http://10.14.127.225:3000/anderson/pstviewer.git`)*
+>   *(If pulling from internal Gitea or while GitHub repo is private, the script falls back automatically to Gitea `http://10.14.127.225:3000/anderson/pstviewer.git` or you can pass the URL as argument!)*
 
 ---
 
@@ -259,6 +260,7 @@ pstviewer/
 ├── docker-compose.yml        # Turnkey multi-container orchestration
 ├── install.sh                # Bilingual unified automated installer for Linux / Cloud VPS
 ├── update.sh                 # Fast SSH updater for Linux / Cloud servers
+├── reset_password.sh         # Fast Linux script to set/reset admin password & unlock account
 ├── install_windows_xampp.bat # 1-click automated installer & launcher for Windows + XAMPP
 ├── reset_admin_password.bat  # 1-click Windows shortcut to set/reset admin password
 ├── stop_windows.bat          # 1-click Windows shortcut to stop background services

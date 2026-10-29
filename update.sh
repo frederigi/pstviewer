@@ -36,7 +36,22 @@ echo " ${REPO_URL}"
 echo "=================================================================="
 
 echo "[1/3] Baixando última versão do repositório em ${CURRENT_DIR}..."
-if ! git fetch origin main; then
+PULL_SUCCESS=0
+
+if git fetch origin main 2>/dev/null; then
+    PULL_SUCCESS=1
+else
+    # Se falhou e houver Gitea acessível, tenta fallback automático para o Gitea interno
+    GITEA_FALLBACK="http://10.14.127.225:3000/anderson/pstviewer.git"
+    echo "  [AVISO] Falha ao baixar de 'origin'. Tentando fallback automático via Gitea local..."
+    if git fetch "${GITEA_FALLBACK}" main 2>/dev/null; then
+        echo "  [OK] Baixado com sucesso a partir do Gitea (${GITEA_FALLBACK})!"
+        git remote set-url origin "${GITEA_FALLBACK}"
+        PULL_SUCCESS=1
+    fi
+fi
+
+if [ "${PULL_SUCCESS}" -ne 1 ]; then
     echo "------------------------------------------------------------------"
     echo " [AVISO] Falha ao baixar atualizações do repositório remoto."
     echo " Possíveis causas e como resolver:"
@@ -49,7 +64,7 @@ if ! git fetch origin main; then
     echo "------------------------------------------------------------------"
     exit 1
 fi
-git reset --hard origin/main
+git reset --hard FETCH_HEAD
 
 if [ -d "${APP_ROOT}" ] && [ "${CURRENT_DIR}" != "${APP_ROOT}" ]; then
     echo "[2/3] Sincronizando arquivos atualizados para ${APP_ROOT}..."
@@ -58,10 +73,11 @@ if [ -d "${APP_ROOT}" ] && [ "${CURRENT_DIR}" != "${APP_ROOT}" ]; then
     cp -r "${CURRENT_DIR}/scripts/"* "${APP_ROOT}/scripts/"
     cp "${CURRENT_DIR}/requirements.txt" "${APP_ROOT}/requirements.txt"
     cp "${CURRENT_DIR}/update.sh" "${APP_ROOT}/update.sh" 2>/dev/null || true
-    chown -R root:"${APP_USER}" "${APP_ROOT}/app" "${APP_ROOT}/database" "${APP_ROOT}/scripts" "${APP_ROOT}/requirements.txt"
+    cp "${CURRENT_DIR}/reset_password.sh" "${APP_ROOT}/reset_password.sh" 2>/dev/null || true
+    chown -R root:"${APP_USER}" "${APP_ROOT}/app" "${APP_ROOT}/database" "${APP_ROOT}/scripts" "${APP_ROOT}/requirements.txt" "${APP_ROOT}/reset_password.sh" 2>/dev/null || true
 fi
 
-chmod +x "${CURRENT_DIR}/update.sh" "${CURRENT_DIR}/install.sh" 2>/dev/null || true
+chmod +x "${CURRENT_DIR}/update.sh" "${CURRENT_DIR}/install.sh" "${CURRENT_DIR}/reset_password.sh" "${APP_ROOT}/reset_password.sh" 2>/dev/null || true
 
 echo "[3/3] Reiniciando serviços pstviewer-web e pstviewer-worker..."
 systemctl restart pstviewer-web.service pstviewer-worker.service
