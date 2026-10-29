@@ -46,11 +46,13 @@ Abaixo está a visualização da área de trabalho em **3 painéis** gerada a pa
 
 | Recurso | Descrição Técnica |
 | :--- | :--- |
-| 📂 **Árvore MAPI Fiel ao Outlook** | Reconhecimento e ordenação automática de *Caixa de Entrada*, *Itens Enviados*, *Rascunhos*, *Arquivo Morto*, *Lixo Eletrônico*, *Itens Excluídos* e subpastas personalizadas. |
+| 📂 **Árvore Limpa (Foco no Backup Real)** | Oculta automaticamente pastas técnicas ocultas do MAPI (`SPAM Search Folder`, `Pesquisar Raiz`), pastas vazias (`Itens Excluídos` sem itens) e cascas vazias (`Início do arquivo de dados do Outlook`), exibindo direto a pasta real do seu backup. |
 | ⚡ **Abertura Progressiva (`READY_PARTIAL`)** | Não é preciso esperar um PST de vários Gigabytes terminar para começar a ler: assim que a 1ª pasta é mapeada, o leitor já é liberado enquanto o worker indexa o restante em background. |
 | 🔍 **Pesquisa Global + Conteúdo de Anexos** | Busca `FULLTEXT` combinada com filtros por pasta, remetente, destinatário (`Para`/`CC`/`CCO`), período de datas e textos extraídos de dentro de arquivos **PDF, DOCX, XLSX, PPTX, RTF, DOC, TXT, CSV, HTML e ZIP**. |
 | 🛡️ **Leitura Sanitizada em Sandbox** | Renderização de e-mails HTML higienizada via `nh3` dentro de `iframe sandbox`, bloqueando execução de scripts (`XSS`), formulários maliciosos e rastreadores. |
 | 🖨️ **Exportação `.EML`, `.TXT` e Impressão A4** | Download individual de e-mails no padrão **RFC 5322 (`.eml`)** ou texto puro (`.txt`), além de folha de impressão limpa pronta para PDF/papel. |
+| 🔑 **Escolha de Senha e Troca Fácil** | Permite escolher a própria senha do `admin` já na instalação, solicita troca automática no 1º acesso caso tenha usado senha gerada e oferece botão **Alterar Senha** direto no topo da tela. |
+| 🚀 **Inicialização Automática no Boot** | Sobe sozinho junto com o sistema operacional no **Linux** (`systemd`), no **Windows + XAMPP** (iniciando inclusive o MySQL do XAMPP em segundo plano) e no **Docker** (`restart: unless-stopped`). |
 | ⚙️ **Painel Administrativo Integrado** | Gestão completa de usuários, bloqueio/desbloqueio de contas, redefinição de senhas, monitoramento de sessões ativas, uso de disco e trilha de auditoria. |
 
 ---
@@ -85,9 +87,13 @@ sudo ./install.sh
 > ```bash
 > sudo ./install.sh --yes
 > ```
-> Para **gerar uma nova senha** para o usuário `admin` a qualquer momento:
+> Para **escolher ou gerar uma nova senha** para o usuário `admin` a qualquer momento:
 > ```bash
 > sudo ./install.sh --reset-admin
+> ```
+> Para **atualizar um servidor Linux/Cloud já instalado via SSH** (mantendo seu banco de dados, usuários e configurações intactos):
+> ```bash
+> sudo ./update.sh
 > ```
 
 **O que o `install.sh` faz por você:**
@@ -95,8 +101,9 @@ sudo ./install.sh
 2. Avisa na tela quais pacotes já estão presentes (`[INSTALADO]`) e quais serão baixados (`[PENDENTE]`).
 3. Cria o usuário de sistema sem privilégios (`pstviewer`) e diretórios confinados (`/srv/pstviewer/sessions`).
 4. Configura o banco **MariaDB/MySQL (`InnoDB utf8mb4`)** e aplica todas as migrações automaticamente.
-5. Registra e inicia os 3 serviços `systemd`: `pstviewer-web.service`, `pstviewer-worker.service` e `pstviewer-cleaner.timer`.
-6. Exibe o quadro verde com a **URL de acesso**, **Usuário (`admin`)** e **Senha gerada**.
+5. Pergunta qual senha você deseja para o usuário **`admin`** (ou gera uma senha forte caso pressione `ENTER`).
+6. Registra e inicia os 3 serviços `systemd` com **inicialização automática no boot**: `pstviewer-web.service`, `pstviewer-worker.service` e `pstviewer-cleaner.timer`.
+7. Exibe o quadro verde com a **URL de acesso**, **Usuário (`admin`)** e **Senha configurada**.
 
 ---
 
@@ -171,23 +178,26 @@ Você pode dar **duplo clique** no arquivo `install_windows_xampp.bat` na pasta 
 > ```
 
 **O que o `install_windows_xampp.bat` + `setup_and_run.py` fazem sozinhos do zero:**
-1. **Verificam a máquina:** Checam a versão do Python (oferecendo instalar via `winget` se ausente), o espaço livre em disco e as bibliotecas necessárias.
-2. **Iniciam e conectam no MySQL do XAMPP (`127.0.0.1:3306`):** Se o MySQL do `C:\xampp` estiver parado, o script o inicia automaticamente; em seguida, conecta com o usuário `root` e cria o banco `pstviewer` (`utf8mb4_unicode_ci`) sem que você precise abrir o phpMyAdmin.
+1. **Verificam a máquina:** Checam a versão do Python (oferecendo instalar via `winget` se ausente), o espaço livre em disco e instalam as bibliotecas pré-compiladas (`--only-binary=:all:`) sem exigir compilador C++ ou Rust.
+2. **Iniciam e conectam no MySQL do XAMPP (`127.0.0.1:3306`):** Se o MySQL do `C:\xampp` estiver parado, o script o inicia automaticamente em segundo plano; em seguida, conecta com o usuário `root` e cria o banco `pstviewer` (`utf8mb4_unicode_ci`) sem que você precise abrir o phpMyAdmin.
 3. **Criam o ambiente isolado (`venv`) e o arquivo `config/pstviewer.env`:** Configuram automaticamente as pastas temporárias locais (`./storage/sessions`, `./storage/quarantine`, `./storage/logs`).
 4. **Executam as migrações:** Criam todas as tabelas InnoDB e índices `FULLTEXT` automaticamente.
-5. **Geram o usuário Administrador:** Criam a conta **`admin`** e **exibem a senha gerada em destaque na tela**.
-6. **Iniciam os 3 Serviços em Segundo Plano (Background Daemon):** Sobem o Servidor Web (`http://127.0.0.1:8085`), o Worker de Extração PST e o Guardião de Limpeza de forma **100% desacoplada do terminal** (`pythonw.exe` + registro automático no logon do Windows). **Você pode fechar o PowerShell/CMD tranquilamente e o sistema continuará funcionando!**
+5. **Configuram o usuário Administrador:** Perguntam qual senha você deseja para o **`admin`** (ou geram uma senha forte caso você pressione `ENTER`).
+6. **Iniciam os 3 Serviços em Segundo Plano e Registram no Boot do Windows:** Sobem o Servidor Web (`http://127.0.0.1:8085`), o Worker de Extração PST e o Guardião de Limpeza de forma **100% desacoplada do terminal** (`pythonw.exe` + inicialização automática ao ligar o Windows, subindo inclusive o MySQL do XAMPP sozinho). **Você pode fechar o PowerShell/CMD tranquilamente e o sistema continuará funcionando!**
 
-**Comandos úteis no Windows (Status, Parar ou Redefinir Senha):**
+**Atalhos de 1 clique e comandos úteis no Windows:**
+
+* 🔑 **`reset_admin_password.bat`** *(duplo clique)*: Escolhe ou gera uma nova senha para o usuário `admin` e garante que o servidor esteja rodando.
+* 🛑 **`stop_windows.bat`** *(duplo clique)*: Encerra imediatamente todos os processos em segundo plano do PST Viewer.
 
 ```powershell
 # Ver se os serviços estão rodando em segundo plano e quais os PIDs:
 .\venv\Scripts\python.exe setup_and_run.py --status
 
-# Parar todos os serviços em segundo plano (ou dê duplo clique em stop_windows.bat):
+# Parar todos os serviços em segundo plano:
 .\venv\Scripts\python.exe setup_and_run.py --stop
 
-# Gerar uma nova senha para o usuário 'admin' a qualquer momento:
+# Escolher ou gerar uma nova senha para o usuário 'admin':
 .\venv\Scripts\python.exe setup_and_run.py --reset-admin
 ```
 
@@ -237,6 +247,14 @@ flowchart LR
 ---
 
 ## 🛠️ Comandos de Gerenciamento e Administração
+
+### Atualizar Servidor Linux / Nuvem via SSH (`update.sh`)
+
+```bash
+# Atualiza o código via Git (GitHub ou Gitea), sincroniza /opt/pstviewer se existir,
+# aplica migrações sem apagar seu banco ou config/pstviewer.env e reinicia os serviços:
+sudo ./update.sh
+```
 
 ### Gerenciar Serviços no Linux (`systemd`)
 
@@ -295,9 +313,12 @@ pstviewer/
 ├── Dockerfile                # Imagem Debian Bookworm com libpff, poppler, antiword e tesseract
 ├── docker-compose.yml        # Orquestração completa pronta para uso
 ├── install.sh                    # Instalador automático unificado para Linux / Cloud VPS
+├── update.sh                     # Atualizador rápido via SSH para servidores Linux / Cloud
 ├── install_windows_xampp.bat     # Instalador e inicializador automático (1 clique) para Windows + XAMPP
+├── reset_admin_password.bat      # Atalho de 1 clique no Windows para escolher/redefinir a senha do admin
+├── stop_windows.bat              # Atalho de 1 clique no Windows para encerrar os serviços em background
 ├── setup_and_run.py              # Assistente multiplataforma para execução com MySQL local / XAMPP
-└── requirements.txt              # Dependências Python fixadas
+└── requirements.txt              # Dependências Python com suporte a pacotes binários pré-compilados
 ```
 
 ---
