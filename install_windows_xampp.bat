@@ -14,7 +14,7 @@ python --version >nul 2>&1
 if %errorlevel% neq 0 (
     echo.
     echo [AVISO] Python 3.10+ nao foi encontrado no seu Windows!
-    echo Deseja instalar o Python 3.12 automaticamente via Winget agora?
+    echo Deseja instalar o Python automaticamente via Winget agora?
     set /p INSTALL_PY="Digite S para instalar ou N para sair [S/n]: "
     if /i "!INSTALL_PY!"=="N" (
         echo Instale o Python em https://www.python.org/downloads/ marcando "Add Python to PATH".
@@ -51,15 +51,21 @@ if %errorlevel% neq 0 (
     echo   - Banco MySQL/MariaDB ativo na porta 3306 [OK]
 )
 
-:: 3. Cria ambiente virtual Python isolado (venv) se nao existir
+:: 3. Cria ambiente virtual Python isolado (venv) e instala pacotes binarios pre-compilados
 echo.
-echo [3/4] Preparando ambiente virtual Python (venv) e dependencias...
+echo [3/4] Preparando ambiente virtual Python (venv) e pacotes pre-compilados...
 if not exist "venv\Scripts\python.exe" (
     echo   - Criando pasta venv...
     python -m venv venv
 )
 call venv\Scripts\python.exe -m pip install --upgrade pip >nul 2>&1
-call venv\Scripts\python.exe -m pip install -r requirements.txt
+call venv\Scripts\python.exe -m pip install --prefer-binary -r requirements.txt
+if %errorlevel% neq 0 (
+    echo.
+    echo [ERRO] Falha ao instalar pacotes Python. Verifique sua conexao com a internet.
+    pause
+    exit /b 1
+)
 
 :: 4. Executa o assistente que cria o banco no XAMPP, gera o admin e inicia os servicos
 echo.

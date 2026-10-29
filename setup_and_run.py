@@ -101,17 +101,20 @@ def check_system_requirements() -> dict:
 
 def install_missing_python_deps(req_file: Path, has_pypff: bool) -> None:
     _banner("2. INSTALANDO DEPENDÊNCIAS PYTHON")
-    print("  -> Instalando pacotes de requirements.txt via pip...")
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", str(req_file)])
+    print("  -> Instalando pacotes pré-compilados de requirements.txt via pip...")
+    subprocess.check_call(
+        [sys.executable, "-m", "pip", "install", "--prefer-binary", "-r", str(req_file)]
+    )
     if not has_pypff:
-        print("  -> Tentando instalar libpff-python (pypff) via pip...")
+        print("  -> Instalando motor nativo libpff-python (pypff) via pip...")
         try:
-            subprocess.check_call([sys.executable, "-m", "pip", "install", "libpff-python"])
+            subprocess.check_call(
+                [sys.executable, "-m", "pip", "install", "--prefer-binary", "libpff-python"]
+            )
         except Exception:
             print(
-                "\n  [NOTA IMPORTANTE SOBRE PYPFF NO WINDOWS]:"
-                "\n  O pacote C 'libpff-python' requer compilador C++ no Windows ou execução via Docker/Linux."
-                "\n  Se preferir rodar no Windows sem compilar C++, utilize: docker compose up -d --build"
+                "\n  [NOTA IMPORTANTE SOBRE PYPFF]:"
+                "\n  Não foi possível instalar o wheel binário de libpff-python automaticamente."
             )
 
 
