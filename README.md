@@ -1,151 +1,265 @@
-# PST Viewer — Leitor Web Temporário de Arquivos Microsoft Outlook (.PST)
+<div align="center">
 
-O **PST Viewer** é uma aplicação web corporativa para **abertura, leitura, pesquisa avançada, impressão e exportação pontual de arquivos Microsoft Outlook PST**, com interface inspirada no Microsoft Outlook e arquitetura de **retenção zero (armazenamento estritamente temporário)**.
+# 📧 PST Viewer
+### Plataforma Corporativa de Inspeção, Leitura e Pesquisa Temporária de Arquivos Microsoft Outlook (`.pst`)
 
-Diferente de soluções de arquivamento permanente, o PST Viewer foi projetado para que o usuário envie seu arquivo `.pst`, consulte pastas, e-mails e anexos diretamente no navegador e, ao encerrar a consulta (ou por expiração automática de inatividade), **todos os dados extraídos no banco e arquivos em disco sejam fisicamente eliminados**.
+[![Python](https://img.shields.io/badge/Python-3.10%2B-0f6cbd?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![MariaDB / MySQL](https://img.shields.io/badge/MariaDB_%2F_MySQL-InnoDB_UTF8MB4-003545?style=for-the-badge&logo=mariadb&logoColor=white)](https://mariadb.org/)
+[![Engine MAPI](https://img.shields.io/badge/Engine-libpff_%2F_pypff-0a2e5c?style=for-the-badge&logo=microsoftoutlook&logoColor=white)](#arquitetura-e-fluxo-de-dados)
+[![Docker Ready](https://img.shields.io/badge/Docker-Compose_Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](#op%C3%A7%C3%A3o-2-docker--docker-compose-windows-macos-linux-ou-cloud)
+[![Privacidade](https://img.shields.io/badge/Pol%C3%ADtica-Reten%C3%A7%C3%A3o_Zero_(LGPD)-107c10?style=for-the-badge&logo=shield&logoColor=white)](#seguran%C3%A7a-isolamento-e-descarte-autom%C3%A1tico)
 
----
+<p align="center">
+  <strong>Leitor web inspirado no Microsoft Outlook • Pesquisa profunda em e-mails e dentro de anexos (PDF/Office) • Instalação automática em 1 comando</strong>
+</p>
 
-## Principais Funcionalidades
+[Visão Geral](#-visão-geral) •
+[Interface do Leitor](#-interface-do-leitor-estilo-microsoft-outlook) •
+[Instalação Rápida](#-instalação-execute-e-saia-usando) •
+[Arquitetura](#-arquitetura-e-fluxo-de-dados) •
+[Comandos Úteis](#-comandos-de-gerenciamento-e-administração)
 
-- **Interface Estilo Microsoft Outlook (3 Painéis):**
-  - Árvore hierárquica de pastas com classificação inteligente (*Caixa de Entrada*, *Itens Enviados*, *Rascunhos*, *Arquivo*, *Lixo Eletrônico*, *Itens Excluídos*) e contadores.
-  - Lista paginada de mensagens com ordenação por data, remetente, assunto ou tamanho.
-  - Painel de leitura seguro em `iframe` isolado (`sandbox`), com bloqueio de scripts e proteção contra XSS (`nh3`).
-- **Abertura Progressiva (`READY_PARTIAL`):**
-  - O usuário não precisa aguardar o fim da extração de PSTs grandes: assim que a primeira pasta é processada, a leitura e a navegação já são liberadas em tempo real enquanto o worker conclui o restante em segundo plano.
-- **Pesquisa Global e Indexação de Conteúdo de Anexos:**
-  - Busca textual (`FULLTEXT` + filtros combinados por pasta, remetente, destinatário, período e presença de anexo).
-  - Extração e indexação automática do texto interno de anexos **PDF, DOCX, XLSX, PPTX, TXT, CSV, HTML, RTF, DOC e ZIP**, com proteção contra *Zip Bombs* e detecção de arquivos protegidos por senha.
-- **Visualização, Exportação e Impressão:**
-  - Pré-visualização integrada de anexos (PDF, imagens e textos) e download individual sob demanda.
-  - Exportação fiel de mensagens individuais em formato **`.eml` (RFC 5322)** ou **`.txt`**.
-  - Modo de impressão limpa formatado para PDF/impressora.
-- **Expurgo Automático e Segurança por Design:**
-  - Validação binária da assinatura mágica `!BDN` (ANSI 32-bit e Unicode 64-bit) em streaming de 1 MiB antes de aceitar o upload.
-  - Isolamento estrito por usuário e por sessão (`UUID v4`), impedindo acesso cruzado (`AUTHZ_DENIED` auditado).
-  - Guardião independente de limpeza (`cleaner_daemon`) que elimina do disco e do MySQL sessões encerradas, expiradas por inatividade ou órfãs.
-- **Painel Administrativo e Auditoria:**
-  - Gestão de usuários, bloqueio/desbloqueio de contas, redefinição de senhas, monitoramento de sessões ativas, métricas de disco e trilha de auditoria sem exposição de conteúdo privado.
+</div>
 
 ---
 
-## Arquitetura Técnica
+## 🎯 Visão Geral
 
-| Camada | Tecnologia |
+O **PST Viewer** é uma aplicação web corporativa desenvolvida para **abrir, pesquisar, imprimir e exportar pontualmente mensagens e anexos de arquivos `.pst` do Microsoft Outlook** diretamente pelo navegador — sem necessidade de instalar o Microsoft Outlook na máquina do usuário e **sem reter dados permanentemente no servidor**.
+
+> [!IMPORTANT]
+> **Filosofia de Retenção Zero (Consulta Efêmera):**
+> O sistema **não é um cofre permanente** de e-mails. O arquivo `.pst` original do usuário jamais é modificado (`0400 read-only`), a sessão roda em diretório isolado (`0700`) e, assim que o usuário clica em **"Fechar Consulta"**, faz **Logout** ou atinge o tempo limite de inatividade, **100% das mensagens, anexos e arquivos temporários são fisicamente expurgados do disco e do banco MySQL**.
+
+---
+
+## 🖥️ Interface do Leitor (Estilo Microsoft Outlook)
+
+Abaixo está a visualização da área de trabalho em **3 painéis** gerada a partir do layout nativo da aplicação (`Fluent UI / Outlook Web`):
+
+<div align="center">
+  <img src="docs/assets/pstviewer-ui-preview.svg" alt="Interface do Leitor PST Viewer" width="100%" />
+</div>
+
+### ✨ Destaques da Experiência de Uso
+
+| Recurso | Descrição Técnica |
 | :--- | :--- |
-| **Backend & API** | Python 3.10+ / FastAPI / Uvicorn |
-| **Banco de Dados** | MySQL 8.0+ ou MariaDB 10.6+ (`InnoDB`, `utf8mb4`, `FULLTEXT`) — *SQLite é bloqueado por arquitetura* |
-| **Motor de Leitura PST** | `libpff` / `pypff` nativo + parser MAPI e RFC 5322 (`transport_headers`) |
-| **Extratores de Anexos** | `poppler-utils` (`pdftotext`/`pdfinfo`), `python-docx`, `openpyxl`, `python-pptx`, `striprtf`, `antiword`/`catdoc`, `tesseract-ocr` (opcional) |
-| **Frontend** | SPA Vanilla JS + CSS corporativo inspirado no Outlook (sem dependência de CDNs externos) |
+| 📂 **Árvore MAPI Fiel ao Outlook** | Reconhecimento e ordenação automática de *Caixa de Entrada*, *Itens Enviados*, *Rascunhos*, *Arquivo Morto*, *Lixo Eletrônico*, *Itens Excluídos* e subpastas personalizadas. |
+| ⚡ **Abertura Progressiva (`READY_PARTIAL`)** | Não é preciso esperar um PST de vários Gigabytes terminar para começar a ler: assim que a 1ª pasta é mapeada, o leitor já é liberado enquanto o worker indexa o restante em background. |
+| 🔍 **Pesquisa Global + Conteúdo de Anexos** | Busca `FULLTEXT` combinada com filtros por pasta, remetente, destinatário (`Para`/`CC`/`CCO`), período de datas e textos extraídos de dentro de arquivos **PDF, DOCX, XLSX, PPTX, RTF, DOC, TXT, CSV, HTML e ZIP**. |
+| 🛡️ **Leitura Sanitizada em Sandbox** | Renderização de e-mails HTML higienizada via `nh3` dentro de `iframe sandbox`, bloqueando execução de scripts (`XSS`), formulários maliciosos e rastreadores. |
+| 🖨️ **Exportação `.EML`, `.TXT` e Impressão A4** | Download individual de e-mails no padrão **RFC 5322 (`.eml`)** ou texto puro (`.txt`), além de folha de impressão limpa pronta para PDF/papel. |
+| ⚙️ **Painel Administrativo Integrado** | Gestão completa de usuários, bloqueio/desbloqueio de contas, redefinição de senhas, monitoramento de sessões ativas, uso de disco e trilha de auditoria. |
 
 ---
 
-## Instalação Rápida ("Execute e Saia Usando")
+## 🚀 Instalação "Execute e Saia Usando"
 
-O projeto conta com **3 formas de instalação automatizada**, dependendo do seu ambiente:
+O **PST Viewer** conta com instaladores inteligentes que **verificam os requisitos da máquina**, **avisam o usuário sobre o que falta instalar**, **configuram o banco e os serviços sozinhos** e **exibem o usuário `admin` e a senha gerada no final**.
 
-### Opção 1: Servidor Linux ou Nuvem (Debian / Ubuntu / DietPi / VPS) — Recomendado
+<div align="center">
+  <img src="docs/assets/pstviewer-cli-installer.svg" alt="Instalador Automático do PST Viewer" width="92%" />
+</div>
 
-O script unificado `install.sh` verifica os requisitos de hardware e pacotes da máquina, avisa o que precisa ser instalado, configura o MariaDB, cria o ambiente virtual Python, executa as migrações, registra os 3 serviços `systemd` (`pstviewer-web`, `pstviewer-worker` e `pstviewer-cleaner.timer`) e **exibe na tela o usuário `admin` e a senha gerada**.
+---
+
+### 🐧 Opção 1: Servidor Linux ou Nuvem (Debian / Ubuntu / DietPi / VPS) — *Recomendado*
+
+Ideal para servidores dedicados, máquinas virtuais ou instâncias em nuvem (AWS, Oracle Cloud, DigitalOcean, Hetzner, Proxmox, DietPi).
 
 ```bash
+# 1. Clone o repositório oficial
 git clone https://github.com/frederigi/pstviewer.git
 cd pstviewer
+
+# 2. Dê permissão de execução e inicie o instalador automático
 chmod +x install.sh
 sudo ./install.sh
 ```
 
-Para instalação 100% autônoma (sem perguntas de confirmação) ou para redefinir a senha do `admin`:
+> [!TIP]
+> **Modo 100% Autônomo (Sem confirmação manual):**
+> Se quiser rodar em scripts de provisionamento sem perguntas na tela, adicione a flag `--yes`:
+> ```bash
+> sudo ./install.sh --yes
+> ```
+> Para **gerar uma nova senha** para o usuário `admin` a qualquer momento:
+> ```bash
+> sudo ./install.sh --reset-admin
+> ```
 
-```bash
-sudo ./install.sh --yes
-sudo ./install.sh --reset-admin
-```
+**O que o `install.sh` faz por você:**
+1. Analisa CPU, memória RAM, espaço livre em disco e verifica todos os pacotes APT (`python3-pypff`, `mariadb-server`, `poppler-utils`, `antiword`, `catdoc`, `tesseract-ocr`).
+2. Avisa na tela quais pacotes já estão presentes (`[INSTALADO]`) e quais serão baixados (`[PENDENTE]`).
+3. Cria o usuário de sistema sem privilégios (`pstviewer`) e diretórios confinados (`/srv/pstviewer/sessions`).
+4. Configura o banco **MariaDB/MySQL (`InnoDB utf8mb4`)** e aplica todas as migrações automaticamente.
+5. Registra e inicia os 3 serviços `systemd`: `pstviewer-web.service`, `pstviewer-worker.service` e `pstviewer-cleaner.timer`.
+6. Exibe o quadro verde com a **URL de acesso**, **Usuário (`admin`)** e **Senha gerada**.
 
 ---
 
-### Opção 2: Docker & Docker Compose (Windows, macOS, Linux ou Nuvem)
+### 🐳 Opção 2: Docker & Docker Compose (Windows, macOS, Linux ou Cloud)
 
-Ideal para rodar em **qualquer sistema operacional** sem precisar instalar bibliotecas C (`libpff`, `poppler`, `antiword`) ou banco de dados manualmente na máquina hospedeira:
+A maneira mais rápida de rodar em **qualquer sistema operacional** com **100% das dependências C (`libpff`, `poppler`, `antiword`, `tesseract`) e banco MariaDB 11 já embutidos**:
 
 ```bash
+# 1. Clone o repositório
 git clone https://github.com/frederigi/pstviewer.git
 cd pstviewer
+
+# 2. Suba toda a infraestrutura (Banco MariaDB + Web + Worker PST + Cleaner)
 docker compose up -d --build
 ```
 
-Para ver ou gerar uma nova senha para o administrador no container:
-
 ```bash
+# 3. Exiba ou gere a credencial do usuário Administrador (admin)
 docker exec -it pstviewer-web /opt/pstviewer/venv/bin/python /opt/pstviewer/scripts/create_admin.py
 ```
 
-Acesse em: **`http://localhost:8085`**
+* 🌐 **Endereço de Acesso:** `http://localhost:8085`
 
 ---
 
-### Opção 3: Assistente Python Local (Usando MySQL do XAMPP, MariaDB ou MySQL Server)
+### 💻 Opção 3: Instalação Local Assistida (Usando MySQL do XAMPP, MariaDB ou MySQL Server)
 
-> **Nota sobre XAMPP:** O PST Viewer é escrito em **Python (FastAPI)**, portanto não utiliza o Apache/PHP do XAMPP, mas **funciona perfeitamente utilizando o banco de dados MySQL/MariaDB do XAMPP** (porta `3306`, usuário `root`).
+> [!NOTE]
+> **Compatibilidade com XAMPP / MySQL Local:**
+> O PST Viewer é uma aplicação **Python (FastAPI)** com servidor próprio, portanto não depende do Apache/PHP do XAMPP, mas **conecta perfeitamente ao banco MySQL/MariaDB do XAMPP** (porta `3306`, usuário `root` sem senha) ou a qualquer MySQL local/remoto.
 
-Basta iniciar o módulo **MySQL** no painel do XAMPP (ou ter qualquer MySQL/MariaDB ativo) e executar o assistente interativo:
+1. Abra o painel do seu **XAMPP** (ou serviço MySQL/MariaDB local) e inicie o módulo **MySQL** na porta `3306`.
+2. No terminal ou PowerShell, execute o assistente interativo:
 
-```bash
+```powershell
+# Clone o projeto
+git clone https://github.com/frederigi/pstviewer.git
+cd pstviewer
+
+# Execute o assistente que verifica requisitos, instala pacotes, cria o banco e inicia tudo:
 python setup_and_run.py
 ```
 
-O `setup_and_run.py` fará automaticamente:
-1. O diagnóstico de requisitos da máquina (Python, espaço em disco, bibliotecas e `pypff`).
-2. O aviso ao usuário e instalação automática dos pacotes do `requirements.txt`.
-3. A conexão ao MySQL (detecta `127.0.0.1:3306` padrão XAMPP ou pergunta usuário/senha) e criação do banco `pstviewer`.
-4. A criação de todas as tabelas e índices via migração automática.
-5. A criação do usuário **`admin`**, exibindo a **senha gerada** no terminal.
-6. A inicialização conjunta do Servidor Web (`http://127.0.0.1:8085`), do Worker de Extração PST e do Guardião de Limpeza.
+**Parâmetros opcionais do `setup_and_run.py`:**
 
----
+```powershell
+# Especificar credenciais personalizadas do MySQL ou porta HTTP diferente:
+python setup_and_run.py --db-host 127.0.0.1 --db-port 3306 --db-user root --db-password "" --port 8085
 
-## Estrutura do Projeto
-
-```text
-├── app/
-│   ├── api/                  # Rotas FastAPI (Autenticação, Sessões, Leitor, Busca, Exportação, Admin)
-│   ├── auth/                 # Hash Argon2id, sessões de autenticação, CSRF e controle de acesso
-│   ├── core/                 # Configurações (.env) e trilha de auditoria sanitizada
-│   ├── database/             # Modelos SQLAlchemy, engine MySQL InnoDB e migrações automáticas
-│   ├── services/             # Motor de extração PST (pypff), sanitizador HTML, anexos e expurgo
-│   ├── static/               # Estilos CSS e aplicação SPA JavaScript
-│   ├── templates/            # Template principal da interface estilo Outlook
-│   ├── workers/              # Daemons de extração em background (pst_worker) e limpeza (cleaner_daemon)
-│   └── main.py               # Entrada principal FastAPI e cabeçalhos de segurança (CSP)
-├── config/
-│   └── pstviewer.env.example # Exemplo de variáveis de ambiente
-├── database/
-│   └── schema_v1.sql         # Esquema relacional MySQL/MariaDB InnoDB UTF8MB4
-├── scripts/                  # Scripts utilitários, criação de admin e bateria de testes integrados
-├── Dockerfile                # Imagem containerizada com libpff, poppler e extratores nativos
-├── docker-compose.yml        # Orquestração completa (MariaDB + Web + Worker + Cleaner)
-├── install.sh                # Instalador automático unificado para servidores Linux/Cloud
-├── setup_and_run.py          # Instalador e inicializador assistido multiplataforma (MySQL local/XAMPP)
-└── requirements.txt          # Dependências Python
+# Apenas configurar o banco e gerar uma nova senha para o admin sem iniciar o servidor:
+python setup_and_run.py --setup-only --reset-admin
 ```
 
 ---
 
-## Gerenciamento de Serviços (Linux systemd)
+## 🏗️ Arquitetura e Fluxo de Dados
 
-Quando instalado via `install.sh` em servidor Linux:
+```mermaid
+flowchart LR
+    subgraph Cliente["🌐 Navegador do Usuário"]
+        UI["Interface Web Outlook\n(SPA Vanilla JS + CSP)"]
+    end
+
+    subgraph Servidor["⚙️ PST Viewer Server (FastAPI + Daemons)"]
+        API["FastAPI Web Server\n(Uvicorn :8085)"]
+        WRK["PST Worker Daemon\n(Extração pypff + Anexos)"]
+        CLN["Cleaner Daemon\n(Expurgo a cada 60s)"]
+    end
+
+    subgraph Storage["🔒 Armazenamento Temporário Isolado"]
+        FS[("/srv/pstviewer/sessions/<uuid>\nPermissão 0700 | PST 0400")]
+        DB[("MariaDB / MySQL InnoDB\nUTF8MB4 + Índices FULLTEXT")]
+    end
+
+    UI -- "1. Upload Streaming (1 MiB)\nValidação !BDN + SHA-256" --> API
+    API -- "2. Grava PST e enfileira Job" --> FS
+    API -- "3. Consulta Pastas, E-mails e Busca" --> DB
+    WRK -- "4. Lê árvore MAPI (libpff)\ne extrai texto PDF/Office" --> FS
+    WRK -- "5. Salva lotes (READY_PARTIAL)" --> DB
+    CLN -- "6. Expurga Disco + MySQL\nno Logout ou Inatividade" --> FS
+    CLN -- "7. Remove registros expirados" --> DB
+```
+
+---
+
+## 🔒 Segurança, Isolamento e Descarte Automático
+
+> [!WARNING]
+> **Regra de Arquitetura — Proibição Estrita de SQLite:**
+> Por exigência de concorrência, integridade transacional (`SAVEPOINT` por mensagem/anexo) e índices `FULLTEXT`, o sistema opera **exclusivamente com MySQL / MariaDB (`InnoDB`)**. Qualquer tentativa de configurar SQLite é bloqueada imediatamente na inicialização.
+
+* **Validação Binária Real (`!BDN`):** Arquivos enviados com extensão `.pst` falsa são rejeitados nos primeiros `564 bytes` durante o streaming na quarentena antes mesmo de ocupar disco.
+* **Proteção contra *Zip Bomb* e Anexos Criptografados:** Pacotes Office (`.docx`, `.xlsx`, `.pptx`) e arquivos `.zip` têm taxa de compressão e quantidade de entradas inspecionadas antes da extração textual.
+* **Senhas com Hash `Argon2id`:** Autenticação com bloqueio temporário automático após tentativas inválidas (`login_lockout_minutes`), cookies `HttpOnly` + `SameSite=Lax` e validação de token `X-CSRF-Token`.
+* **Auditoria Sanitizada:** A tabela `audit_logs` e o arquivo `/var/log/pstviewer/audit/audit.log` registram eventos operacionais (`LOGIN_SUCCESS`, `UPLOAD_DONE`, `EXTRACT_DONE`, `SESSION_PURGED`, `AUTHZ_DENIED`), filtrando qualquer senha, token ou corpo de mensagem.
+
+---
+
+## 🛠️ Comandos de Gerenciamento e Administração
+
+### Gerenciar Serviços no Linux (`systemd`)
 
 ```bash
-# Verificar status dos serviços
-sudo systemctl status pstviewer-web pstviewer-worker pstviewer-cleaner.timer
+# Verificar o status em tempo real dos 3 serviços
+sudo systemctl status pstviewer-web.service pstviewer-worker.service pstviewer-cleaner.timer
 
-# Reiniciar serviços
-sudo systemctl restart pstviewer-web pstviewer-worker
+# Acompanhar os logs do extrator PST em tempo real
+sudo journalctl -u pstviewer-worker.service -f
 
-# Gerar nova senha para o usuário admin
-sudo PYTHONPATH=/opt/pstviewer PSTVIEWER_ENV_FILE=/opt/pstviewer/config/pstviewer.env \
-  /opt/pstviewer/venv/bin/python /opt/pstviewer/scripts/create_admin.py --username admin
+# Reiniciar a aplicação web e o worker de processamento
+sudo systemctl restart pstviewer-web.service pstviewer-worker.service
 ```
 
+### Gerenciar Usuários Administradores via CLI
+
+```bash
+# Criar novo administrador ou redefinir a senha do usuário 'admin'
+sudo PYTHONPATH=/opt/pstviewer PSTVIEWER_ENV_FILE=/opt/pstviewer/config/pstviewer.env \
+  /opt/pstviewer/venv/bin/python /opt/pstviewer/scripts/create_admin.py --username admin
+
+# Definir uma senha específica manualmente
+sudo PYTHONPATH=/opt/pstviewer PSTVIEWER_ENV_FILE=/opt/pstviewer/config/pstviewer.env \
+  /opt/pstviewer/venv/bin/python /opt/pstviewer/scripts/create_admin.py --username admin --password "SuaSenhaForteAqui!"
+```
+
+### Executar o Expurgo Manual de Sessões Expiradas
+
+```bash
+sudo PYTHONPATH=/opt/pstviewer PSTVIEWER_ENV_FILE=/opt/pstviewer/config/pstviewer.env \
+  /opt/pstviewer/venv/bin/python -m app.workers.cleaner_daemon --once
+```
+
+---
+
+## 📂 Estrutura de Diretórios do Repositório
+
+```ini
+pstviewer/
+├── app/
+│   ├── api/                  # Endpoints REST (Auth, Sessões, Leitor, Busca Global, Exportação, Admin)
+│   ├── auth/                 # Segurança Argon2id, sessões, CSRF e controle de acesso por usuário
+│   ├── core/                 # Carregamento de ambiente (.env) e motor de auditoria LGPD
+│   ├── database/             # Modelos SQLAlchemy 2.0, conexão PyMySQL e migrações automáticas
+│   ├── services/             # Extrator MAPI (pypff), extrator de anexos, sanitizador HTML e limpeza
+│   ├── static/               # Folha de estilo Fluent UI (outlook.css) e lógica SPA (app.js)
+│   ├── templates/            # Interface web responsiva (index.html)
+│   ├── workers/              # Daemons de processamento (pst_worker.py) e limpeza (cleaner_daemon.py)
+│   └── main.py               # Inicialização FastAPI e políticas Content-Security-Policy (CSP)
+├── config/
+│   └── pstviewer.env.example # Modelo documentado de variáveis de ambiente
+├── database/
+│   └── schema_v1.sql         # DDL completo MySQL/MariaDB InnoDB UTF8MB4
+├── docs/assets/              # Ilustrações vetoriais da interface e do instalador para documentação
+├── scripts/                  # Utilitários CLI (create_admin.py) e suítes de testes automatizados
+├── Dockerfile                # Imagem Debian Bookworm com libpff, poppler, antiword e tesseract
+├── docker-compose.yml        # Orquestração completa pronta para uso
+├── install.sh                # Instalador automático unificado para Linux / Cloud VPS
+├── setup_and_run.py          # Assistente multiplataforma para execução com MySQL local / XAMPP
+└── requirements.txt          # Dependências Python fixadas
+```
+
+---
+
+<div align="center">
+  <sub>Desenvolvido por <strong>Anderson Gonçalez</strong> — Tecnologia da Informação (B.T.I.)</sub>
+</div>
