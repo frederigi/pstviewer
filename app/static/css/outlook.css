@@ -1001,7 +1001,7 @@ html, body {
 
 .auth-topbar {
     width: 100%;
-    max-width: 1420px;
+    max-width: 960px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -1108,62 +1108,30 @@ html, body {
 }
 
 /* ============================================================================
- * GRADE PRINCIPAL DO PORTAL: SIMULADOR (ESQUERDA) + LOGIN (DIREITA)
+ * CONTEÚDO CENTRALIZADO DE LOGIN & BENEFÍCIOS
  * ============================================================================ */
-.auth-portal-grid {
+.auth-centered-wrapper {
     width: 100%;
-    max-width: 1420px;
-    display: grid;
-    grid-template-columns: minmax(0, 1.48fr) minmax(360px, 420px);
-    gap: 32px;
-    align-items: start;
-    margin: 4px auto 36px auto;
-}
-
-.auth-sim-column {
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-}
-
-.sim-header-brief {
-    margin-bottom: 12px;
-}
-
-.sim-headline {
-    font-size: 21px;
-    font-weight: 800;
-    color: #0f172a;
-    margin: 6px 0 6px 0;
-    letter-spacing: -0.3px;
-    line-height: 1.25;
-}
-
-.sim-lead {
-    font-size: 13.5px;
-    color: #64748b;
-    margin: 0;
-    line-height: 1.45;
-}
-
-.auth-login-column {
-    min-width: 0;
+    max-width: 960px;
+    margin: 24px auto 40px auto;
     display: flex;
     flex-direction: column;
     align-items: center;
+    box-sizing: border-box;
 }
 
 .auth-center-card {
     width: 100%;
-    max-width: 420px;
+    max-width: 440px;
     background: #ffffff;
     border-radius: 16px;
-    padding: 34px 32px 24px 32px;
+    padding: 38px 36px 28px 36px;
     box-shadow: 0 20px 50px rgba(15, 108, 189, 0.09), 0 4px 14px rgba(15, 23, 42, 0.04);
     border: 1px solid #cbd5e1;
     position: relative;
     overflow: hidden;
     flex-shrink: 0;
+    box-sizing: border-box;
 }
 
 .auth-center-card::before {
@@ -1178,19 +1146,19 @@ html, body {
 
 .auth-brand-Hero {
     text-align: center;
-    margin-bottom: 22px;
+    margin-bottom: 24px;
 }
 
 .auth-logo-badge {
-    width: 58px;
-    height: 58px;
-    border-radius: 15px;
+    width: 62px;
+    height: 62px;
+    border-radius: 16px;
     background: linear-gradient(135deg, #0f6cbd 0%, #0284c7 100%);
     color: #ffffff;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
     box-shadow: 0 8px 20px rgba(15, 108, 189, 0.25);
 }
 
@@ -1204,20 +1172,20 @@ html, body {
 }
 
 .auth-app-tagline {
-    font-size: 13.5px;
+    font-size: 14px;
     color: #64748b;
-    line-height: 1.45;
+    line-height: 1.5;
     margin: 0 auto;
-    max-width: 310px;
+    max-width: 330px;
 }
 
 .auth-login-form {
-    margin-top: 6px;
+    margin-top: 8px;
 }
 
 .auth-submit-btn {
     width: 100%;
-    height: 44px;
+    height: 46px;
     font-size: 15px;
     font-weight: 700;
     border-radius: 8px;
@@ -1225,14 +1193,31 @@ html, body {
 }
 
 .auth-card-footer {
-    margin-top: 22px;
-    padding-top: 14px;
+    margin-top: 24px;
+    padding-top: 16px;
     border-top: 1px solid #f1f5f9;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 12px;
+    font-size: 12.5px;
     color: #64748b;
+}
+
+.auth-link-btn {
+    background: none;
+    border: none;
+    color: var(--brand-primary);
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background 0.15s ease;
+}
+
+.auth-link-btn:hover {
+    background: #eff6ff;
+    text-decoration: underline;
 }
 
 .auth-version-pill {
@@ -1246,332 +1231,75 @@ html, body {
 }
 
 /* ============================================================================
- * SIMULADOR INTERATIVO OUTLOOK 365 WEB NA TELA INICIAL
+ * DESTAQUES DOS BENEFÍCIOS (EMBAIXO DO CARTÃO)
  * ============================================================================ */
-.o365-sim-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: #e0f2fe;
-    color: #0369a1;
-    border: 1px solid #bae6fd;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.6px;
-    padding: 5px 14px;
-    border-radius: 999px;
-    margin-bottom: 8px;
-}
-
-.o365-pulse-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #0284c7;
-    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.25);
-}
-
-.o365-window {
-    background: #ffffff;
-    border-radius: 14px;
-    border: 1px solid #cbd5e1;
-    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.10), 0 4px 16px rgba(15, 108, 189, 0.08);
-    overflow: hidden;
-}
-
-.o365-topbar {
-    height: 48px;
-    background: linear-gradient(90deg, #0a2e5c 0%, #0f6cbd 60%, #0284c7 100%);
-    color: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 16px;
-    gap: 14px;
-}
-
-.o365-topbar-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.o365-waffle {
+.auth-benefits-grid {
     display: grid;
-    grid-template-columns: repeat(3, 4px);
-    gap: 2.5px;
-    padding: 6px;
-    border-radius: 4px;
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.o365-waffle span {
-    width: 4px;
-    height: 4px;
-    background: #ffffff;
-    border-radius: 1px;
-}
-
-.o365-brand-title {
-    font-size: 14.5px;
-    display: flex;
-    align-items: center;
-    gap: 7px;
-}
-
-.o365-brand-divider {
-    opacity: 0.45;
-}
-
-.o365-file-badge {
-    background: rgba(8, 35, 71, 0.65);
-    border: 1px solid rgba(125, 211, 252, 0.45);
-    color: #e0f2fe;
-    font-size: 11.5px;
-    font-weight: 600;
-    padding: 3px 10px;
-    border-radius: 999px;
-}
-
-.o365-search-bar {
-    flex: 1;
-    max-width: 410px;
-    background: #ffffff;
-    border-radius: 6px;
-    height: 31px;
-    display: flex;
-    align-items: center;
-    padding: 0 10px;
-    gap: 8px;
-}
-
-.o365-search-bar input {
-    border: none;
-    outline: none;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
     width: 100%;
-    font-size: 12.5px;
-    color: #1e293b;
+    max-width: 860px;
+    margin-top: 28px;
+    box-sizing: border-box;
 }
 
-.o365-demo-tag {
-    background: rgba(255, 255, 255, 0.16);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    font-size: 11px;
-    font-weight: 700;
-    padding: 3px 10px;
-    border-radius: 999px;
+@media (max-width: 768px) {
+    .auth-benefits-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
 }
 
-.o365-ribbon {
+.auth-benefit-card {
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 16px 18px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+    backdrop-filter: blur(4px);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.auth-benefit-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(15, 108, 189, 0.08);
+    border-color: #94a3b8;
+}
+
+.auth-benefit-icon {
+    width: 38px;
     height: 38px;
-    background: #f8fafc;
-    border-bottom: 1px solid #e2e8f0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 14px;
-    font-size: 12px;
-}
-
-.o365-ribbon-left {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.o365-ribbon-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 4px 10px;
-    border-radius: 5px;
-    color: #334155;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.15s;
-}
-
-.o365-ribbon-item:hover {
-    background: #e2e8f0;
-}
-
-.o365-ribbon-item.active {
-    background: #e0f2fe;
-    color: #0f6cbd;
-}
-
-.o365-safe-pill {
-    font-size: 11.5px;
-    font-weight: 700;
-    color: #15803d;
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
-    padding: 3px 10px;
-    border-radius: 999px;
-}
-
-.o365-workspace {
-    display: grid;
-    grid-template-columns: 205px 320px 1fr;
-    height: 390px;
-    background: #ffffff;
-}
-
-.o365-folders {
-    background: #f8fafc;
-    border-right: 1px solid #e2e8f0;
-    padding: 10px 8px;
-    overflow-y: auto;
-}
-
-.o365-folder-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 10px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 12.5px;
-    color: #334155;
-    margin-bottom: 3px;
-    transition: all 0.12s ease;
-}
-
-.o365-folder-item:hover {
-    background: #e2e8f0;
-}
-
-.o365-folder-item.active {
-    background: #cfe4fa;
-    color: #0a2e5c;
-    font-weight: 700;
-}
-
-.o365-folder-badge {
-    font-size: 11px;
-    font-weight: 700;
-    color: #0f6cbd;
-    background: #e0f2fe;
-    padding: 1px 7px;
-    border-radius: 999px;
-}
-
-.o365-msg-list {
-    border-right: 1px solid #e2e8f0;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-.o365-msg-list-header {
-    padding: 9px 14px;
-    border-bottom: 1px solid #e2e8f0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-weight: 700;
-    font-size: 13px;
-    color: #0f172a;
-    background: #ffffff;
-}
-
-.o365-msg-count {
-    font-size: 11.5px;
-    font-weight: 600;
-    color: #64748b;
-}
-
-.o365-msg-scroll {
-    flex: 1;
-    overflow-y: auto;
-}
-
-.o365-msg-card {
-    padding: 10px 12px;
-    border-bottom: 1px solid #f1f5f9;
-    border-left: 3px solid transparent;
-    display: flex;
-    gap: 10px;
-    cursor: pointer;
-    transition: background 0.12s;
-}
-
-.o365-msg-card:hover {
-    background: #f8fafc;
-}
-
-.o365-msg-card.active {
-    background: #ebf3fc;
-    border-left-color: #0f6cbd;
-}
-
-.o365-avatar {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    color: #ffffff;
-    font-weight: 700;
-    font-size: 12px;
+    border-radius: 10px;
+    background: #eff6ff;
+    color: var(--brand-primary);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    border: 1px solid #dbeafe;
 }
 
-.o365-reading-pane {
-    padding: 16px 20px;
-    overflow-y: auto;
-    background: #ffffff;
+.auth-benefit-icon svg {
+    width: 18px;
+    height: 18px;
 }
 
-.o365-read-subj {
-    font-size: 16px;
-    font-weight: 800;
+.auth-benefit-card strong {
+    display: block;
+    font-size: 13.5px;
+    font-weight: 700;
     color: #0f172a;
-    margin: 0 0 10px 0;
+    margin-bottom: 4px;
 }
 
-.o365-read-sender-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #f1f5f9;
-    margin-bottom: 10px;
-}
-
-.o365-att-bar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 12px;
-}
-
-.o365-att-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: #f8fafc;
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
-    padding: 5px 10px;
-    font-size: 11.5px;
-    font-weight: 600;
-    color: #1e293b;
-    cursor: pointer;
-    transition: all 0.12s;
-}
-
-.o365-att-pill:hover {
-    border-color: #0f6cbd;
-    background: #f0f7ff;
-    color: #0f6cbd;
-}
-
-.o365-read-body {
-    font-size: 13px;
-    line-height: 1.6;
-    color: #334155;
+.auth-benefit-card p {
+    font-size: 12px;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.45;
 }
 
 /* ============================================================================
