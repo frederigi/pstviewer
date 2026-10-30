@@ -22,11 +22,11 @@
 [![Privacy](https://img.shields.io/badge/Policy-Zero_Retention_(GDPR_%2F_LGPD)-107c10?style=for-the-badge&logo=shield&logoColor=white)](#security-isolation--auto-purge)
 
 <p align="center">
-  <strong>Outlook 365 Web Interface + Live Simulator • Deep search across emails &amp; attachments (PDF/Office) • 1-Click Bilingual Setup (EN / PT)</strong>
+  <strong>Outlook 365 Web Interface • Deep search across emails &amp; attachments (PDF/Office) • 1-Click Bilingual Setup (EN / PT)</strong>
 </p>
 
 [Overview](#-overview) •
-[Outlook 365 Interface & Simulator](#-outlook-365-web-interface--live-simulator) •
+[Outlook 365 Interface](#-outlook-365-web-interface) •
 [Quick Start Installation](#-turnkey-installation-run--use-immediately) •
 [Architecture](#-architecture--data-flow) •
 [Admin & CLI Commands](#-management--administration-commands)
@@ -45,20 +45,13 @@
 
 ---
 
-## 🖥️ Outlook 365 Web Interface & Live Simulator
-
-Below is the 3-pane workspace inspired by **Microsoft Outlook 365 Web**:
-
-<div align="center">
-  <img src="docs/assets/pstviewer-ui-preview-en.svg" alt="PST Viewer Reader Interface" width="100%" />
-</div>
+## 🖥️ Outlook 365 Web Interface
 
 ### ✨ Key Experience Highlights
 
 | Feature | Technical Description |
 | :--- | :--- |
 | 🌍 **Interactive Bilingual UI & Installers (`EN` / `PT`)** | Switch between **🇺🇸 English** and **🇧🇷 Portuguese** at any time with 1 click in the top bar (or choose your language during CLI installation). |
-| 🖥️ **Live Outlook 365 Simulator on Home Screen** | Includes an interactive Outlook 365 Web preview right on the sign-in screen with sample folders and fictitious emails so users can test the interface immediately. |
 | 📂 **Smart Clean Folder Tree** | Automatically hides internal MAPI system folders (`SPAM Search Folder`, `Search Root`), empty folders (`Deleted Items` with 0 messages), and empty root wrappers, showing directly your real backed-up folders. |
 | ⚡ **Progressive Opening (`READY_PARTIAL`)** | No need to wait for a multi-gigabyte PST to finish indexing: as soon as the first folder is mapped, the reader unlocks while background indexing continues. |
 | 🔍 **Global Search + Attachment Content** | `FULLTEXT` search combined with filters by folder, sender, recipient (`To`/`CC`/`BCC`), date range, and text extracted from inside **PDF, DOCX, XLSX, PPTX, RTF, DOC, TXT, CSV, HTML, and ZIP** files. |
@@ -186,7 +179,7 @@ cd pstviewer
 ```mermaid
 flowchart LR
     subgraph Client["🌐 User Browser"]
-        UI["Outlook 365 Web UI\n(Bilingual PT/EN + Live Simulator)"]
+        UI["Outlook 365 Web UI\n(Bilingual PT/EN)"]
     end
 
     subgraph Server["⚙️ PST Viewer Server (FastAPI + Daemons)"]
@@ -246,7 +239,7 @@ pstviewer/
 │   ├── core/                 # Environment loader (.env) & sanitized audit engine
 │   ├── database/             # SQLAlchemy 2.0 models, PyMySQL engine & auto-migrations
 │   ├── services/             # MAPI extractor (pypff), attachment parser, HTML sanitizer & cleaner
-│   ├── static/               # Outlook 365 stylesheet (outlook.css) & bilingual SPA + Simulator (app.js)
+│   ├── static/               # Outlook 365 stylesheet (outlook.css) & bilingual SPA (app.js)
 │   ├── templates/            # Responsive web interface (index.html)
 │   ├── workers/              # Background daemons (pst_worker.py & cleaner_daemon.py)
 │   └── main.py               # FastAPI bootstrap & Content-Security-Policy (CSP) headers

@@ -22,11 +22,11 @@
 [![Privacidade](https://img.shields.io/badge/Pol%C3%ADtica-Reten%C3%A7%C3%A3o_Zero_(LGPD)-107c10?style=for-the-badge&logo=shield&logoColor=white)](#seguran%C3%A7a-isolamento-e-descarte-autom%C3%A1tico)
 
 <p align="center">
-  <strong>Leitor web estilo Outlook 365 + Simulador Interativo • Pesquisa profunda em e-mails e anexos (PDF/Office) • Bilíngue Interativo (PT / EN)</strong>
+  <strong>Leitor web estilo Outlook 365 • Pesquisa profunda em e-mails e anexos (PDF/Office) • Bilíngue Interativo (PT / EN)</strong>
 </p>
 
 [Visão Geral](#-visão-geral) •
-[Interface & Simulador Outlook 365](#-interface-do-leitor-estilo-microsoft-outlook) •
+[Interface do Leitor Outlook](#-interface-do-leitor-estilo-microsoft-outlook) •
 [Instalação Rápida](#-instalação-execute-e-saia-usando) •
 [Arquitetura](#-arquitetura-e-fluxo-de-dados) •
 [Comandos Úteis](#-comandos-de-gerenciamento-e-administração) •
@@ -71,18 +71,11 @@ O **PST Viewer** é uma aplicação web corporativa desenvolvida para **abrir, p
 
 ## 🖥️ Interface do Leitor (Estilo Microsoft Outlook)
 
-Abaixo está a visualização da área de trabalho em **3 painéis** gerada a partir do layout nativo da aplicação (`Fluent UI / Outlook Web`):
-
-<div align="center">
-  <img src="docs/assets/pstviewer-ui-preview.svg" alt="Interface do Leitor PST Viewer" width="100%" />
-</div>
-
 ### ✨ Destaques da Experiência de Uso
 
 | Recurso | Descrição Técnica |
 | :--- | :--- |
 | 🌍 **Bilíngue Interativo (`🇧🇷 PT` / `🇺🇸 EN`)** | Seletor interativo de idiomas em 1 clique no topo da tela (e também nos instaladores CLI via `--lang pt` ou `--lang en`), permitindo instalar, configurar e usar o sistema em **Português** ou **Inglês**. |
-| 🖥️ **Simulador Outlook 365 Web na Tela Inicial** | A página inicial conta com um simulador interativo do Outlook 365 Web com pastas e e-mails fictícios clicáveis para que qualquer usuário teste a experiência na hora. |
 | 📂 **Árvore Limpa (Foco no Backup Real)** | Oculta automaticamente pastas técnicas ocultas do MAPI (`SPAM Search Folder`, `Pesquisar Raiz`), pastas vazias (`Itens Excluídos` sem itens) e cascas vazias (`Início do arquivo de dados do Outlook`), exibindo direto a pasta real do seu backup. |
 | ⚡ **Abertura Progressiva (`READY_PARTIAL`)** | Não é preciso esperar um PST de vários Gigabytes terminar para começar a ler: assim que a 1ª pasta é mapeada, o leitor já é liberado enquanto o worker indexa o restante em background. |
 | 🔍 **Pesquisa Global + Conteúdo de Anexos** | Busca `FULLTEXT` combinada com filtros por pasta, remetente, destinatário (`Para`/`CC`/`CCO`), período de datas e textos extraídos de dentro de arquivos **PDF, DOCX, XLSX, PPTX, RTF, DOC, TXT, CSV, HTML e ZIP**. |
