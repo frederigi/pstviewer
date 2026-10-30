@@ -9,7 +9,7 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Optional
 from urllib.parse import quote_plus
 
 
@@ -44,7 +44,7 @@ class Settings:
     jobs_dir: Path
     log_dir: Path
     secret_key: str
-    cookie_secure: bool
+    cookie_secure: Optional[bool]
     auth_session_hours: int
     max_login_attempts: int
     login_lockout_minutes: int
@@ -110,7 +110,11 @@ def load_settings(env_file: Path | None = None) -> Settings:
         jobs_dir=Path(get_val("PSTVIEWER_JOBS_DIR", "/var/lib/pstviewer/jobs")),
         log_dir=Path(get_val("PSTVIEWER_LOG_DIR", "/var/log/pstviewer")),
         secret_key=get_val("PSTVIEWER_SECRET_KEY", ""),
-        cookie_secure=get_val("PSTVIEWER_COOKIE_SECURE", "true").lower() in ("1", "true", "yes"),
+        cookie_secure=(
+            None
+            if get_val("PSTVIEWER_COOKIE_SECURE", "auto").strip().lower() in ("auto", "")
+            else get_val("PSTVIEWER_COOKIE_SECURE", "auto").strip().lower() in ("1", "true", "yes")
+        ),
         auth_session_hours=int(get_val("PSTVIEWER_AUTH_SESSION_HOURS", "8")),
         max_login_attempts=int(get_val("PSTVIEWER_MAX_LOGIN_ATTEMPTS", "5")),
         login_lockout_minutes=int(get_val("PSTVIEWER_LOGIN_LOCKOUT_MINUTES", "15")),

@@ -41,14 +41,20 @@ def get_current_auth(
     request: Request,
     db: Session = Depends(get_db),
     session_cookie: Optional[str] = Cookie(default=None, alias=SESSION_COOKIE_NAME),
+    x_session_token: Optional[str] = Header(default=None, alias="X-Session-Token"),
+    authorization: Optional[str] = Header(default=None, alias="Authorization"),
 ) -> AuthContext:
-    if not session_cookie:
+    raw_token = session_cookie or x_session_token
+    if not raw_token and authorization and authorization.startswith("Bearer "):
+        raw_token = authorization[7:].strip()
+
+    if not raw_token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Autenticação obrigatória.",
         )
     try:
-        user, auth_sess = validate_auth_session(db, session_cookie, touch_activity=True)
+        user, auth_sess = validate_auth_session(db, raw_token, touch_activity=True)
     except AuthenticationError as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

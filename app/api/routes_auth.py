@@ -80,17 +80,24 @@ def login(
             detail=str(exc),
         ) from exc
 
+    secure_cookie = settings.cookie_secure
+    if secure_cookie is None:
+        # Auto-detecta: se a conexão atual é HTTPS (ou veio por proxy HTTPS), ativa secure; senão, false
+        proto = request.headers.get("x-forwarded-proto", request.url.scheme).lower()
+        secure_cookie = (proto == "https")
+
     response.set_cookie(
         key=SESSION_COOKIE_NAME,
         value=raw_token,
         httponly=True,
-        secure=settings.cookie_secure,
+        secure=secure_cookie,
         samesite="lax",
         max_age=settings.auth_session_hours * 3600,
         path="/",
     )
     return {
         "authenticated": True,
+        "session_token": raw_token,
         "user": {
             "id": user.id,
             "username": user.username,

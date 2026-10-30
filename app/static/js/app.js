@@ -10,6 +10,7 @@
         lang: localStorage.getItem("pstviewer_lang") || ((navigator.language || "").toLowerCase().startsWith("en") ? "en" : "pt"),
         user: null,
         csrfToken: null,
+        sessionToken: localStorage.getItem("pstviewer_token") || null,
         currentSessionUuid: null,
         currentSessionData: null,
         foldersFlat: [],
@@ -626,6 +627,9 @@
         if (state.csrfToken && ["POST", "PUT", "DELETE", "PATCH"].includes((opts.method || "GET").toUpperCase())) {
             opts.headers["X-CSRF-Token"] = state.csrfToken;
         }
+        if (state.sessionToken) {
+            opts.headers["X-Session-Token"] = state.sessionToken;
+        }
         if (opts.body && typeof opts.body === "object" && !(opts.body instanceof FormData)) {
             opts.headers["Content-Type"] = "application/json";
             opts.body = JSON.stringify(opts.body);
@@ -1060,6 +1064,8 @@
         stopPolling();
         state.user = null;
         state.csrfToken = null;
+        state.sessionToken = null;
+        localStorage.removeItem("pstviewer_token");
         state.currentSessionUuid = null;
         $("app-shell").classList.add("hidden");
         $("view-login").classList.remove("hidden");
@@ -1205,9 +1211,13 @@
         }
     }
 
-    function onAuthenticated(user, csrfToken) {
+    function onAuthenticated(user, csrfToken, sessionToken = null) {
         state.user = user;
         state.csrfToken = csrfToken;
+        if (sessionToken) {
+            state.sessionToken = sessionToken;
+            localStorage.setItem("pstviewer_token", sessionToken);
+        }
         $("topbar-user-info").textContent = `${user.full_name} (${user.username})`;
         if (user.is_admin) {
             $("btn-open-admin").classList.remove("hidden");
@@ -1307,6 +1317,9 @@
         xhr.setRequestHeader("X-File-Name", encodeURIComponent(file.name));
         if (state.csrfToken) {
             xhr.setRequestHeader("X-CSRF-Token", state.csrfToken);
+        }
+        if (state.sessionToken) {
+            xhr.setRequestHeader("X-Session-Token", state.sessionToken);
         }
 
         xhr.upload.onprogress = function (evt) {
@@ -2137,7 +2150,7 @@
                     },
                 });
                 $("login-password").value = "";
-                onAuthenticated(data.user, data.csrf_token);
+                onAuthenticated(data.user, data.csrf_token, data.session_token);
             } catch (err) {
                 const en = isEn();
                 let msg = err.message || "";
