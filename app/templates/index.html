@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PST Viewer — Leitor Web de Arquivos Outlook (.PST)</title>
-    <link rel="stylesheet" href="/static/css/outlook.css?v=2.3">
+    <link rel="stylesheet" href="/static/css/outlook.css?v=2.4">
 </head>
 
 <body>
@@ -573,9 +573,24 @@
                     <div id="reading-content-wrap" class="hidden"
                         style="display:flex;flex-direction:column;height:100%;overflow:hidden;">
                         <div class="reading-header">
-                            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
-                                <h2 class="reading-subject" id="read-subject"></h2>
-                                <div style="display:flex;gap:4px;flex-shrink:0;">
+                            <div class="reading-header-top-row">
+                                <div class="reading-subject-wrap">
+                                    <button type="button" id="btn-back-to-mailbox" class="btn-back-mailbox hidden"
+                                        title="Voltar para a lista de e-mails da caixa postal (Esc)"
+                                        data-i18n-title="reader.back_to_mailbox_title">
+                                        <svg class="svg-icon" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                                        <span data-i18n="reader.back_to_mailbox">Voltar à Caixa Postal</span>
+                                    </button>
+                                    <h2 class="reading-subject" id="read-subject"></h2>
+                                </div>
+                                <div class="reading-actions-bar">
+                                    <button type="button" id="btn-toggle-reading-expand" class="btn btn-outline btn-sm btn-reading-expand"
+                                        title="Abrir por completo em tela cheia (ou dê duplo clique na mensagem)"
+                                        data-i18n-title="reader.expand_full_title">
+                                        <svg class="svg-icon icon-expand" viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+                                        <svg class="svg-icon icon-collapse hidden" viewBox="0 0 24 24"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+                                        <span id="label-toggle-reading-expand" data-i18n="reader.expand_full">Tela Cheia</span>
+                                    </button>
                                     <button type="button" id="btn-view-mode-html" class="btn btn-outline btn-sm"
                                         data-i18n="reader.mode_html">Formatado</button>
                                     <button type="button" id="btn-view-mode-plain" class="btn btn-outline btn-sm"
@@ -888,7 +903,7 @@
         </div>
     </div>
 
-    <script src="/static/js/app.js?v=2.3"></script>
+    <script src="/static/js/app.js?v=2.4"></script>
 </body>
 
 </html>

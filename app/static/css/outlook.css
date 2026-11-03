@@ -1883,3 +1883,113 @@ html, body {
 }
 
 
+
+/* ======================================================================
+ * MODO DE LEITURA COMPLETA / TELA CHEIA (AO DAR DOIS CLIQUES NA MENSAGEM)
+ * ====================================================================== */
+.reading-header-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.reading-subject-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+.reading-actions-bar {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+    align-items: center;
+}
+
+.btn-back-mailbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 13.5px;
+    padding: 7px 16px;
+    border-radius: 4px;
+    background: var(--brand-primary);
+    color: #ffffff !important;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.btn-back-mailbox:hover {
+    background: var(--brand-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.22);
+}
+
+.btn-back-mailbox svg {
+    width: 17px;
+    height: 17px;
+    stroke: currentColor;
+    stroke-width: 2.4;
+    transition: transform 0.15s ease;
+}
+
+.btn-back-mailbox:hover svg {
+    transform: translateX(-3px);
+}
+
+.btn-reading-expand {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-reading-expand svg {
+    width: 14px;
+    height: 14px;
+    stroke: currentColor;
+    stroke-width: 2.2;
+}
+
+.reader-workspace.reading-fullview .pane-folders,
+.reader-workspace.reading-fullview .pane-messages {
+    display: none !important;
+}
+
+.reader-workspace.reading-fullview .pane-reading {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 1 1 100% !important;
+    background: #ffffff;
+}
+
+.reader-workspace.reading-fullview .reading-header {
+    padding: 16px 32px 14px 32px;
+    background: #f8fafc;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.reader-workspace.reading-fullview .reading-subject {
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.reader-workspace.reading-fullview .reading-meta-grid {
+    max-width: 1400px;
+}
+
+.reader-workspace.reading-fullview .reading-attachments-bar {
+    padding: 10px 32px;
+}
+
+.reader-workspace.reading-fullview .reading-body-container {
+    max-width: 1400px;
+    width: 100%;
+    margin: 0 auto;
+}

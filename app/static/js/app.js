@@ -25,6 +25,7 @@
         selectedMessageId: null,
         selectedMessageDetail: null,
         bodyViewMode: "html", // "html" | "plain" | "raw"
+        readingFullView: false,
         pollTimer: null,
     };
 
@@ -108,6 +109,13 @@
             "reader.to": "Para:",
             "reader.date": "Data/Hora:",
             "reader.folder": "Pasta PST:",
+            "reader.back_to_mailbox": "Voltar à Caixa Postal",
+            "reader.back_to_mailbox_title": "Voltar para a lista de e-mails da caixa postal (Esc)",
+            "reader.expand_full": "Tela Cheia",
+            "reader.expand_full_title": "Abrir por completo em tela cheia (ou dê duplo clique na mensagem)",
+            "reader.restore_panes": "Restaurar",
+            "reader.restore_panes_title": "Restaurar visão em 3 painéis (Esc)",
+            "reader.msg_dblclick_hint": "Clique para visualizar à direita ou dê duplo clique para abrir por completo",
             "sort.newest": "Mais recentes",
             "sort.oldest": "Mais antigas",
             "sort.sender": "Remetente (A-Z)",
@@ -238,6 +246,13 @@
             "reader.to": "To:",
             "reader.date": "Date/Time:",
             "reader.folder": "PST Folder:",
+            "reader.back_to_mailbox": "Back to Mailbox",
+            "reader.back_to_mailbox_title": "Return to mailbox email list (Esc)",
+            "reader.expand_full": "Full View",
+            "reader.expand_full_title": "Open full view (or double-click the message)",
+            "reader.restore_panes": "Restore",
+            "reader.restore_panes_title": "Restore 3-pane mailbox view (Esc)",
+            "reader.msg_dblclick_hint": "Click to preview on the right or double-click to open full view",
             "sort.newest": "Newest first",
             "sort.oldest": "Oldest first",
             "sort.sender": "Sender (A-Z)",
@@ -680,6 +695,7 @@
             if (val) el.setAttribute("title", val);
         });
 
+        setReadingFullView(state.readingFullView);
         if (state.user && $("view-home") && !$("view-home").classList.contains("hidden")) {
             loadMyActiveSessions();
         }
@@ -1143,6 +1159,7 @@
     }
 
     async function selectFolder(folderId, page = 1) {
+        setReadingFullView(false);
         state.isSearchMode = false;
         state.selectedFolderId = folderId;
         state.currentPage = page;
@@ -1172,6 +1189,7 @@
     }
 
     async function executeGlobalSearch(page = 1) {
+        setReadingFullView(false);
         if (!state.currentSessionUuid) return;
         state.isSearchMode = true;
         state.currentPage = page;
@@ -1266,17 +1284,55 @@
         listEl.innerHTML = html;
 
         listEl.querySelectorAll("[data-msg-id]").forEach((itemEl) => {
+            itemEl.setAttribute("title", t("reader.msg_dblclick_hint"));
             itemEl.addEventListener("click", () => {
                 const mid = Number(itemEl.getAttribute("data-msg-id"));
-                openMessageDetail(mid);
+                openMessageDetail(mid, false);
+            });
+            itemEl.addEventListener("dblclick", (ev) => {
+                ev.preventDefault();
+                const mid = Number(itemEl.getAttribute("data-msg-id"));
+                openMessageDetail(mid, true);
             });
         });
+    }
+
+
+    function setReadingFullView(enabled) {
+        state.readingFullView = Boolean(enabled);
+        const workspace = document.querySelector(".reader-workspace");
+        const backBtn = $("btn-back-to-mailbox");
+        const labelEl = $("label-toggle-reading-expand");
+        const toggleBtn = $("btn-toggle-reading-expand");
+        const iconExpand = toggleBtn ? toggleBtn.querySelector(".icon-expand") : null;
+        const iconCollapse = toggleBtn ? toggleBtn.querySelector(".icon-collapse") : null;
+
+        if (workspace) {
+            workspace.classList.toggle("reading-fullview", state.readingFullView);
+        }
+        if (backBtn) {
+            backBtn.classList.toggle("hidden", !state.readingFullView);
+        }
+        if (labelEl) {
+            labelEl.textContent = state.readingFullView ? t("reader.restore_panes") : t("reader.expand_full");
+        }
+        if (toggleBtn) {
+            toggleBtn.setAttribute(
+                "title",
+                state.readingFullView ? t("reader.restore_panes_title") : t("reader.expand_full_title")
+            );
+        }
+        if (iconExpand && iconCollapse) {
+            iconExpand.classList.toggle("hidden", state.readingFullView);
+            iconCollapse.classList.toggle("hidden", !state.readingFullView);
+        }
     }
 
     /* ======================================================================
      * PAINEL DE LEITURA DA MENSAGEM (PAINEL DIREITO)
      * ====================================================================== */
     function resetReadingPane() {
+        setReadingFullView(false);
         state.selectedMessageId = null;
         state.selectedMessageDetail = null;
         $("reading-empty-state").classList.remove("hidden");
@@ -1286,9 +1342,12 @@
         $("btn-msg-export-txt").disabled = true;
     }
 
-    async function openMessageDetail(messageId) {
+    async function openMessageDetail(messageId, openFull = false) {
         if (!state.currentSessionUuid) return;
         state.selectedMessageId = messageId;
+        if (openFull) {
+            setReadingFullView(true);
+        }
 
         document.querySelectorAll(".message-item").forEach((el) => {
             el.classList.toggle("active", Number(el.getAttribute("data-msg-id")) === messageId);
@@ -1917,6 +1976,24 @@
             $("search-filters-drawer").classList.add("hidden");
             if (state.selectedFolderId) {
                 selectFolder(state.selectedFolderId, 1);
+            }
+        });
+
+
+        // Leitura Completa / Tela Cheia e Retorno à Caixa Postal
+        if ($("btn-back-to-mailbox")) {
+            $("btn-back-to-mailbox").addEventListener("click", () => {
+                setReadingFullView(false);
+            });
+        }
+        if ($("btn-toggle-reading-expand")) {
+            $("btn-toggle-reading-expand").addEventListener("click", () => {
+                setReadingFullView(!state.readingFullView);
+            });
+        }
+        document.addEventListener("keydown", (ev) => {
+            if (ev.key === "Escape" && state.readingFullView) {
+                setReadingFullView(false);
             }
         });
 
