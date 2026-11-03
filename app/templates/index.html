@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PST Viewer — Leitor Web de Arquivos Outlook (.PST)</title>
+    <link rel="stylesheet" href="/static/css/outlook.css?v=2.3">
+</head>
+
+<body>
+
+    <!-- ==================================================================
+         TELA 1: LOGIN CENTRALIZADO (PST VIEWER WEB)
+         ================================================================== -->
+    <div id="view-login" class="auth-wrapper">
+        <!-- Barra Superior Flutuante de Idioma e Sobre -->
+        <div class="auth-topbar">
+            <div class="auth-topbar-left">
+                <span class="auth-mini-badge">
+                    <svg class="svg-icon" style="width:15px;height:15px;" viewBox="0 0 24 24">
+                        <rect x="2" y="4" width="20" height="16" rx="2" />
+                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                    </svg>
+                    <span>PST Viewer Web</span>
+                </span>
+            </div>
+            <div class="auth-topbar-right">
+                <button type="button" id="btn-login-about-top" class="auth-top-link">
+                    <svg class="svg-icon" style="width:15px;height:15px;" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 16v-4" />
+                        <path d="M12 8h.01" />
+                    </svg>
+                    <span data-i18n="nav.about_system">Sobre o sistema</span>
+                </button>
+                <div class="lang-switcher" role="group" aria-label="Language selector">
+                    <button type="button" class="lang-btn active" data-set-lang="pt" title="Português (Brasil)">
+                        <span class="lang-flag">🇧🇷</span>
+                        <span>PT</span>
+                    </button>
+                    <button type="button" class="lang-btn" data-set-lang="en" title="English">
+                        <span class="lang-flag">🇺🇸</span>
+                        <span>EN</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conteúdo Centralizado de Login -->
+        <main class="auth-centered-wrapper">
+            <div class="auth-center-card">
+                <div class="auth-brand-Hero">
+                    <div class="auth-logo-badge">
+                        <svg class="svg-icon" style="width:34px;height:34px;" viewBox="0 0 24 24">
+                            <rect x="2" y="4" width="20" height="16" rx="2" />
+                            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                        </svg>
+                    </div>
+                    <h1 class="auth-app-name">PST Viewer</h1>
+                    <p class="auth-app-tagline" data-i18n="login.tagline">
+                        Abra, pesquise e leia seus arquivos de e-mail do Outlook com facilidade.
+                    </p>
+                </div>
+
+                <div id="login-alert" class="reading-warning-banner hidden" style="margin-bottom:18px;"></div>
+
+                <form id="form-login" autocomplete="off" onsubmit="return false;" class="auth-login-form">
+                    <div class="form-group">
+                        <label class="form-label" for="login-username" data-i18n="login.username_label">Usuário</label>
+                        <div class="input-with-icon">
+                            <svg class="svg-icon" viewBox="0 0 24 24">
+                                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                                <circle cx="12" cy="7" r="4" />
+                            </svg>
+                            <input type="text" id="login-username" class="form-control" required autofocus
+                                data-i18n-placeholder="login.username_placeholder" placeholder="Digite seu usuário">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:22px;">
+                        <label class="form-label" for="login-password" data-i18n="login.password_label">Senha</label>
+                        <div class="input-with-icon">
+                            <svg class="svg-icon" viewBox="0 0 24 24">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                            </svg>
+                            <input type="password" id="login-password" class="form-control" required
+                                data-i18n-placeholder="login.password_placeholder" placeholder="Digite sua senha">
+                        </div>
+                    </div>
+
+                    <button type="submit" id="btn-login-submit" class="btn btn-primary auth-submit-btn">
+                        <span data-i18n="login.submit_btn">Entrar</span>
+                        <svg class="svg-icon" viewBox="0 0 24 24">
+                            <path d="M5 12h14" />
+                            <path d="m12 5 7 7-7 7" />
+                        </svg>
+                    </button>
+                </form>
+
+                <div class="auth-card-footer">
+                    <span><span data-i18n="login.by">Por</span> <strong>Anderson Gonçalez</strong></span>
+                    <button type="button" id="btn-login-about" class="auth-link-btn" data-i18n="nav.about_system">Sobre
+                        o sistema</button>
+                </div>
+            </div>
+
+            <!-- Destaques simples e elegantes embaixo do cartão -->
+            <div class="auth-benefits-grid">
+                <div class="auth-benefit-card">
+                    <div class="auth-benefit-icon">
+                        <svg class="svg-icon" viewBox="0 0 24 24">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                            <line x1="8" y1="21" x2="16" y2="21" />
+                            <line x1="12" y1="17" x2="12" y2="21" />
+                        </svg>
+                    </div>
+                    <div>
+                        <strong data-i18n="login.feat1_title">100% no Navegador</strong>
+                        <p data-i18n="login.feat1_desc">Consulte seus backups PST sem precisar do Microsoft Outlook
+                            instalado.</p>
+                    </div>
+                </div>
+                <div class="auth-benefit-card">
+                    <div class="auth-benefit-icon">
+                        <svg class="svg-icon" viewBox="0 0 24 24">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <strong data-i18n="login.feat2_title">Arquivo Seguro &amp; Intacto</strong>
+                        <p data-i18n="login.feat2_desc">Seu arquivo original no computador ou na rede nunca sofre
+                            alterações.</p>
+                    </div>
+                </div>
+                <div class="auth-benefit-card">
+                    <div class="auth-benefit-icon">
+                        <svg class="svg-icon" viewBox="0 0 24 24">
+                            <circle cx="11" cy="11" r="8" />
+                            <path d="m21 21-4.3-4.3" />
+                        </svg>
+                    </div>
+                    <div>
+                        <strong data-i18n="login.feat3_title">Busca em Anexos</strong>
+                        <p data-i18n="login.feat3_desc">Pesquisa inteligente de palavras dentro de PDFs, Word e
+                            planilhas.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ==================================================================
+         SHELL AUTENTICADO (BARRA SUPERIOR + ÁREAS DE TRABALHO)
+         ================================================================== -->
+    <div id="app-shell" class="hidden">
+        <header class="topbar">
+            <div class="topbar-left">
+                <div class="topbar-logo" style="cursor:pointer;" id="btn-go-home" data-i18n-title="nav.back_home"
+                    title="Voltar à Central de Consultas">
+                    <svg class="svg-icon svg-icon-lg" viewBox="0 0 24 24">
+                        <rect x="2" y="4" width="20" height="16" rx="2" />
+                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                    </svg>
+                    <span>PST Viewer</span>
+                </div>
+                <span id="topbar-session-label" class="topbar-file-pill hidden"></span>
+                <span id="topbar-indexing-badge" class="badge badge-warning hidden"
+                    data-i18n="nav.indexing">Indexando...</span>
+            </div>
+
+            <!-- Pesquisa Global no PST (Visível quando uma sessão está aberta no leitor) -->
+            <div id="topbar-search-area" class="topbar-center hidden">
+                <div class="search-box-wrap">
+                    <svg class="svg-icon" style="color:#64748b;" viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="8" />
+                        <path d="m21 21-4.3-4.3" />
+                    </svg>
+                    <input type="text" id="global-search-input" class="search-input"
+                        data-i18n-placeholder="search.placeholder"
+                        placeholder="Pesquisar em todo o PST (assunto, corpo, remetente, destinatários e anexos)...">
+                </div>
+                <button type="button" id="btn-search-run" class="btn btn-ghost-top"
+                    data-i18n="search.btn">Pesquisar</button>
+                <button type="button" id="btn-search-filters-toggle" class="btn btn-ghost-top"
+                    data-i18n-title="search.filters_title" title="Filtros avançados de pesquisa">
+                    <svg class="svg-icon" viewBox="0 0 24 24">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+                    </svg>
+                    <span data-i18n="search.filters">Filtros</span>
+                </button>
+                <button type="button" id="btn-search-clear" class="btn btn-ghost-top hidden" data-i18n="search.clear"
+                    title="Limpar pesquisa e voltar à pasta">Limpar</button>
+            </div>
+
+            <div class="topbar-right">
+                <div class="lang-switcher lang-switcher-top" role="group" aria-label="Language selector">
+                    <button type="button" class="lang-btn active" data-set-lang="pt" title="Português (Brasil)">
+                        <span class="lang-flag">🇧🇷</span>
+                        <span>PT</span>
+                    </button>
+                    <button type="button" class="lang-btn" data-set-lang="en" title="English">
+                        <span class="lang-flag">🇺🇸</span>
+                        <span>EN</span>
+                    </button>
+                </div>
+                <span id="topbar-user-info" style="font-size:12.5px;opacity:0.92;margin-right:4px;"></span>
+                <button type="button" id="btn-change-password" class="btn btn-ghost-top"
+                    data-i18n-title="nav.change_pw_title" title="Alterar sua senha de acesso">
+                    <svg class="svg-icon" viewBox="0 0 24 24">
+                        <path
+                            d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
+                    </svg>
+                    <span data-i18n="nav.change_pw">Alterar Senha</span>
+                </button>
+                <button type="button" id="btn-open-about" class="btn btn-ghost-top" title="Sobre o PST Viewer">
+                    <svg class="svg-icon" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 16v-4" />
+                        <path d="M12 8h.01" />
+                    </svg>
+                    <span data-i18n="nav.about">Sobre</span>
+                </button>
+                <button type="button" id="btn-open-admin" class="btn btn-ghost-top hidden">
+                    <svg class="svg-icon" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="3" />
+                        <path
+                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                    </svg>
+                    <span data-i18n="nav.admin">Administração</span>
+                </button>
+                <button type="button" id="btn-close-session" class="btn btn-danger-top hidden"
+                    data-i18n-title="nav.close_session_title"
+                    title="Fechar a visualização atual no leitor web (seu arquivo .pst original permanece intacto no seu PC)">
+                    <svg class="svg-icon" viewBox="0 0 24 24">
+                        <path d="M18 6 6 18" />
+                        <path d="m6 6 12 12" />
+                    </svg>
+                    <span data-i18n="nav.close_session">Fechar Consulta</span>
+                </button>
+                <button type="button" id="btn-logout" class="btn btn-ghost-top" data-i18n-title="nav.logout_title"
+                    title="Sair do sistema">
+                    <svg class="svg-icon" viewBox="0 0 24 24">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                        <polyline points="16 17 21 12 16 7" />
+                        <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
+                    <span data-i18n="nav.logout">Sair</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- ==============================================================
+             TELA 2 E 3: CENTRAL DE INÍCIO E ABERTURA DE ARQUIVOS PST
+             ============================================================== -->
+        <main id="view-home" class="home-container hidden" style="max-width:860px;">
+            <div>
+                <div class="card-panel">
+                    <div class="card-header-row">
+                        <h2 class="card-heading">
+                            <svg class="svg-icon" style="color:var(--brand-primary);" viewBox="0 0 24 24">
+                                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                            </svg>
+                            <span data-i18n="home.open_title">Abrir Arquivo de E-mails (.PST)</span>
+                        </h2>
+                    </div>
+
+                    <div class="upload-dropzone" id="upload-dropzone">
+                        <div class="upload-icon-circle">
+                            <svg class="svg-icon svg-icon-lg" viewBox="0 0 24 24">
+                                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                                <line x1="12" y1="11" x2="12" y2="17" />
+                                <polyline points="9 14 12 11 15 14" />
+                            </svg>
+                        </div>
+                        <div style="font-weight:700;font-size:16px;color:#0f172a;margin-bottom:6px;"
+                            data-i18n="home.drop_heading">
+                            Escolha um arquivo do Outlook (.pst) no seu computador
+                        </div>
+                        <div style="font-size:13.5px;color:#64748b;max-width:480px;margin:0 auto 20px auto;line-height:1.5;"
+                            data-i18n="home.drop_sub">
+                            Visualize suas pastas, leia suas mensagens, pesquise por palavras e abra seus anexos
+                            diretamente no navegador.
+                        </div>
+                        <input type="file" id="input-pst-file" accept=".pst" class="hidden">
+                        <button type="button" id="btn-choose-pst" class="btn btn-primary"
+                            style="padding:11px 26px;font-size:14px;border-radius:8px;">
+                            <svg class="svg-icon" viewBox="0 0 24 24">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                <polyline points="14 2 14 8 20 8" />
+                            </svg>
+                            <span data-i18n="home.choose_btn">Escolher Arquivo .PST</span>
+                        </button>
+                    </div>
+
+                    <div class="assurance-strip">
+                        <svg class="svg-icon" style="color:#166534;margin-top:1px;" viewBox="0 0 24 24">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                            <polyline points="22 4 12 14.01 9 11.01" />
+                        </svg>
+                        <div data-i18n="home.assurance">
+                            <strong>Fique tranquilo:</strong> O arquivo original salvo no seu computador ou na rede
+                            <strong>não sofre nenhuma alteração</strong>.
+                        </div>
+                    </div>
+
+                    <!-- Progresso do Envio HTTP -->
+                    <div id="upload-progress-box" class="hidden" style="margin-top:16px;">
+                        <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;">
+                            <span id="upload-status-text">Carregando arquivo...</span>
+                            <span id="upload-percent-text">0%</span>
+                        </div>
+                        <div class="progress-bar-outer">
+                            <div id="upload-progress-bar" class="progress-bar-inner"></div>
+                        </div>
+                    </div>
+                    <div id="upload-error-box" class="reading-warning-banner hidden"></div>
+                </div>
+
+                <!-- Sessões Temporárias Ativas do Próprio Usuário -->
+                <div class="card-panel" style="margin-bottom:0;">
+                    <div class="card-header-row">
+                        <h3 class="card-heading">
+                            <svg class="svg-icon" style="color:var(--brand-primary);" viewBox="0 0 24 24">
+                                <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                                <line x1="8" y1="21" x2="16" y2="21" />
+                                <line x1="12" y1="17" x2="12" y2="21" />
+                            </svg>
+                            <span data-i18n="home.active_files">Arquivos Abertos</span>
+                        </h3>
+                        <button type="button" id="btn-refresh-sessions" class="btn btn-outline btn-sm">
+                            <svg class="svg-icon" viewBox="0 0 24 24">
+                                <polyline points="23 4 23 10 17 10" />
+                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+                            </svg>
+                            <span data-i18n="home.refresh">Atualizar</span>
+                        </button>
+                    </div>
+                    <div id="home-sessions-list"></div>
+                </div>
+            </div>
+        </main>
+
+        <!-- ==============================================================
+             TELA 4: PROGRESSO DO PROCESSAMENTO E ABERTURA PROGRESSIVA
+             ============================================================== -->
+        <main id="view-processing" class="home-container hidden">
+            <div class="card-panel" style="max-width:860px;margin:20px auto;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                        <h2 style="margin:0 0 4px 0;font-size:19px;" id="proc-title" data-i18n="proc.title">Processando
+                            arquivo PST...</h2>
+                        <div style="font-size:13px;color:var(--text-secondary);" id="proc-stage" data-i18n="proc.stage">
+                            Iniciando validação...
+                        </div>
+                    </div>
+                    <span id="proc-status-badge" class="badge badge-info">PROCESSANDO</span>
+                </div>
+
+                <div class="progress-bar-outer" style="height:14px;margin:18px 0 8px 0;">
+                    <div id="proc-progress-bar" class="progress-bar-inner"></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:12.5px;color:var(--text-secondary);">
+                    <span id="proc-format-hash"></span>
+                    <strong id="proc-percent-label">0%</strong>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label" data-i18n="proc.folders">Pastas Mapeadas</div>
+                        <div class="stat-value" id="proc-stat-folders">0 / 0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label" data-i18n="proc.messages">Mensagens Extraídas</div>
+                        <div class="stat-value" id="proc-stat-messages">0 / 0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label" data-i18n="proc.attachments">Anexos Processados</div>
+                        <div class="stat-value" id="proc-stat-attachments">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label" data-i18n="proc.corrupted">Itens Corrompidos / Avisos</div>
+                        <div class="stat-value" id="proc-stat-corrupted">0</div>
+                    </div>
+                </div>
+
+                <div
+                    style="margin-top:20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+                    <div style="font-size:12.5px;color:var(--text-secondary);" id="proc-progressive-hint"
+                        data-i18n="proc.hint">
+                        Aguardando indexação inicial das pastas para liberar o leitor...
+                    </div>
+                    <div style="display:flex;gap:8px;">
+                        <button type="button" id="btn-proc-diagnostics" class="btn btn-outline"
+                            data-i18n="proc.diagnostics">Ver Diagnóstico</button>
+                        <button type="button" id="btn-proc-cancel" class="btn btn-danger"
+                            data-i18n="proc.cancel">Cancelar Leitura</button>
+                        <button type="button" id="btn-proc-open-reader" class="btn btn-primary hidden">
+                            <span data-i18n="proc.open_reader">Abrir Leitor de E-mails</span>
+                            <svg class="svg-icon" viewBox="0 0 24 24">
+                                <path d="M5 12h14" />
+                                <path d="m12 5 7 7-7 7" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- ==============================================================
+             TELA 6, 8 E 9: LEITOR DE E-MAILS SEMELHANTE AO OUTLOOK
+             ============================================================== -->
+        <section id="view-reader" class="hidden">
+            <!-- Gaveta de Filtros Avançados de Pesquisa Global -->
+            <div id="search-filters-drawer" class="search-filters-drawer hidden">
+                <div class="filters-grid">
+                    <div>
+                        <label class="form-label" data-i18n="filter.sender">Remetente</label>
+                        <input type="text" id="filter-sender" class="form-control"
+                            data-i18n-placeholder="filter.name_email" placeholder="Nome ou e-mail">
+                    </div>
+                    <div>
+                        <label class="form-label" data-i18n="filter.recipient">Destinatário (Para/CC/CCO)</label>
+                        <input type="text" id="filter-recipient" class="form-control"
+                            data-i18n-placeholder="filter.name_email" placeholder="Nome ou e-mail">
+                    </div>
+                    <div>
+                        <label class="form-label" data-i18n="filter.folder">Pasta</label>
+                        <select id="filter-folder" class="form-control">
+                            <option value="" data-i18n="filter.all_folders">Todas as pastas do PST</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label" data-i18n="filter.date_from">Período (De)</label>
+                        <input type="date" id="filter-date-from" class="form-control">
+                    </div>
+                    <div>
+                        <label class="form-label" data-i18n="filter.date_to">Período (Até)</label>
+                        <input type="date" id="filter-date-to" class="form-control">
+                    </div>
+                    <div>
+                        <label class="form-label" data-i18n="filter.attachments">Presença de Anexos</label>
+                        <select id="filter-has-attachments" class="form-control">
+                            <option value="" data-i18n="filter.all_msgs">Todas as mensagens</option>
+                            <option value="true" data-i18n="filter.with_att">Somente com anexos</option>
+                            <option value="false" data-i18n="filter.without_att">Sem anexos</option>
+                        </select>
+                    </div>
+                    <div style="display:flex;gap:6px;">
+                        <button type="button" id="btn-apply-filters" class="btn btn-primary" style="flex:1;"
+                            data-i18n="filter.apply">Aplicar</button>
+                        <button type="button" id="btn-reset-filters" class="btn btn-outline"
+                            data-i18n="search.clear">Limpar</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Barra de Ferramentas do Leitor -->
+            <div class="reader-toolbar">
+                <div class="reader-toolbar-group">
+                    <button type="button" id="btn-toggle-folders-pane" class="btn btn-outline btn-sm"
+                        title="Mostrar/Ocultar painel de pastas">
+                        <svg class="svg-icon" viewBox="0 0 24 24">
+                            <line x1="3" y1="12" x2="21" y2="12" />
+                            <line x1="3" y1="6" x2="21" y2="6" />
+                            <line x1="3" y1="18" x2="21" y2="18" />
+                        </svg>
+                        <span data-i18n="reader.folders">Pastas</span>
+                    </button>
+                    <button type="button" id="btn-reader-diagnostics" class="btn btn-outline btn-sm"
+                        title="Ver diagnóstico técnico do arquivo PST">
+                        <svg class="svg-icon" viewBox="0 0 24 24">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                        </svg>
+                        <span data-i18n="reader.diagnostics">Diagnóstico do PST</span>
+                    </button>
+                    <span id="reader-partial-notice" class="badge badge-warning hidden"
+                        data-i18n="reader.partial_notice">
+                        Indexação em andamento: novas mensagens podem surgir
+                    </span>
+                </div>
+
+                <div class="reader-toolbar-group">
+                    <button type="button" id="btn-msg-print" class="btn btn-outline btn-sm" disabled
+                        title="Imprimir mensagem selecionada (papel A4)">
+                        <svg class="svg-icon" viewBox="0 0 24 24">
+                            <polyline points="6 9 6 2 18 2 18 9" />
+                            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                            <rect x="6" y="14" width="12" height="8" />
+                        </svg>
+                        <span data-i18n="reader.print">Imprimir E-mail</span>
+                    </button>
+                    <button type="button" id="btn-msg-export-eml" class="btn btn-outline btn-sm" disabled
+                        title="Baixar mensagem selecionada como arquivo .eml (RFC 5322)">
+                        <svg class="svg-icon" viewBox="0 0 24 24">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="7 10 12 15 17 10" />
+                            <line x1="12" y1="15" x2="12" y2="3" />
+                        </svg>
+                        <span data-i18n="reader.save_eml">Salvar EML</span>
+                    </button>
+                    <button type="button" id="btn-msg-export-txt" class="btn btn-outline btn-sm" disabled
+                        title="Baixar mensagem selecionada em formato .txt">
+                        <svg class="svg-icon" viewBox="0 0 24 24">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <polyline points="14 2 14 8 20 8" />
+                            <line x1="16" y1="13" x2="8" y2="13" />
+                            <line x1="16" y1="17" x2="8" y2="17" />
+                        </svg>
+                        <span data-i18n="reader.export_txt">Exportar TXT</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Workspace de 3 Colunas estilo Microsoft Outlook -->
+            <div class="reader-workspace">
+                <!-- Coluna 1: Árvore de Pastas do PST -->
+                <aside id="pane-folders" class="pane-folders">
+                    <div class="pane-folders-header">
+                        <span data-i18n="reader.folders_pane_title">Pastas do Arquivo PST</span>
+                        <button type="button" id="btn-reload-folders" class="btn btn-outline btn-sm"
+                            style="padding:2px 6px;" title="Atualizar árvore de pastas">↻</button>
+                    </div>
+                    <div id="folder-tree-container"></div>
+                </aside>
+
+                <!-- Coluna 2: Lista Paginada de Mensagens (150 por página) -->
+                <section class="pane-messages">
+                    <div class="pane-messages-header">
+                        <span class="pane-messages-title" id="msg-list-title"
+                            data-i18n="reader.messages">Mensagens</span>
+                        <select id="msg-sort-select" class="form-control"
+                            style="width:auto;padding:3px 8px;font-size:12px;">
+                            <option value="date_desc" data-i18n="sort.newest">Mais recentes</option>
+                            <option value="date_asc" data-i18n="sort.oldest">Mais antigas</option>
+                            <option value="sender_asc" data-i18n="sort.sender">Remetente (A-Z)</option>
+                            <option value="subject_asc" data-i18n="sort.subject">Assunto (A-Z)</option>
+                            <option value="size_desc" data-i18n="sort.size">Maior tamanho</option>
+                        </select>
+                    </div>
+                    <div id="message-list-scroll" class="message-list-scroll"></div>
+                    <div class="pane-messages-footer">
+                        <button type="button" id="btn-page-prev" class="btn btn-outline btn-sm" disabled
+                            data-i18n="reader.prev_page">◀
+                            Anterior</button>
+                        <span id="msg-page-info">Página 1 de 1</span>
+                        <button type="button" id="btn-page-next" class="btn btn-outline btn-sm" disabled
+                            data-i18n="reader.next_page">Próxima
+                            ▶</button>
+                    </div>
+                </section>
+
+                <!-- Coluna 3: Painel de Leitura da Mensagem -->
+                <section class="pane-reading">
+                    <div id="reading-empty-state" class="reading-empty">
+                        <div style="text-align:center;">
+                            <div style="margin-bottom:10px;color:#94a3b8;">
+                                <svg class="svg-icon" style="width:42px;height:42px;" viewBox="0 0 24 24">
+                                    <rect x="2" y="4" width="20" height="16" rx="2" />
+                                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                                </svg>
+                            </div>
+                            <div style="font-weight:600;color:var(--text-secondary);" data-i18n="reader.empty_title">
+                                Selecione uma mensagem na lista
+                                para ler seu conteúdo</div>
+                            <div style="font-size:12px;margin-top:4px;" data-i18n="reader.empty_sub">Os anexos,
+                                cabeçalhos e opções de impressão
+                                aparecerão neste painel.</div>
+                        </div>
+                    </div>
+
+                    <div id="reading-content-wrap" class="hidden"
+                        style="display:flex;flex-direction:column;height:100%;overflow:hidden;">
+                        <div class="reading-header">
+                            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
+                                <h2 class="reading-subject" id="read-subject"></h2>
+                                <div style="display:flex;gap:4px;flex-shrink:0;">
+                                    <button type="button" id="btn-view-mode-html" class="btn btn-outline btn-sm"
+                                        data-i18n="reader.mode_html">Formatado</button>
+                                    <button type="button" id="btn-view-mode-plain" class="btn btn-outline btn-sm"
+                                        data-i18n="reader.mode_plain">Texto</button>
+                                    <button type="button" id="btn-view-mode-raw" class="btn btn-outline btn-sm"
+                                        title="Ver cabeçalhos de transporte RFC 5322"
+                                        data-i18n="reader.mode_headers">Cabeçalhos</button>
+                                </div>
+                            </div>
+
+                            <div class="reading-meta-grid">
+                                <div class="reading-meta-label" data-i18n="reader.from">De:</div>
+                                <div class="reading-meta-value" id="read-from"></div>
+
+                                <div class="reading-meta-label" data-i18n="reader.to">Para:</div>
+                                <div class="reading-meta-value" id="read-to"></div>
+
+                                <div class="reading-meta-label hidden" id="read-cc-label">CC:</div>
+                                <div class="reading-meta-value hidden" id="read-cc"></div>
+
+                                <div class="reading-meta-label hidden" id="read-bcc-label">CCO:</div>
+                                <div class="reading-meta-value hidden" id="read-bcc"></div>
+
+                                <div class="reading-meta-label" data-i18n="reader.date">Data/Hora:</div>
+                                <div class="reading-meta-value" id="read-date"></div>
+
+                                <div class="reading-meta-label" data-i18n="reader.folder">Pasta PST:</div>
+                                <div class="reading-meta-value" id="read-folder"></div>
+                            </div>
+
+                            <div id="read-warnings-banner" class="reading-warning-banner hidden"></div>
+                        </div>
+
+                        <!-- Barra de Anexos da Mensagem -->
+                        <div id="read-attachments-bar" class="reading-attachments-bar hidden"></div>
+
+                        <!-- Corpo da Mensagem (Iframe para HTML ou Pre para Texto/Original) -->
+                        <div class="reading-body-container">
+                            <iframe id="read-body-iframe" class="reading-iframe hidden"
+                                sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
+                            <pre id="read-body-plain" class="reading-plain-pre hidden"></pre>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </section>
+    </div>
+
+    <!-- ==================================================================
+         TELA 5: MODAL DE DIAGNÓSTICO DO ARQUIVO PST
+         ================================================================== -->
+    <div id="modal-diagnostics" class="modal-backdrop hidden">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 class="modal-title" data-i18n="diag.title">Diagnóstico Técnico do Arquivo PST</h3>
+                <button type="button" class="btn btn-outline btn-sm" data-close-modal="modal-diagnostics"
+                    data-i18n="common.close_x">Fechar
+                    ✕</button>
+            </div>
+            <div class="modal-body" id="modal-diagnostics-body"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-close-modal="modal-diagnostics"
+                    data-i18n="common.got_it">Entendi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================================================================
+         TELA 7: MODAL DE VISUALIZAÇÃO E METADADOS DE ANEXO
+         ================================================================== -->
+    <div id="modal-attachment" class="modal-backdrop hidden">
+        <div class="modal-dialog" style="max-width:940px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="att-modal-title" data-i18n="att.title">Visualizar Anexo</h3>
+                <button type="button" class="btn btn-outline btn-sm" data-close-modal="modal-attachment"
+                    data-i18n="common.close_x">Fechar
+                    ✕</button>
+            </div>
+            <div class="modal-body" id="att-modal-body"></div>
+            <div class="modal-footer">
+                <button type="button" id="btn-att-modal-print" class="btn btn-outline">
+                    <svg class="svg-icon" viewBox="0 0 24 24">
+                        <polyline points="6 9 6 2 18 2 18 9" />
+                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                        <rect x="6" y="14" width="12" height="8" />
+                    </svg>
+                    <span data-i18n="att.print">Imprimir Anexo</span>
+                </button>
+                <a id="btn-att-modal-download" href="#" class="btn btn-primary" download>
+                    <svg class="svg-icon" viewBox="0 0 24 24">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    <span data-i18n="att.download">Baixar Anexo</span>
+                </a>
+                <button type="button" class="btn btn-outline" data-close-modal="modal-attachment"
+                    data-i18n="common.close">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================================================================
+         TELAS 12, 13, 14 E 15: MODAL DE ADMINISTRAÇÃO DO SISTEMA
+         ================================================================== -->
+    <div id="modal-admin" class="modal-backdrop hidden">
+        <div class="modal-dialog" style="max-width:1020px;">
+            <div class="modal-header">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <h3 class="modal-title" data-i18n="admin.title">Administração do PST Viewer</h3>
+                    <div style="display:flex;gap:6px;">
+                        <button type="button" class="btn btn-outline btn-sm admin-tab-btn" data-tab="sessions"
+                            data-i18n="admin.tab_sessions">Sessões
+                            &amp; Limpeza</button>
+                        <button type="button" class="btn btn-outline btn-sm admin-tab-btn" data-tab="users"
+                            data-i18n="admin.tab_users">Usuários</button>
+                        <button type="button" class="btn btn-outline btn-sm admin-tab-btn" data-tab="settings"
+                            data-i18n="admin.tab_settings">Configurações &amp; Limites</button>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-outline btn-sm" data-close-modal="modal-admin"
+                    data-i18n="common.close_x">Fechar ✕</button>
+            </div>
+            <div class="modal-body" id="admin-modal-body"></div>
+        </div>
+    </div>
+
+    <!-- ==================================================================
+         MODAL EXECUTIVO PREMIUM: SOBRE O SISTEMA (MULTI-ABAS E INTERATIVO)
+         ================================================================== -->
+    <div id="modal-about" class="modal-backdrop hidden">
+        <div class="modal-dialog about-modal-dialog">
+            <!-- Cabeçalho Hero Elegante -->
+            <div class="about-hero-banner">
+                <button type="button" class="about-close-top" data-close-modal="modal-about" title="Close">✕</button>
+                <div class="about-hero-content">
+                    <div class="about-hero-icon">
+                        <svg class="svg-icon" style="width:32px;height:32px;" viewBox="0 0 24 24">
+                            <rect x="2" y="4" width="20" height="16" rx="2" />
+                            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="about-hero-badges">
+                            <span class="about-version-pill">PST Viewer • Global Edition</span>
+                            <span class="about-Zero-pill" data-i18n="about.badge_safe">100% Seguro &amp; Web</span>
+                        </div>
+                        <h3 class="about-hero-title">PST Viewer</h3>
+                        <p class="about-hero-subtitle" data-i18n="about.hero_sub">
+                            Plataforma moderna para abertura, pesquisa rápida e leitura de arquivos de e-mail do
+                            Microsoft Outlook (.pst)
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Abas Interativas do Modal Sobre -->
+                <div class="about-tabs-bar">
+                    <button type="button" class="about-tab-btn active" data-about-tab="story">
+                        <svg class="svg-icon" style="width:15px;height:15px;" viewBox="0 0 24 24">
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                        </svg>
+                        <span data-i18n="about.tab_story">Propósito &amp; Como Funciona</span>
+                    </button>
+                    <button type="button" class="about-tab-btn" data-about-tab="privacy">
+                        <svg class="svg-icon" style="width:15px;height:15px;" viewBox="0 0 24 24">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        </svg>
+                        <span data-i18n="about.tab_privacy">Preservação dos Seus Arquivos</span>
+                    </button>
+                    <button type="button" class="about-tab-btn" data-about-tab="author">
+                        <svg class="svg-icon" style="width:15px;height:15px;" viewBox="0 0 24 24">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                            <circle cx="12" cy="7" r="4" />
+                        </svg>
+                        <span data-i18n="about.tab_author">Autoria &amp; Recursos</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="modal-body about-modal-body">
+                <!-- ABA 1: PROPÓSITO & COMO FUNCIONA -->
+                <div class="about-tab-pane active" id="about-pane-story">
+                    <div class="about-story-card">
+                        <div class="about-story-quote" data-i18n="about.story_title">
+                            Por que o PST Viewer foi criado?
+                        </div>
+                        <p class="about-story-text" data-i18n="about.story_p1">
+                            O <strong>PST Viewer</strong> nasceu da necessidade prática de consultar arquivos de backup
+                            do Microsoft Outlook (<code>.pst</code>) dos departamentos de forma rápida e sem
+                            complicação.
+                        </p>
+                        <p class="about-story-text" data-i18n="about.story_p2">
+                            Após os backups periódicos de e-mail para liberar espaço nos servidores principais,
+                            localizar uma mensagem ou contrato antigo dentro de arquivos <code>.pst</code> exigia
+                            configurações pesadas no computador ou licenças caras de softwares pagos. Com esta
+                            plataforma, basta abrir o navegador para ler, pesquisar e imprimir qualquer e-mail em
+                            segundos.
+                        </p>
+                    </div>
+
+                    <h4 class="about-section-heading" data-i18n="about.steps_heading">Como usar em 3 passos simples</h4>
+                    <div class="about-steps-grid">
+                        <div class="about-step-card">
+                            <div class="about-step-num">1</div>
+                            <div class="about-step-title" data-i18n="about.step1_title">Escolha seu arquivo .PST</div>
+                            <div class="about-step-desc" data-i18n="about.step1_desc">
+                                Selecione o arquivo no seu computador ou na pasta da rede. Apenas as pastas reais do seu
+                                backup são exibidas, sem pastas vazias desnecessárias.
+                            </div>
+                        </div>
+                        <div class="about-step-card">
+                            <div class="about-step-num">2</div>
+                            <div class="about-step-title" data-i18n="about.step2_title">Pesquise e Leia no Navegador
+                            </div>
+                            <div class="about-step-desc" data-i18n="about.step2_desc">
+                                Navegue no visual do Outlook 365, pesquise por palavras (inclusive dentro de anexos PDF,
+                                Word e Excel) e imprima ou salve o que precisar.
+                            </div>
+                        </div>
+                        <div class="about-step-card">
+                            <div class="about-step-num">3</div>
+                            <div class="about-step-title" data-i18n="about.step3_title">Feche com Tranquilidade</div>
+                            <div class="about-step-desc" data-i18n="about.step3_desc">
+                                Ao encerrar a consulta, a leitura temporária na web é limpa automaticamente e seu
+                                arquivo original permanece 100% intacto onde sempre esteve.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ABA 2: PRESERVAÇÃO DOS SEUS ARQUIVOS -->
+                <div class="about-tab-pane hidden" id="about-pane-privacy">
+                    <div class="about-privacy-grid">
+                        <div class="about-privacy-card safe-pc">
+                            <div class="about-privacy-icon">💻</div>
+                            <h4 data-i18n="about.pc_title">No seu Computador ou Pasta da Rede</h4>
+                            <ul>
+                                <li data-i18n="about.pc_1"><strong>Seu arquivo .pst original NUNCA é alterado:</strong>
+                                    O arquivo que você escolheu continua 100% salvo e intacto no seu computador ou
+                                    servidor de arquivos.</li>
+                                <li data-i18n="about.pc_2"><strong>Zero instalação no cliente:</strong> Não precisa ter
+                                    o Microsoft Outlook instalado para abrir seus backups.</li>
+                                <li data-i18n="about.pc_3"><strong>Sem arquivos espalhados:</strong> Nada fica salvo na
+                                    máquina, a menos que você clique em <em>Baixar</em>.</li>
+                            </ul>
+                        </div>
+
+                        <div class="about-privacy-card safe-srv">
+                            <div class="about-privacy-icon">🛡️</div>
+                            <h4 data-i18n="about.srv_title">Na Sala de Leitura Temporária</h4>
+                            <ul>
+                                <li data-i18n="about.srv_1"><strong>Ambiente exclusivo por usuário:</strong> Cada sessão
+                                    é isolada para que apenas você veja o arquivo que abriu.</li>
+                                <li data-i18n="about.srv_2"><strong>Limpeza imediata ao fechar:</strong> Ao clicar em
+                                    <em>Fechar Consulta</em> ou <em>Sair</em>, a visualização temporária aberta no
+                                    servidor é descartada na hora.</li>
+                                <li data-i18n="about.srv_3"><strong>Descarte por inatividade:</strong> Se você esquecer
+                                    a aba aberta, o sistema limpa a visualização temporária sozinho.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ABA 3: AUTORIA & RECURSOS -->
+                <div class="about-tab-pane hidden" id="about-pane-author">
+                    <div class="about-author-card">
+                        <div class="about-author-avatar">AG</div>
+                        <div class="about-author-info">
+                            <div class="about-author-label" data-i18n="about.created_by">Idealizado e Desenvolvido por
+                            </div>
+                            <div class="about-author-name">Anderson Gonçalez</div>
+                            <div class="about-author-role" data-i18n="about.author_dept">Tecnologia da Informação</div>
+                        </div>
+                    </div>
+
+                    <h4 class="about-section-heading" data-i18n="about.features_heading">Diferenciais da Plataforma</h4>
+                    <div class="about-pillars-grid">
+                        <div class="about-pillar-item">
+                            <strong>📂 <span data-i18n="about.feat1_t">Árvore Limpa e Inteligente</span></strong>
+                            <span data-i18n="about.feat1_d">Filtra pastas vazias do sistema e foca exatamente nas pastas
+                                do seu backup.</span>
+                        </div>
+                        <div class="about-pillar-item">
+                            <strong>🔍 <span data-i18n="about.feat2_t">Busca dentro de Anexos</span></strong>
+                            <span data-i18n="about.feat2_d">Encontra termos tanto no corpo do e-mail quanto dentro de
+                                PDFs, Word e Excel.</span>
+                        </div>
+                        <div class="about-pillar-item">
+                            <strong>🌍 <span data-i18n="about.feat3_t">Bilíngue Interativo (PT / EN)</span></strong>
+                            <span data-i18n="about.feat3_d">Interface e instaladores prontos para uso em Português e
+                                Inglês com 1 clique.</span>
+                        </div>
+                        <div class="about-pillar-item">
+                            <strong>🖨️ <span data-i18n="about.feat4_t">Impressão A4 e Exportação EML</span></strong>
+                            <span data-i18n="about.feat4_d">Gera folha de impressão limpa ou exporta mensagens
+                                individuais no padrão universal.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer about-modal-footer">
+                <div class="about-footer-left">
+                    <span>PST Viewer</span> • <span data-i18n="login.by">Por</span> <strong>Anderson Gonçalez</strong>
+                </div>
+                <button type="button" class="btn btn-primary" data-close-modal="modal-about"
+                    data-i18n="common.close">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js?v=2.3"></script>
+</body>
+
+</html>

@@ -1,0 +1,100 @@
+services:
+  db:
+    image: mariadb:11.4
+    container_name: pstviewer-db
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: ${PSTVIEWER_DB_PASSWORD:-pstviewer_secret_db}
+      MARIADB_DATABASE: pstviewer
+      MARIADB_USER: pstviewer_app
+      MARIADB_PASSWORD: ${PSTVIEWER_DB_PASSWORD:-pstviewer_secret_db}
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - pstviewer_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build: .
+    container_name: pstviewer-web
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8085:8085"
+    environment:
+      PSTVIEWER_ENV: production
+      PSTVIEWER_BIND_HOST: 0.0.0.0
+      PSTVIEWER_BIND_PORT: 8085
+      PSTVIEWER_DB_HOST: db
+      PSTVIEWER_DB_PORT: 3306
+      PSTVIEWER_DB_NAME: pstviewer
+      PSTVIEWER_DB_USER: pstviewer_app
+      PSTVIEWER_DB_PASSWORD: ${PSTVIEWER_DB_PASSWORD:-pstviewer_secret_db}
+      PSTVIEWER_SECRET_KEY: ${PSTVIEWER_SECRET_KEY:-9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c1b0a9f8e}
+      PSTVIEWER_COOKIE_SECURE: "false"
+    volumes:
+      - pstviewer_sessions:/srv/pstviewer/sessions
+      - pstviewer_quarantine:/srv/pstviewer/quarantine
+      - pstviewer_logs:/var/log/pstviewer
+    command: >
+      bash -c "
+        /opt/pstviewer/venv/bin/python -m app.database.migrations &&
+        /opt/pstviewer/venv/bin/python /opt/pstviewer/scripts/create_admin.py --username admin --if-not-exists &&
+        /opt/pstviewer/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8085 --workers 2
+      "
+
+  worker:
+    build: .
+    container_name: pstviewer-worker
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PSTVIEWER_ENV: production
+      PSTVIEWER_DB_HOST: db
+      PSTVIEWER_DB_PORT: 3306
+      PSTVIEWER_DB_NAME: pstviewer
+      PSTVIEWER_DB_USER: pstviewer_app
+      PSTVIEWER_DB_PASSWORD: ${PSTVIEWER_DB_PASSWORD:-pstviewer_secret_db}
+      PSTVIEWER_SECRET_KEY: ${PSTVIEWER_SECRET_KEY:-9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c1b0a9f8e}
+    volumes:
+      - pstviewer_sessions:/srv/pstviewer/sessions
+      - pstviewer_quarantine:/srv/pstviewer/quarantine
+      - pstviewer_logs:/var/log/pstviewer
+    command: /opt/pstviewer/venv/bin/python -m app.workers.pst_worker --poll-interval 2.0
+
+  cleaner:
+    build: .
+    container_name: pstviewer-cleaner
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PSTVIEWER_ENV: production
+      PSTVIEWER_DB_HOST: db
+      PSTVIEWER_DB_PORT: 3306
+      PSTVIEWER_DB_NAME: pstviewer
+      PSTVIEWER_DB_USER: pstviewer_app
+      PSTVIEWER_DB_PASSWORD: ${PSTVIEWER_DB_PASSWORD:-pstviewer_secret_db}
+      PSTVIEWER_SECRET_KEY: ${PSTVIEWER_SECRET_KEY:-9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c1b0a9f8e}
+    volumes:
+      - pstviewer_sessions:/srv/pstviewer/sessions
+      - pstviewer_quarantine:/srv/pstviewer/quarantine
+      - pstviewer_logs:/var/log/pstviewer
+    command: /opt/pstviewer/venv/bin/python -m app.workers.cleaner_daemon --interval 60
+
+volumes:
+  pstviewer_db_data:
+  pstviewer_sessions:
+  pstviewer_quarantine:
+  pstviewer_logs:
+

@@ -1,0 +1,32 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Environment variables and secrets
+.env
+config/pstviewer.env
+
+# Local runtime storage, temporary PST files, attachments and logs
+storage/
+sessions/
+quarantine/
+jobs/
+logs/
+*.pst
+*.ost
+*.part
+*.log
+
+# IDE & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
