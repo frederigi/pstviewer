@@ -238,6 +238,30 @@ Você pode dar **duplo clique** no arquivo `install_windows_xampp.bat` na pasta 
 
 ## 🏗️ Arquitetura e Fluxo de Dados
 
+### 💡 Entendendo de Forma Fácil (A Analogia da "Sala de Leitura de Cofre")
+
+Para entender o funcionamento sem termos técnicos complicados, imagine o **PST Viewer** como uma **sala de leitura de cofre**:
+
+Você chega com um arquivo fechado e pesado (o seu backup `.pst`). O sistema abre o arquivo temporariamente em uma mesa protegida, monta um índice organizado para você folhear pelo navegador e, **assim que você clica em "Sair", ele tritura a cópia temporária e deixa a sala 100% limpa.** O seu arquivo original no seu computador nunca é alterado.
+
+#### 👥 Os 4 "Atores" do Sistema:
+
+1. **🌐 O Visitante (Seu Navegador):** A interface visual moderna estilo Outlook Web. É onde você clica nas pastas (*Caixa de Entrada*, *Itens Enviados*), navega na lista de mensagens e lê o conteúdo.
+2. **⚙️ O Recepcionista (Servidor Web / FastAPI):** Recebe o arquivo que você enviou, valida se é mesmo um arquivo legítimo do Outlook e atende quando você clica em uma mensagem ou faz uma pesquisa.
+3. **🏭 O Operário nos Bastidores (Worker Daemon):** Trabalha em segundo plano. Ele abre o arquivo PST pesado, lê as mensagens, extrai o texto de dentro de anexos (PDFs, Word, Excel) e salva tudo de forma organizada no banco de dados.
+4. **🧹 O Faxineiro (Cleaner Daemon):** Vigia o relógio a cada 60 segundos. Se você clicar em **Sair** ou a sessão ficar inativa por muito tempo, ele apaga imediatamente todas as mensagens temporárias do banco e remove a cópia do disco.
+
+#### 🔄 O Fluxo em 4 Passos Simples:
+
+* **Passo 1 — Envio Seguro (Upload):** Você seleciona o arquivo `.pst`. O sistema confere a "assinatura digital" do arquivo nos primeiros bytes para garantir que é um `.pst` autêntico da Microsoft e não um arquivo disfarçado.
+* **Passo 2 — Leitura em Segundo Plano (Sem travar o computador):** O arquivo entra em modo de leitura estrita. Você **não precisa esperar** um arquivo gigante de 20 GB terminar de processar: conforme as primeiras mensagens são lidas, elas já aparecem na tela para você começar a consultar enquanto o resto continua sendo indexado!
+* **Passo 3 — Pesquisa Instantânea:** Ao pesquisar por *"contrato"* ou *"orçamento"*, o sistema não precisa reler o arquivo de 20 GB do zero. Ele busca direto no índice do banco de dados (MySQL/MariaDB), retornando resultados e anexos em milissegundos.
+* **Passo 4 — Autodestruição e Privacidade Total:** Ao clicar em **Sair**, todo o rastro temporário de leitura é deletado. Seu arquivo original no PC permanece 100% intacto.
+
+---
+
+### 📊 Diagrama Técnico e Comunicação Entre Componentes
+
 ```mermaid
 flowchart LR
     subgraph Cliente["🌐 Navegador do Usuário"]

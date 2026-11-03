@@ -176,6 +176,30 @@ cd pstviewer
 
 ## 🏗️ Architecture & Data Flow
 
+### 💡 Simple Explanation (The "Vault Reading Room" Analogy)
+
+To easily understand how **PST Viewer** works without technical jargon, imagine it as a **secure vault reading room**:
+
+You arrive with a heavy, sealed archive (your `.pst` backup). The system temporarily opens the archive on a protected table, builds an organized index for you to browse right from your browser, and **the moment you click "Sign Out", it shreds the temporary viewing copy and leaves the room 100% clean.** Your original `.pst` file on your computer is never modified.
+
+#### 👥 The 4 System "Actors":
+
+1. **🌐 The Visitor (Your Browser):** The modern Outlook 365 Web interface. This is where you click folders (*Inbox*, *Sent Items*), scroll through email lists, and read contents.
+2. **⚙️ The Front Desk (Web Server / FastAPI):** Receives the uploaded archive, verifies that it is a legitimate Outlook file, and answers when you view messages or search keywords.
+3. **🏭 The Background Worker (PST Daemon):** Works quietly in the background. It parses the heavy PST file, catalogs emails, extracts text from attachments (PDF, Word, Excel), and indexes them into the database.
+4. **🧹 The Cleaner (Auto-Purge Daemon):** Checks the clock every 60 seconds. When you click **Sign Out** or stay inactive, it instantly purges all temporary database records and wipes disk session folders.
+
+#### 🔄 The 4 Simple Steps:
+
+* **Step 1 — Safe Upload:** You pick your `.pst` file. The server checks the file's digital header signature (`!BDN`) in the first few bytes to guarantee it is authentic and not a disguised executable.
+* **Step 2 — Non-Blocking Background Reading:** The archive is opened in strict read-only mode. You **don't need to wait** for a huge 20 GB file to finish processing: as soon as the first emails are cataloged, they immediately appear on screen for you to read while the rest continues indexing in background!
+* **Step 3 — Instant Search:** Searching for *"contract"* or *"invoice"* queries high-speed database indexes (MySQL/MariaDB) instead of scanning the multi-gigabyte file repeatedly, returning matches in milliseconds.
+* **Step 4 — Self-Destruct & Absolute Privacy:** When you click **Sign Out**, all temporary reading data is deleted. Your original `.pst` file remains 100% intact.
+
+---
+
+### 📊 Technical Architecture & Component Interaction
+
 ```mermaid
 flowchart LR
     subgraph Client["🌐 User Browser"]
